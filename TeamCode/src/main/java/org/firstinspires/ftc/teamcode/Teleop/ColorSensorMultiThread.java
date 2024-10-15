@@ -92,7 +92,6 @@ public class ColorSensorMultiThread extends LinearOpMode {
             redLeft = csLeft.red();
             blueLeft = csLeft.blue();
             greenLeft = csLeft.green();
-            alphaLeft = csLeft.alpha();
         }
     }
 
@@ -103,7 +102,6 @@ public class ColorSensorMultiThread extends LinearOpMode {
             redRight = csRight.red();
             blueRight = csRight.blue();
             greenRight = csRight.green();
-            alphaRight = csRight.alpha();
         }
     }
 }

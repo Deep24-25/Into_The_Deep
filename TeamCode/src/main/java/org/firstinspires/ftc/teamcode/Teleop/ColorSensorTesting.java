@@ -46,12 +46,10 @@ public class ColorSensorTesting extends LinearOpMode {
             redLeft = csLeft.red();
             blueLeft = csLeft.blue();
             greenLeft = csLeft.green();
-            alphaLeft = csLeft.alpha();
 
             redRight = csRight.red();
             blueRight = csRight.blue();
             greenRight = csRight.green();
-            alphaRight = csRight.alpha();
 
             if (csLeft.getDistance(DistanceUnit.CM) < DISTANCE_THRESHOLD) {
                 if (greenLeft > redLeft && redLeft > blueLeft)
