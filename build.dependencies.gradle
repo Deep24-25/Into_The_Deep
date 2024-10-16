@@ -1,7 +1,11 @@
 repositories {
+    maven {
+        url = 'https://maven.brott.dev/'
+    }
     mavenCentral()
     google() // Needed for androidx
 }
+
 
 dependencies {
     implementation 'org.firstinspires.ftc:Inspection:10.1.0'
@@ -16,6 +20,7 @@ dependencies {
     implementation 'org.ftclib.ftclib:vision:2.0.1' // vision
     implementation 'org.ftclib.ftclib:core:2.0.1' // core
     implementation 'com.opencsv:opencsv:5.8'
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
 
 }
 

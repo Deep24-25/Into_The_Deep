@@ -26,7 +26,7 @@ public class ColorSensorTesting extends LinearOpMode {
     private Timing.Timer loopTimer;
     private static final int DISTANCE_THRESHOLD = 30;
 
-    private double redLeft, blueLeft, greenLeft, alphaLeft, redRight, blueRight, greenRight, alphaRight;
+    private double redLeft, blueLeft, greenLeft, distanceLeft, redRight, blueRight, greenRight, distanceRight;
 
     @Override
     public void runOpMode() {
@@ -46,31 +46,35 @@ public class ColorSensorTesting extends LinearOpMode {
             redLeft = csLeft.red();
             blueLeft = csLeft.blue();
             greenLeft = csLeft.green();
+            distanceLeft = csLeft.getDistance(DistanceUnit.MM);
 
             redRight = csRight.red();
             blueRight = csRight.blue();
             greenRight = csRight.green();
+            distanceRight = csRight.getDistance(DistanceUnit.MM);
 
-            if (csLeft.getDistance(DistanceUnit.CM) < DISTANCE_THRESHOLD) {
-                if (greenLeft > redLeft && redLeft > blueLeft)
+            // Process the sensor data after both threads are done
+            if (distanceLeft < DISTANCE_THRESHOLD) {
+                if (greenLeft > redLeft && redLeft > blueLeft)//GRB
                     telemetry.addData("-", "YELLOW by left");
-                else if (redLeft > greenLeft && greenLeft > blueLeft)
+                else if (redLeft > greenLeft && greenLeft > blueLeft)//RGB
                     telemetry.addData("-", "RED by left");
-                else if (blueLeft > greenLeft && greenLeft > redLeft)
+                else if (blueLeft > greenLeft && greenLeft > redLeft) //BGR
                     telemetry.addData("-", "BLUE by left");
             }
 
-            if (csRight.getDistance(DistanceUnit.CM) < DISTANCE_THRESHOLD) {
-                if (greenRight > redRight && redLeft > blueRight)
+            if (distanceRight < DISTANCE_THRESHOLD) {
+                if (greenRight > redRight && redLeft > blueRight)//GRB
                     telemetry.addData("-", "YELLOW by right");
-                else if (redRight > greenRight && greenRight > blueRight)
+                else if (redRight > greenRight && greenRight > blueRight) //RGB
                     telemetry.addData("-", "RED by right");
-                else if (blueRight > greenRight && greenRight > redRight)
+                else if (blueRight > greenRight && greenRight > redRight) //BGR
                     telemetry.addData("-", "BLUE by right");
 
             }
-            telemetry.addData("-", "Left Distance: " + csLeft.getDistance(DistanceUnit.MM));
-            telemetry.addData("-", "Right Distance: " + csRight.getDistance(DistanceUnit.MM));
+
+            telemetry.addData("-", "Left Distance: " + distanceLeft);
+            telemetry.addData("-", "Right Distance: " + distanceRight);
             telemetry.addData("-", "Loop Time: " + loopTimer.elapsedTime());
             telemetry.update();
         }

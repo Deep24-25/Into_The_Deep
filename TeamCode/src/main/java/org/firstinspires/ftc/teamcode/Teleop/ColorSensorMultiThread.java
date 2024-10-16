@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
@@ -21,10 +23,15 @@ public class ColorSensorMultiThread extends LinearOpMode {
     private RightSensorThread rightSensorThread;
     private GamepadEx gamepadEx;
     private Timing.Timer loopTimer;
-    private static final int DISTANCE_THRESHOLD = 30;
+    private Thread thread;
+    private static final int LEFT_DISTANCE_THRESHOLD = 40;
+    private static final int RIGHT_DISTANCE_THRESHOLD = 60;
 
-    private double redLeft, blueLeft, greenLeft, alphaLeft;
-    private double redRight, blueRight, greenRight, alphaRight;
+    private double redLeft, blueLeft, greenLeft, distanceLeft;
+    private double redRight, blueRight, greenRight, distanceRight;
+
+    public static double colorCounterLeft = 0;
+    public static double colorCounterRight = 0;
 
     @Override
     public void runOpMode() {
@@ -35,7 +42,9 @@ public class ColorSensorMultiThread extends LinearOpMode {
             csRight = hwMap.getColorSensor2();
             leftSensorThread = new LeftSensorThread();
             rightSensorThread = new RightSensorThread();
+            thread = Thread.currentThread();
             loopTimer = new Timing.Timer(10000000, TimeUnit.MILLISECONDS);
+            this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -47,41 +56,60 @@ public class ColorSensorMultiThread extends LinearOpMode {
 
             // Create and start sensor threads
 
-            leftSensorThread.start();
-            rightSensorThread.start();
+            leftSensorThread.setPriority(10);
+            rightSensorThread.setPriority(10);
+            thread.setPriority(10);
 
-            // Wait for both threads to finish
+
+            rightSensorThread.start();
+            leftSensorThread.start();
+
+            // Process the sensor data after both threads are done
+            if (distanceLeft < LEFT_DISTANCE_THRESHOLD) {
+                if (greenLeft > redLeft && redLeft > blueLeft) {//GRB
+                    telemetry.addData("-", "YELLOW by left");
+                    colorCounterLeft = 1;
+                } else if (redLeft > greenLeft && greenLeft > blueLeft) {//RGB
+                    telemetry.addData("-", "RED by left");
+                    colorCounterLeft = 2;
+                } else if (blueLeft > greenLeft && greenLeft > redLeft) { //BGR
+                    telemetry.addData("-", "BLUE by left");
+                    colorCounterLeft = 3;
+                }
+            }else{
+                colorCounterLeft = 0;
+            }
+
+            if (distanceRight < RIGHT_DISTANCE_THRESHOLD) {
+                if (greenRight > redRight && redLeft > blueRight) {//GRB
+                    telemetry.addData("-", "YELLOW by right");
+                    colorCounterRight = 1;
+                } else if (redRight > greenRight && greenRight > blueRight) { //RGB
+                    telemetry.addData("-", "RED by right");
+                    colorCounterRight = 2;
+                } else if (blueRight > greenRight && greenRight > redRight) { //BGR
+                    telemetry.addData("-", "BLUE by right");
+                    colorCounterRight = 3;
+                }
+
+            }else{
+                colorCounterRight = 0;
+            }
+
+            telemetry.addData("-", "Left Distance: " + distanceLeft);
+            telemetry.addData("-", "Right Distance: " + distanceRight);
+            telemetry.addData("-", "Loop Time: " + loopTimer.elapsedTime());
+            telemetry.addData("colorRight", colorCounterRight);
+            telemetry.addData("colorLeft", colorCounterLeft);
+            telemetry.update();
+
             try {
                 leftSensorThread.join();
                 rightSensorThread.join();
-            } catch (InterruptedException e) {
-                telemetry.addData("Error", "Thread interrupted: " + e.getMessage());
+            } catch (Exception e) {
+                telemetry.addData("-", e.getMessage());
                 telemetry.update();
             }
-
-            // Process the sensor data after both threads are done
-            if (csLeft.getDistance(DistanceUnit.CM) < DISTANCE_THRESHOLD) {
-                if (greenLeft > redLeft && redLeft > blueLeft)
-                    telemetry.addData("-", "YELLOW by left");
-                else if (redLeft > greenLeft && greenLeft > blueLeft)
-                    telemetry.addData("-", "RED by left");
-                else if (blueLeft > greenLeft && greenLeft > redLeft)
-                    telemetry.addData("-", "BLUE by left");
-            }
-
-            if (csRight.getDistance(DistanceUnit.CM) < DISTANCE_THRESHOLD) {
-                if (greenRight > redRight && redLeft > blueRight)
-                    telemetry.addData("-", "YELLOW by right");
-                else if (redRight > greenRight && greenRight > blueRight)
-                    telemetry.addData("-", "RED by right");
-                else if (blueRight > greenRight && greenRight > redRight)
-                    telemetry.addData("-", "BLUE by right");
-            }
-
-            telemetry.addData("-", "Left Distance: " + csLeft.getDistance(DistanceUnit.MM));
-            telemetry.addData("-", "Right Distance: " + csRight.getDistance(DistanceUnit.MM));
-            telemetry.addData("-", "Loop Time: " + loopTimer.elapsedTime());
-            telemetry.update();
         }
     }
 
@@ -92,6 +120,7 @@ public class ColorSensorMultiThread extends LinearOpMode {
             redLeft = csLeft.red();
             blueLeft = csLeft.blue();
             greenLeft = csLeft.green();
+            distanceLeft = csLeft.getDistance(DistanceUnit.MM);
         }
     }
 
@@ -102,6 +131,7 @@ public class ColorSensorMultiThread extends LinearOpMode {
             redRight = csRight.red();
             blueRight = csRight.blue();
             greenRight = csRight.green();
+            distanceRight = csRight.getDistance(DistanceUnit.MM);
         }
     }
 }
