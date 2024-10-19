@@ -21,8 +21,25 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src\\main\\java', 'src\\test', 'src\\test\\java'
+            }
+        }
+    }
 }
-
+ext.junitVersion = "5.10.3"
 dependencies {
     implementation project(':FtcRobotController')
+    annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
+    implementation 'org.ftclib.ftclib:vision:2.1.0' // vision
+    implementation 'org.ftclib.ftclib:core:2.1.1' // core
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7'
+    implementation 'com.acmerobotics.roadrunner:core:0.5.6'
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testImplementation "org.mockito:mockito-core:5.13.0"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
 }
