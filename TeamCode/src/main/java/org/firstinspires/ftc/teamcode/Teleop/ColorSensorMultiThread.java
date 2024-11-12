@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Core.HWMap;
 import java.util.concurrent.TimeUnit;
 
 @TeleOp
+@Disabled
 public class ColorSensorMultiThread extends LinearOpMode {
     private HWMap hwMap;
     private RevColorSensorV3 csLeft;
@@ -38,8 +40,8 @@ public class ColorSensorMultiThread extends LinearOpMode {
         try {
             hwMap = new HWMap(hardwareMap);
             gamepadEx = new GamepadEx(gamepad1);
-            csLeft = hwMap.getColorSensor1();
-            csRight = hwMap.getColorSensor2();
+//            csLeft = hwMap.getColorSensor1();
+//            csRight = hwMap.getColorSensor2();
             leftSensorThread = new LeftSensorThread();
             rightSensorThread = new RightSensorThread();
             thread = Thread.currentThread();
