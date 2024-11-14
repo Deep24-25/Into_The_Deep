@@ -8,8 +8,8 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 
 
-@TeleOp(name="fieldCentric", group="Linear OpMode")
-public class fieldCentric extends LinearOpMode {
+
+public class FieldCentricDrive extends LinearOpMode {
     private Motor frontLeft;
     private Motor frontRight;
     private Motor backLeft;
@@ -17,10 +17,6 @@ public class fieldCentric extends LinearOpMode {
     private BNO055IMU imu;
     private MecanumDrive drive;
     GamepadEx gamepadEx = new GamepadEx(gamepad1);
-
-
-    
-
 
 
     @Override
