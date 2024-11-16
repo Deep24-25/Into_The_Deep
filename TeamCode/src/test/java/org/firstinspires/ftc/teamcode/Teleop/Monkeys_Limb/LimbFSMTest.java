@@ -21,7 +21,7 @@ class LimbFSMTest {
      **/
     @Test
     public void preparingToIntakeSpecimenState() {
-        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
+        sut.findTargetState(true, false, false, false);
         doReturn(true).when(sut.SPECIMEN_MODE());
         doReturn(true).when(sut.PREPARED_TO_INTAKE());
 
