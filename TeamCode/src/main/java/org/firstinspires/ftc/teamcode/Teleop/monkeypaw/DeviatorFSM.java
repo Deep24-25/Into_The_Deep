@@ -139,4 +139,13 @@ public class DeviatorFSM {
         return state == DeviatorStates.RIGHT_DEVIATING;
     }
 
+    public void deviateRight() {
+        targetAngle = RIGHT_DEVIATED_POS;
+    }
+    public void deviateLeft() {
+        targetAngle = LEFT_DEVIATED_POS;
+    }
+    public void relax() {
+        targetAngle = RELAXED_POS;
+    }
 }
