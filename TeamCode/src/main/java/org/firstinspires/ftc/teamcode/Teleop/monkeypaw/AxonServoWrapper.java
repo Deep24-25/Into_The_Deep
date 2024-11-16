@@ -3,17 +3,15 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
-import org.firstinspires.ftc.teamcode.Core.HWMap;
-
-public class FingerAxonServoWrapper {
+public class AxonServoWrapper {
     private CRServo axon;
     private AnalogInput encoder;
     private double lastReadPosition;
     private double sign = 1;
     private double encoderOffset = 0.0;
-    public FingerAxonServoWrapper(HWMap hwMap, boolean inversePower, boolean inverseEncoder) {
-        this.axon = hwMap.getFingerServo();
-        this.encoder = hwMap.getFingerEncoder();
+    public AxonServoWrapper(CRServo axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder) {
+        this.axon = axon;
+        this.encoder = encoder;
         if (inversePower) {
             sign = -1;
         }

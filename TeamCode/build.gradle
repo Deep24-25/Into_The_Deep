@@ -21,6 +21,12 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 ext.junitVersion = "5.10.3"
 dependencies {

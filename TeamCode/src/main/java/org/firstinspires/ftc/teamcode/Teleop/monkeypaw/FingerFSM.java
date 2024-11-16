@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
@@ -25,15 +27,22 @@ public class FingerFSM {
     private static final double GRIPPED_POS = 0;
     private static final double RELEASED_POS = 0;
 
-    private FingerAxonServoWrapper fingerServoWrapper;
+    private AxonServoWrapper fingerServoWrapper;
     private PIDController pidController;
 
     private FingerStates state;
     private Logger logger;
 
     public FingerFSM(HWMap hwMap) {
-        fingerServoWrapper = new FingerAxonServoWrapper(hwMap,false, false); // check if you need to reverse axons
+        fingerServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
+        this.logger = logger;
+        fingerCurrentAngle = fingerServoWrapper.getLastReadPos();
+    }
+    @VisibleForTesting
+    public FingerFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
+        fingerServoWrapper = axonServoWrapper;
+        this.pidController = pidController;
         this.logger = logger;
         fingerCurrentAngle = fingerServoWrapper.getLastReadPos();
     }
@@ -44,13 +53,13 @@ public class FingerFSM {
         pidController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
 
-        if (targetAngle == GRIPPED_POS) {
+        if (isTargetAngleToGrip()) {
             if (fingerServoWrapper.getLastReadPos() > (targetAngle)) {
                 state = FingerStates.GRIPPED;
             } else {
                 state = FingerStates.GRIPPING;
             }
-        } else if (targetAngle == RELEASED_POS) {
+        } else if (isTargetAngleToRelease()) {
             if (pidController.atSetPoint()) {
                 state = FingerStates.RELEASED;
             } else {
@@ -58,6 +67,15 @@ public class FingerFSM {
             }
         }
     }
+
+    public boolean isTargetAngleToRelease() {
+        return targetAngle == RELEASED_POS;
+    }
+
+    public boolean isTargetAngleToGrip() {
+        return targetAngle == GRIPPED_POS;
+    }
+
     public void updatePID() { // This method is used to update position every loop.
         fingerServoWrapper.readPos();
         double angleDelta = angleDelta(fingerServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
@@ -67,6 +85,8 @@ public class FingerFSM {
         fingerServoWrapper.set(power);
 
     }
+
+
 
     public void grip() {
         targetAngle = GRIPPED_POS;
@@ -107,5 +127,20 @@ public class FingerFSM {
 
     public boolean RELEASING() {
         return state == FingerStates.RELEASING;
+    }
+
+    public double getTargetAngle() {
+        return targetAngle;
+    }
+
+    public double getFingerCurrentAngle() {
+        return fingerCurrentAngle;
+    }
+
+    public double getGrippedPos() {
+        return GRIPPED_POS;
+    }
+    public double getReleasedPos() {
+        return RELEASED_POS;
     }
 }

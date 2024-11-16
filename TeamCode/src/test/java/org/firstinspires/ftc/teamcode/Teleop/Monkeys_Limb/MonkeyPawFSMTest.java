@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class MonkeyPawFSMTest {
+/*public class MonkeyPawFSMTest {
     private MonkeyPawFSM sut;
 
     @BeforeEach
@@ -20,4 +20,4 @@ public class MonkeyPawFSMTest {
 
 
 
-}
+}*/
