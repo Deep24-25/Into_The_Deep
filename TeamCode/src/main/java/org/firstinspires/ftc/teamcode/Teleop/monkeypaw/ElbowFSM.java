@@ -21,34 +21,36 @@ public class ElbowFSM {
     }
     private double targetAngle;
     private static final double PID_TOLERANCE = 0;
-    private double fingerCurrentAngle;
+    private double elbowCurrentAngle;
     //Robot CONSTANTS:
     private static final double P = 0;
     private static final double I = 0;
     private static final double D = 0;
 
 
-    private static final double GRIPPED_POS = 0;
-    private static final double RELEASED_POS = 0;
+    private static final double SAMPLE_FLEXED_POS = 0;
+    private static final double SPECIMEN_FLEXED_POS = 0;
+    private static final double DEPOSIT_FLEXED_POS = 0;
+    private static final double RELAXED_POS = 0;
 
-    private AxonServoWrapper fingerServoWrapper;
+    private AxonServoWrapper elbowServoWrapper;
     private PIDController pidController;
 
-    private FingerFSM.FingerStates state;
+    private ElbowStates state;
     private Logger logger;
 
-    public FingerFSM(HWMap hwMap) {
-        fingerServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
+    public ElbowFSM(HWMap hwMap) {
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
-        fingerCurrentAngle = fingerServoWrapper.getLastReadPos();
+        elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
     }
     @VisibleForTesting
-    public FingerFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
-        fingerServoWrapper = axonServoWrapper;
+    public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
+        elbowServoWrapper = axonServoWrapper;
         this.pidController = pidController;
         this.logger = logger;
-        fingerCurrentAngle = fingerServoWrapper.getLastReadPos();
+        elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
     }
 
     public void updateState() {
@@ -57,47 +59,77 @@ public class ElbowFSM {
         pidController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
 
-        if (isTargetAngleToGrip()) {
-            if (fingerServoWrapper.getLastReadPos() > (targetAngle)) {
-                state = FingerFSM.FingerStates.GRIPPED;
-            } else {
-                state = FingerFSM.FingerStates.GRIPPING;
-            }
-        } else if (isTargetAngleToRelease()) {
+        if (isTargetAngleToSampleFlexedPos()) {
             if (pidController.atSetPoint()) {
-                state = FingerFSM.FingerStates.RELEASED;
+                state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE;
             } else {
-                state = FingerFSM.FingerStates.RELEASING;
+                state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE;
+            }
+        }
+        else if (isTargetAngleToSpecimenFlexedPos()) {
+            if (pidController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_SPECIMEN_INTAKE;
+            } else {
+                state = ElbowStates.FLEXING_TO_SPECIMEN_INTAKE;
+            }
+        }
+        else if (isTargetAngleToDepositFlexedPos()) {
+            if (pidController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_DEPOSIT;
+            } else {
+                state = ElbowStates.FLEXING_TO_DEPOSIT;
+            }
+        }
+        else if (isTargetAngleToRelax()) {
+            if (pidController.atSetPoint()) {
+                state = ElbowStates.RELAXED;
+            } else {
+                state = ElbowStates.RELAXING;
             }
         }
     }
 
-    public boolean isTargetAngleToRelease() {
-        return targetAngle == RELEASED_POS;
+    public boolean isTargetAngleToRelax() {
+        return targetAngle == RELAXED_POS;
     }
 
-    public boolean isTargetAngleToGrip() {
-        return targetAngle == GRIPPED_POS;
+    public boolean isTargetAngleToSampleFlexedPos() {
+        return targetAngle == SAMPLE_FLEXED_POS;
     }
+
+    public boolean isTargetAngleToSpecimenFlexedPos() {
+        return targetAngle == SPECIMEN_FLEXED_POS;
+    }
+
+    public boolean isTargetAngleToDepositFlexedPos() {
+        return targetAngle == DEPOSIT_FLEXED_POS;
+    }
+
 
     public void updatePID() { // This method is used to update position every loop.
-        fingerServoWrapper.readPos();
-        double angleDelta = angleDelta(fingerServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
-        double sign = angleDeltaSign(fingerServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
+        elbowServoWrapper.readPos();
+        double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
+        double sign = angleDeltaSign(elbowServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("Finger Power",power, Logger.LogLevels.DEBUG);
-        fingerServoWrapper.set(power);
+        elbowServoWrapper.set(power);
 
     }
 
 
 
-    public void grip() {
-        targetAngle = GRIPPED_POS;
+    public void flexToSamplePos() {
+        targetAngle = SAMPLE_FLEXED_POS;
     }
 
-    public void release() {
-        targetAngle = RELEASED_POS;
+    public void flexToSpecimenPos() {
+        targetAngle = SPECIMEN_FLEXED_POS;
+    }
+    public void flexToDeposPos() {
+        targetAngle = DEPOSIT_FLEXED_POS;
+    }
+    public void relax() {
+        targetAngle = RELAXED_POS;
     }
 
 
@@ -117,21 +149,38 @@ public class ElbowFSM {
         return (angle + 360) % 360;
     }
 
-    public boolean GRIPPED() {
-        return state == FingerFSM.FingerStates.GRIPPED;
+    public boolean FLEXED_TO_SAMPLE_INTAKE() {
+        return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE;
     }
 
-    public boolean GRIPPING() {
-        return state == FingerFSM.FingerStates.GRIPPING;
+    public boolean FLEXING_TO_SAMPLE_INTAKE() {
+        return state == ElbowStates.FLEXING_TO_SAMPLE_INTAKE;
     }
 
-    public boolean RELEASED() {
-        return state == FingerFSM.FingerStates.RELEASED;
+    public boolean FLEXING_TO_SPECIMEN_INTAKE() {
+        return state == ElbowStates.FLEXING_TO_SPECIMEN_INTAKE;
     }
 
-    public boolean RELEASING() {
-        return state == FingerFSM.FingerStates.RELEASING;
+    public boolean FLEXED_TO_SPECIMEN_INTAKE() {
+        return state == ElbowStates.FLEXED_TO_SPECIMEN_INTAKE;
     }
+
+    public boolean FLEXED_TO_DEPOSIT() {
+        return state == ElbowStates.FLEXED_TO_DEPOSIT;
+    }
+
+    public boolean FLEXING_TO_DEPOSIT() {
+        return state == ElbowStates.FLEXING_TO_DEPOSIT;
+    }
+
+    public boolean RELAXING() {
+        return state == ElbowStates.RELAXING;
+    }
+
+    public boolean RELAXED() {
+        return state == ElbowStates.RELAXED;
+    }
+
 
 
 

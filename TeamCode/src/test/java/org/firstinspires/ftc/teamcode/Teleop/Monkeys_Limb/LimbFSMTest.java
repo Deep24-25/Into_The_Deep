@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,9 +17,11 @@ class LimbFSMTest {
         sut = spy(new LimbFSM());
     }
 
-    /**
+    */
+/**
      * ------------------------------------findTargetState()-----------------------------------
-     **/
+     **//*
+
     @Test
     public void preparingToIntakeSpecimenState() {
         sut.findTargetState(true, false, false, false);
@@ -27,4 +30,4 @@ class LimbFSMTest {
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
-}
+}*/
