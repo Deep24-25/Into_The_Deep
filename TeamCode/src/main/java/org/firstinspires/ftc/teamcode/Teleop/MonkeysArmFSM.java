@@ -45,6 +45,7 @@ public class MonkeysArmFSM {
 }
 
 public void updateState() {
+armMotorsWrapper.readPositionInCM();
     if (atPos(tolerance)){
         if(isTargetPosAtFullyRetractedHeight())
             currentState = States.FULLY_RETRACTED;
