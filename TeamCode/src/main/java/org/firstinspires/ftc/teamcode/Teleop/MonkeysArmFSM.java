@@ -11,7 +11,6 @@ public class MonkeysArmFSM {
     }
 
     private static final double SAFE_HEIGHT = 0;
-    private static final double EXTEND_SAFE_HEIGHT = 0;
     private static final double BASKET_LOW = 0;
     private static final double BASKET_HIGH = 0;
     private static final double SUBMERSIBLE_LOW = 0;
@@ -29,7 +28,6 @@ public class MonkeysArmFSM {
     private double measuredPosition;
     private States currentState = States.FULLY_RETRACTED;
     private int currentIndex;
-    private int currentOffset;
     private boolean slowMovement;
     private double slidePowerCap = 1.0;
     private final double slideFinalMovementsCap = 1.0;
@@ -38,24 +36,10 @@ public class MonkeysArmFSM {
     private double power = 0;
     private double tolerance = 1.5;
 
-    public void setHorizontalPID(){
-        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
-
-    }
-
-    public void setVerticalPID(){
-        pidfController.setPIDF(PVertical, IVertical, DVertical, FVertical);
-    }
-
-    public void setAngularPID(){
-        pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
-    }
-
     public MonkeysArmFSM (HWMap hwMap, ArmMotorsWrapper armMotorsWrapper) {
     this.armMotorsWrapper = armMotorsWrapper;
     pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
     currentIndex = 1;
-    currentOffset = 0;
     targetPosition = 0;
     pidfController.setTolerance (tolerance);
 }
@@ -79,6 +63,20 @@ public void updateState() {
     }
 
 }
+
+    public void setHorizontalPID(){
+        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
+
+    }
+
+    public void setVerticalPID(){
+        pidfController.setPIDF(PVertical, IVertical, DVertical, FVertical);
+    }
+
+    public void setAngularPID(){
+        pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
+    }
+
 // set state
 public boolean AT_BASKET_HEIGHT(){
     return currentState == States.AT_BASKET_HEIGHT;
@@ -115,15 +113,19 @@ public void updatePIDF () {
  power = pidfController.calculate(measuredPosition, targetPosition);
  power = Math.min(Math.abs(power),Math.abs(slidePowerCap))*Math.signum(power);
  }
+
  public void moveToSelectedIndexPosition() {
-        targetPosition = currentIndex + currentOffset;
+        targetPosition = currentIndex;
+        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
     }
 public void moveToSafeHeight() {
         targetPosition = SAFE_HEIGHT;
+        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
     }
 
  public void retractToIntake() {
         targetPosition = FULLY_RETRACTED;
+        pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
     }
     public void indexIncrement() {
         int tempIndex = currentIndex + 1;
@@ -181,13 +183,5 @@ public boolean targetIsSafeHeight() {
     }
     public int getCurrentIndex() {
         return currentIndex;
-    }
-
-    public void setCurrentOffset(int currentOffset) {
-        this.currentOffset = currentOffset;
-    }
-
-    public int getCurrentOffset() {
-        return currentOffset;
     }
  }
