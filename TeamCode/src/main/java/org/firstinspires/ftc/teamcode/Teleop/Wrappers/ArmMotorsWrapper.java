@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Teleop;
+package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 
