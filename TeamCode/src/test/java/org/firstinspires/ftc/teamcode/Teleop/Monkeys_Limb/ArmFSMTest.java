@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -22,9 +23,8 @@ class ArmFSMTest {
     /**---------------------------updateState()---------------------------------**/
     @Test
     public void FULLY_RETRACTED(){
-        doReturn(true).when(sut.atPos(sut.getTolerance()));
-        doReturn(true).when(sut.isTargetPosAtFullyRetractedHeight());
-
+        doReturn(true).when(sut).atPos(anyDouble());
+        doReturn(true).when(sut).isTargetPosAtFullyRetractedHeight();
         sut.updateState();
 
         verify(armMotorsWrapperMock).readPositionInCM();
@@ -32,9 +32,9 @@ class ArmFSMTest {
     }
     @Test
     public void AT_BASKET_HEIGHT(){
-        doReturn(true).when(sut.atPos(sut.getTolerance()));
-        doReturn(false).when(sut.isTargetPosAtFullyRetractedHeight());
-        doReturn(true).when(sut.isTargetPosAtBasketHeight());
+        doReturn(true).when(sut).atPos(anyDouble());
+        doReturn(false).when(sut).isTargetPosAtFullyRetractedHeight();
+        doReturn(true).when(sut).isTargetPosAtBasketHeight();
 
         sut.updateState();
 
@@ -43,10 +43,10 @@ class ArmFSMTest {
     }
     @Test
     public void AT_SUBMERSIBLE_HEIGHT(){
-        doReturn(true).when(sut.atPos(sut.getTolerance()));
-        doReturn(false).when(sut.isTargetPosAtFullyRetractedHeight());
-        doReturn(false).when(sut.isTargetPosAtBasketHeight());
-        doReturn(true).when(sut.isTargetPosAtSubmersibleHeight());
+        doReturn(true).when(sut).atPos(anyDouble());
+        doReturn(false).when(sut).isTargetPosAtFullyRetractedHeight();
+        doReturn(false).when(sut).isTargetPosAtBasketHeight();
+        doReturn(true).when(sut).isTargetPosAtSubmersibleHeight();
 
         sut.updateState();
 
@@ -55,10 +55,10 @@ class ArmFSMTest {
     }
     @Test
     public void FULLY_EXTENDED(){
-        doReturn(true).when(sut.atPos(sut.getTolerance()));
-        doReturn(false).when(sut.isTargetPosAtFullyRetractedHeight());
-        doReturn(false).when(sut.isTargetPosAtBasketHeight());
-        doReturn(false).when(sut.isTargetPosAtSubmersibleHeight());
+        doReturn(true).when(sut).atPos(anyDouble());
+        doReturn(false).when(sut).isTargetPosAtFullyRetractedHeight();
+        doReturn(false).when(sut).isTargetPosAtBasketHeight();
+        doReturn(false).when(sut).isTargetPosAtSubmersibleHeight();
 
         sut.updateState();
 
@@ -67,8 +67,8 @@ class ArmFSMTest {
     }
     @Test
     public void MOVING_ABOVE_SAFE_HEIGHT(){
-        doReturn(false).when(sut.atPos(sut.getTolerance()));
-        doReturn(true).when(sut.isTargetPosAboveSafeHeight());
+        doReturn(false).when(sut).atPos(anyDouble());
+        doReturn(true).when(sut).isTargetPosAboveSafeHeight();
 
         sut.updateState();
 
@@ -78,9 +78,9 @@ class ArmFSMTest {
     }
     @Test
     public void MOVING_BELOW_SAFE_HEIGHT(){
-        doReturn(false).when(sut.atPos(sut.getTolerance()));
-        doReturn(false).when(sut.isTargetPosAboveSafeHeight());
-        doReturn(true).when(sut.isTargetPosBelowSafeHeight());
+        doReturn(false).when(sut).atPos(anyDouble());
+        doReturn(false).when(sut).isTargetPosAboveSafeHeight();
+        doReturn(true).when(sut).isTargetPosBelowSafeHeight();
 
         sut.updateState();
 
