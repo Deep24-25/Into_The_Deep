@@ -22,7 +22,11 @@ android {
         jniLibs.useLegacyPackaging true
     }
 }
-
+ext.junitVersion = "5.10.3"
 dependencies {
     implementation project(':FtcRobotController')
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testImplementation "org.mockito:mockito-core:5.13.0"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
 }
