@@ -33,7 +33,7 @@ public class FingerFSM {
     private FingerStates state;
     private Logger logger;
 
-    public FingerFSM(HWMap hwMap) {
+    public FingerFSM(HWMap hwMap, Logger logger) {
         fingerServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;

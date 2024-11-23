@@ -33,7 +33,7 @@ public class WristFSM {
     private WristStates state;
     private Logger logger;
 
-    public WristFSM(HWMap hwMap) {
+    public WristFSM(HWMap hwMap, Logger logger) {
         wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristDeviEncoder(),false, false); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;

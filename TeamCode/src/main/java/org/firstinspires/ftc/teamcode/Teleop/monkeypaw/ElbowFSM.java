@@ -39,7 +39,7 @@ public class ElbowFSM {
     private ElbowStates state;
     private Logger logger;
 
-    public ElbowFSM(HWMap hwMap) {
+    public ElbowFSM(HWMap hwMap, Logger logger) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
@@ -125,7 +125,7 @@ public class ElbowFSM {
     public void flexToSpecimenPos() {
         targetAngle = SPECIMEN_FLEXED_POS;
     }
-    public void flexToDeposPos() {
+    public void flexToDepositPos() {
         targetAngle = DEPOSIT_FLEXED_POS;
     }
     public void relax() {
