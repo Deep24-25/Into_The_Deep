@@ -43,8 +43,7 @@ public class MonkeyPawFSM {
 
     private LimbFSM limbFSM;
     private Logger logger;
-
-    States state;
+    private States state;
 
     public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
         this.logger = logger;
@@ -53,6 +52,7 @@ public class MonkeyPawFSM {
         wristFSM = new WristFSM(hwMap, logger);
         elbowFSM = new ElbowFSM(hwMap, logger);
         this.limbFSM = limbFSM;
+        state = States.PREPARED_TO_INTAKE_SAMPLE;
     }
     @VisibleForTesting
     public MonkeyPawFSM(Logger logger, LimbFSM limbFSM, FingerFSM fingerFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM, ElbowFSM elbowFSM) {
@@ -313,6 +313,10 @@ public class MonkeyPawFSM {
     @VisibleForTesting
     public void setState(States state) {
         this.state = state;
+    }
+
+    public void log() {
+        logger.log("Monkey Paw State", state, Logger.LogLevels.PRODUCTION);
     }
 
 
