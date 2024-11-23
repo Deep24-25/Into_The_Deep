@@ -2,10 +2,13 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 
+@Config
 public class MonkeyPawFSM {
     public enum States {
 

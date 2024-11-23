@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 
+@Config
 public class DeviatorFSM {
     private enum DeviatorStates {
         RIGHT_DEVIATED,
@@ -21,9 +23,9 @@ public class DeviatorFSM {
     private static final double PID_TOLERANCE = 0;
     private double deviatorCurrentAngle;
     //Robot CONSTANTS:
-    private static final double P = 0;
-    private static final double I = 0;
-    private static final double D = 0;
+    public static final double P = 0;
+    public static final double I = 0;
+    public static final double D = 0;
 
 
     private static final double RIGHT_DEVIATED_POS = 0;

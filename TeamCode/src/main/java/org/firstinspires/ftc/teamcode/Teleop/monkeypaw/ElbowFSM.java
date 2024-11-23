@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 
+@Config
 public class ElbowFSM {
 
     public enum ElbowStates{
@@ -23,9 +26,10 @@ public class ElbowFSM {
     private static final double PID_TOLERANCE = 0;
     private double elbowCurrentAngle;
     //Robot CONSTANTS:
-    private static final double P = 0;
-    private static final double I = 0;
-    private static final double D = 0;
+    public static final double P = 0;
+    public static final double I = 0;
+    public static final double D = 0;
+    public static final double F = 0;
 
 
     private static final double SAMPLE_FLEXED_POS = 0;
@@ -34,54 +38,54 @@ public class ElbowFSM {
     private static final double RELAXED_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
-    private PIDController pidController;
+    private PIDFController pidfController;
 
     private ElbowStates state;
     private Logger logger;
 
     public ElbowFSM(HWMap hwMap, Logger logger) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
-        pidController = new PIDController(P, I, D);
+        pidfController = new PIDFController(P, I, D, F);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
     }
     @VisibleForTesting
-    public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
+    public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDFController pidfController) {
         elbowServoWrapper = axonServoWrapper;
-        this.pidController = pidController;
+        this.pidfController = pidfController;
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
     }
 
     public void updateState() {
-        pidController.setPID(P, I, D);
-        pidController.setSetPoint(0); // PIDs the error to 0
-        pidController.setTolerance(PID_TOLERANCE); // sets the buffer
+        pidfController.setPIDF(P, I, D, F);
+        pidfController.setSetPoint(0); // PIDs the error to 0
+        pidfController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
 
         if (isTargetAngleToSampleFlexedPos()) {
-            if (pidController.atSetPoint()) {
+            if (pidfController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE;
             }
         }
         else if (isTargetAngleToSpecimenFlexedPos()) {
-            if (pidController.atSetPoint()) {
+            if (pidfController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SPECIMEN_INTAKE;
             } else {
                 state = ElbowStates.FLEXING_TO_SPECIMEN_INTAKE;
             }
         }
         else if (isTargetAngleToDepositFlexedPos()) {
-            if (pidController.atSetPoint()) {
+            if (pidfController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_DEPOSIT;
             } else {
                 state = ElbowStates.FLEXING_TO_DEPOSIT;
             }
         }
         else if (isTargetAngleToRelax()) {
-            if (pidController.atSetPoint()) {
+            if (pidfController.atSetPoint()) {
                 state = ElbowStates.RELAXED;
             } else {
                 state = ElbowStates.RELAXING;
@@ -110,7 +114,7 @@ public class ElbowFSM {
         elbowServoWrapper.readPos();
         double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(elbowServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
-        double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
+        double power = pidfController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("Finger Power",power, Logger.LogLevels.DEBUG);
         elbowServoWrapper.set(power);
 
