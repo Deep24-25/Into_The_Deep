@@ -23,19 +23,19 @@ public class ElbowFSM {
         FLEXED_TO_DEPOSIT
     }
     private double targetAngle;
-    private static final double PID_TOLERANCE = 0;
+    public static  double PID_TOLERANCE = 2;
     private double elbowCurrentAngle;
     //Robot CONSTANTS:
-    public static final double P = 0;
-    public static final double I = 0;
-    public static final double D = 0;
-    public static final double F = 0;
+    public static  double P = 1;
+    public static  double I = 0;
+    public static  double D = 0;
+    public static  double F = 0;
 
 
-    private static final double SAMPLE_FLEXED_POS = 0;
-    private static final double SPECIMEN_FLEXED_POS = 0;
-    private static final double DEPOSIT_FLEXED_POS = 0;
-    private static final double RELAXED_POS = 0;
+    public static  double SAMPLE_FLEXED_POS = 90;
+    public static  double SPECIMEN_FLEXED_POS = 30;
+    public static  double DEPOSIT_FLEXED_POS = 180;
+    public static  double RELAXED_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
     private PIDFController pidfController;
@@ -44,7 +44,7 @@ public class ElbowFSM {
     private Logger logger;
 
     public ElbowFSM(HWMap hwMap, Logger logger) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),false, false); // check if you need to reverse axons
         pidfController = new PIDFController(P, I, D, F);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
@@ -115,7 +115,7 @@ public class ElbowFSM {
         double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(elbowServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
         double power = pidfController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-        logger.log("Finger Power",power, Logger.LogLevels.DEBUG);
+        logger.log("Elbow Power",power, Logger.LogLevels.DEBUG);
         elbowServoWrapper.set(power);
 
     }
@@ -133,7 +133,8 @@ public class ElbowFSM {
         targetAngle = DEPOSIT_FLEXED_POS;
     }
     public void relax() {
-        targetAngle = RELAXED_POS;
+
+        //targetAngle = RELAXED_POS;
     }
 
 
@@ -183,6 +184,13 @@ public class ElbowFSM {
 
     public boolean RELAXED() {
         return state == ElbowStates.RELAXED;
+    }
+
+    public void log() {
+        logger.log("Elbow State",state, Logger.LogLevels.PRODUCTION);
+        logger.log("Elbow Current Position",elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Elbow Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
+
     }
 
 

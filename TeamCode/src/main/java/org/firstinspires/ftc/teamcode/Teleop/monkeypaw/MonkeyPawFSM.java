@@ -55,7 +55,7 @@ public class MonkeyPawFSM {
         wristFSM = new WristFSM(hwMap, logger);
         elbowFSM = new ElbowFSM(hwMap, logger);
         this.limbFSM = limbFSM;
-        state = States.PREPARED_TO_INTAKE_SAMPLE;
+        state = States.PREPARING_TO_INTAKE_SAMPLE;
     }
     @VisibleForTesting
     public MonkeyPawFSM(Logger logger, LimbFSM limbFSM, FingerFSM fingerFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM, ElbowFSM elbowFSM) {
@@ -74,9 +74,15 @@ public class MonkeyPawFSM {
             // INTAKE STATES
             case PREPARING_TO_INTAKE_SAMPLE:
                 if(elbowFSM.RELAXED()) {
+                    logger.log("Elbow Is Relaxed",elbowFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                     if(wristFSM.RELAXED()) {
+
+                        logger.log("Wrist Is Relaxed",wristFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                         if(deviatorFSM.RELAXED()) {
+
+                            logger.log("deviator Is Relaxed",deviatorFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                             if(fingerFSM.RELEASED()) {
+                                logger.log("Finger is Released",fingerFSM.RELEASED(), Logger.LogLevels.PRODUCTION);
                                 state = States.PREPARED_TO_INTAKE_SAMPLE;
                             }
                             else {
@@ -320,7 +326,17 @@ public class MonkeyPawFSM {
 
     public void log() {
         logger.log("Monkey Paw State", state, Logger.LogLevels.PRODUCTION);
+        elbowFSM.log();
+        wristFSM.log();
+        deviatorFSM.log();
+        fingerFSM.log();
     }
 
+    public void updatePID() {
+        fingerFSM.updatePID();
+        deviatorFSM.updatePID();
+        elbowFSM.updatePID();
+        wristFSM.updatePID();
+    }
 
 }

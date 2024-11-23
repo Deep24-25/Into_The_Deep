@@ -20,17 +20,17 @@ public class DeviatorFSM {
     }
 
     private double targetAngle;
-    private static final double PID_TOLERANCE = 0;
+    public static  double PID_TOLERANCE = 2;
     private double deviatorCurrentAngle;
     //Robot CONSTANTS:
-    public static final double P = 0;
-    public static final double I = 0;
-    public static final double D = 0;
+    public static  double P = 1;
+    public static  double I = 0;
+    public static  double D = 0;
 
 
-    private static final double RIGHT_DEVIATED_POS = 0;
-    private static final double LEFT_DEVIATED_POS = 0;
-    private static final double RELAXED_POS = 0;
+    public static  double RIGHT_DEVIATED_POS = 0;
+    public static  double LEFT_DEVIATED_POS = 0;
+    public static  double RELAXED_POS = 0;
 
 
     private AxonServoWrapper deviatorServoWrapper;
@@ -44,6 +44,7 @@ public class DeviatorFSM {
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         deviatorCurrentAngle = deviatorServoWrapper.getLastReadPos();
+
     }
     @VisibleForTesting
     public DeviatorFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
@@ -149,5 +150,15 @@ public class DeviatorFSM {
     }
     public void relax() {
         targetAngle = RELAXED_POS;
+    }
+
+
+
+    public void log() {
+        logger.log("Deviator State",state, Logger.LogLevels.PRODUCTION);
+        logger.log("Deviator Current Position",deviatorServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Deviator Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
+
+
     }
 }

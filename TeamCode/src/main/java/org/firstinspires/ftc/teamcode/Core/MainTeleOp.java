@@ -37,6 +37,7 @@ public class MainTeleOp extends LinearOpMode {
             gamePad2.readButtons();
             monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
 
+            monkeyPawFSM.updatePID();
             log();
             logger.print();
 

@@ -17,16 +17,16 @@ public class WristFSM {
     }
 
     private double targetAngle;
-    private static final double PID_TOLERANCE = 0;
+    public static  double PID_TOLERANCE = 2;
     private double wristCurrentAngle;
     //Robot CONSTANTS:
-    public static final double P = 0;
-    public static final double I = 0;
-    public static final double D = 0;
+    public static double P = 1;
+    public static  double I = 0;
+    public static  double D = 0;
 
 
-    private static final double FLEXED_POS = 0;
-    private static final double RELAXED_POS = 0;
+    public static  double FLEXED_POS = 0;
+    public static  double RELAXED_POS = 50;
 
     private AxonServoWrapper wristServoWrapper;
     private PIDController pidController;
@@ -35,10 +35,11 @@ public class WristFSM {
     private Logger logger;
 
     public WristFSM(HWMap hwMap, Logger logger) {
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristDeviEncoder(),false, false); // check if you need to reverse axons
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),false, false); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
+
     }
     @VisibleForTesting
     public WristFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
@@ -126,6 +127,12 @@ public class WristFSM {
 
     public boolean RELAXING() {
         return state == WristStates.RELAXING;
+    }
+
+    public void log() {
+        logger.log("Wrist State",state, Logger.LogLevels.PRODUCTION);
+        logger.log("Wrist Current Position",wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Wrist Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
     }
 
 }

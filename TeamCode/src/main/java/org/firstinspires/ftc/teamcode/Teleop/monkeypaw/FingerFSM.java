@@ -17,16 +17,16 @@ public class FingerFSM {
     }
 
     private double targetAngle;
-    private static final double PID_TOLERANCE = 0;
+    public static  double PID_TOLERANCE = 2;
     private double fingerCurrentAngle;
     //Robot CONSTANTS:
-    public static final double P = 0;
-    public static final double I = 0;
-    public static final double D = 0;
+    public static  double P = 0.003;
+    public static  double I = 0;
+    public static  double D = 0;
 
 
-    private static final double GRIPPED_POS = 0;
-    private static final double RELEASED_POS = 0;
+    public static  double GRIPPED_POS = 0;
+    public static  double RELEASED_POS = 50;
 
     private AxonServoWrapper fingerServoWrapper;
     private PIDController pidController;
@@ -39,6 +39,7 @@ public class FingerFSM {
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         fingerCurrentAngle = fingerServoWrapper.getLastReadPos();
+
     }
     @VisibleForTesting
     public FingerFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
@@ -143,5 +144,14 @@ public class FingerFSM {
     }
     public double getReleasedPos() {
         return RELEASED_POS;
+    }
+
+
+
+    public void log() {
+        logger.log("Finger State",state, Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Current Position",fingerServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
+
     }
 }
