@@ -33,6 +33,13 @@ public class MainTeleop extends LinearOpMode {
             gamePad1.readButtons();
             gamePad2.readButtons();
             fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), gamePad1.getRightX(), HWMap.readFromIMU());
+
+            telemetry.addData("Back Right Power", hwMap.getBackRightMotor().get());
+            telemetry.addData("Back Left Power", hwMap.getBackleftMotor().get());
+            telemetry.addData("Front Right Power", hwMap.getFrontRightMotor().get());
+            telemetry.addData("Front Left Power", hwMap.getFrontLeftMotor().get());
+            telemetry.addData("IMU Angle",HWMap.readFromIMU());
+            telemetry.update();
         }
     }
 }

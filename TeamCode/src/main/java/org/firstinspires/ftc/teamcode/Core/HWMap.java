@@ -120,7 +120,7 @@ public class HWMap {
     }
 
     public static void initializeIMU() {
-        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.LEFT);
+        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD);
         IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
         imu.initialize(revParameters);
         imu.resetYaw();
