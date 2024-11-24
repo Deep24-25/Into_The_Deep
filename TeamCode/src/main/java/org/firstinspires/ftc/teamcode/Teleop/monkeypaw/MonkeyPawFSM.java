@@ -68,12 +68,12 @@ public class MonkeyPawFSM {
     }
 
 
-    public void updateState(boolean rbPressed2,boolean xPressed2,boolean bPressed2, boolean aPressed) {
+    public void updateState(boolean rbPressed2,boolean xPressed2,boolean bPressed2, boolean aPressed , boolean yPressed) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
-        findTargetState(rbPressed2,xPressed2,bPressed2, aPressed);
+        findTargetState(rbPressed2,xPressed2,bPressed2, aPressed, yPressed);
         switch (state) {
             // INTAKE STATES
             case PREPARING_TO_INTAKE_SAMPLE:
@@ -180,8 +180,11 @@ public class MonkeyPawFSM {
                 if(elbowFSM.FLEXED_TO_DEPOSIT()) {
                     fingerFSM.release();
                 }
-                if(fingerFSM.RELEASED() && elbowFSM.FLEXED_TO_DEPOSIT()) {
-                    state = States.DEPOSITED_SPECIMEN;
+                if(fingerFSM.RELEASED()) {
+                    elbowFSM.relax();
+                    if(elbowFSM.RELAXED()) {
+                        state = States.DEPOSITED_SPECIMEN;
+                    }
                 }
                 break;
 
@@ -218,36 +221,48 @@ public class MonkeyPawFSM {
         }
     }
 
-    public void findTargetState(boolean rbPressed2,boolean xPressed2,boolean bPressed2, boolean aPressed) {
+    public void findTargetState(boolean rbPressed2,boolean xPressed2,boolean bPressed2, boolean aPressed, boolean yPressed) {
         if(limbFSM.PREPARING_TO_INTAKE()) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         }
-       // else if(limbFSM.MOVED_TO_INTAKE_POS() && PREPARED_TO_INTAKE_SAMPLE()) {
-        if(aPressed) {
+        //else if(limbFSM.MOVED_TO_INTAKE_POS() && PREPARED_TO_INTAKE_SAMPLE()) {
+        else if(bPressed2) {
             state = States.INTAKING_SAMPLE;
         }
-        //}
+       // }
         else if(rbPressed2 && !INTAKING_SAMPLE() && !RELAXING_MINI_INTAKE()) {
             state = States.DEPOSITING_SAMPLE_TO_HP;
         }
-        else if(limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
+       // else if(limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
+        else if(yPressed && !PREPARED_TO_INTAKE_SPECIMEN() && !INTAKED_SPECIMEN()) {
             state = States.PREPARING_TO_INTAKE_SPECIMEN;
         }
-        else if(limbFSM.INTAKING_SPECIMEN()) {
+        //}
+        //else if(limbFSM.INTAKING_SPECIMEN()) {
+        else if (yPressed && PREPARED_TO_INTAKE_SPECIMEN() && !INTAKED_SPECIMEN()) {
             state = States.INTAKING_SPECIMEN;
         }
-        else if(limbFSM.DEPOSITING_SAMPLE()) {
+        //}
+        //else if(limbFSM.DEPOSITING_SAMPLE()) {
+        else if(aPressed) {
             state = States.DEPOSITING_SAMPLE;
         }
-        else if(limbFSM.DEPOSITED_SPECIMEN()) {
+        //}
+        //else if(limbFSM.DEPOSITED_SPECIMEN()) {
+        else if (yPressed && INTAKED_SPECIMEN()) {
             state = States.DEPOSITING_SPECIMEN;
         }
-        else if(limbFSM.MOVED_TO_MINI_INTAKE()) {
+        //}
+        //else if(limbFSM.MOVED_TO_MINI_INTAKE()) {
+        else if(xPressed2 && !MINI_INTAKED()) {
             state = States.MINI_INTAKING;
         }
-        else if(limbFSM.RETRACTING_FROM_MINI_INTAKE()) {
+        //}
+        //else if(limbFSM.RETRACTING_FROM_MINI_INTAKE()) {
+        else if (xPressed2 && MINI_INTAKED()) {
             state = States.RELAXING_MINI_INTAKE;
         }
+        //}
     }
     public boolean PREPARING_TO_INTAKE_SAMPLE() {
         return state == States.PREPARING_TO_INTAKE_SAMPLE;
