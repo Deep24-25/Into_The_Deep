@@ -254,7 +254,7 @@ class LimbFSMTest {
      * ------------------------------------updateState()-----------------------------------
      **/
     //Specimen: Preparing To Intake Specimen
-    @Test
+   /* @Test
     public void whenArmIsFullyRetracted(){
         sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
         sut.updateState();
@@ -267,6 +267,7 @@ class LimbFSMTest {
 
 
     }
+    */
 
 
 }

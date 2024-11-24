@@ -17,15 +17,15 @@ public class WristFSM {
     }
 
     private double targetAngle;
-    public static  double PID_TOLERANCE = 2;
+    public static  double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     //Robot CONSTANTS:
-    public static double P = 1;
+    public static double P = 0.01;
     public static  double I = 0;
     public static  double D = 0;
 
 
-    public static  double FLEXED_POS = 0;
+    public static  double FLEXED_POS = 100;
     public static  double RELAXED_POS = 50;
 
     private AxonServoWrapper wristServoWrapper;
@@ -83,7 +83,7 @@ public class WristFSM {
         double angleDelta = angleDelta(wristServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(wristServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-        logger.log("Finger Power",power, Logger.LogLevels.DEBUG);
+        logger.log("Wrist Power",power, Logger.LogLevels.PRODUCTION);
         wristServoWrapper.set(power);
 
     }

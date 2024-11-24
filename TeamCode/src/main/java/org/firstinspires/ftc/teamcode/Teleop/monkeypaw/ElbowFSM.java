@@ -23,10 +23,10 @@ public class ElbowFSM {
         FLEXED_TO_DEPOSIT
     }
     private double targetAngle;
-    public static  double PID_TOLERANCE = 2;
+    public static  double PID_TOLERANCE = 5;
     private double elbowCurrentAngle;
     //Robot CONSTANTS:
-    public static  double P = 1;
+    public static  double P = 0.01;
     public static  double I = 0;
     public static  double D = 0;
     public static  double F = 0;
@@ -133,8 +133,7 @@ public class ElbowFSM {
         targetAngle = DEPOSIT_FLEXED_POS;
     }
     public void relax() {
-
-        //targetAngle = RELAXED_POS;
+        targetAngle = RELAXED_POS;
     }
 
 

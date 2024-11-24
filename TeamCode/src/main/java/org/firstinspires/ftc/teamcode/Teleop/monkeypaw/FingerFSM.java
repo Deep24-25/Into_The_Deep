@@ -17,15 +17,15 @@ public class FingerFSM {
     }
 
     private double targetAngle;
-    public static  double PID_TOLERANCE = 2;
+    public static  double PID_TOLERANCE = 5;
     private double fingerCurrentAngle;
     //Robot CONSTANTS:
-    public static  double P = 0.003;
+    public static  double P = 0.01;
     public static  double I = 0;
     public static  double D = 0;
 
 
-    public static  double GRIPPED_POS = 0;
+    public static  double GRIPPED_POS = 100;
     public static  double RELEASED_POS = 50;
 
     private AxonServoWrapper fingerServoWrapper;
@@ -56,7 +56,7 @@ public class FingerFSM {
         updatePID();
 
         if (isTargetAngleToGrip()) {
-            if (fingerServoWrapper.getLastReadPos() > (targetAngle)) {
+            if (fingerServoWrapper.getLastReadPos() >= (targetAngle - PID_TOLERANCE)) {
                 state = FingerStates.GRIPPED;
             } else {
                 state = FingerStates.GRIPPING;
@@ -83,7 +83,7 @@ public class FingerFSM {
         double angleDelta = angleDelta(fingerServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(fingerServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-        logger.log("Finger Power",power, Logger.LogLevels.DEBUG);
+        logger.log("Finger Power",power, Logger.LogLevels.PRODUCTION);
         fingerServoWrapper.set(power);
 
     }
