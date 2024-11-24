@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import androidx.annotation.VisibleForTesting;
+import org.firstinspires.ftc.teamcode.Core.HWMap;
+
 
 public class LimbFSM {
     public enum States{
@@ -95,6 +97,7 @@ public class LimbFSM {
     public boolean RETRACTED_FROM_MINI_INTAKE(){
         return currentState == States.RETRACTED_FROM_MINI_INTAKE;
     }
+
     public boolean SAMPLE_MODE(){
         return currentMode == Mode.SAMPLE_MODE;
     }
