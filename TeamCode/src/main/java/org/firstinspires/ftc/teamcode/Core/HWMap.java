@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Core;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -43,7 +44,7 @@ public class HWMap {
     // Paw Axon Servos
     private CRServo elbowServo;
     private CRServo wristFlexServo;
-    private CRServo wristDeviServo;
+    private ServoEx wristDeviServo;
     private CRServo fingerServo;
 
     // Paw Axon Encoders
@@ -75,7 +76,7 @@ public class HWMap {
         //Monkey's Paw
         elbowServo = new CRServo(hardwareMap, "ES");
         wristFlexServo = new CRServo(hardwareMap, "WFS");
-        wristDeviServo = new CRServo(hardwareMap, "WDS");
+        wristDeviServo = new SimpleServo(hardwareMap,"WDS",0,300,AngleUnit.DEGREES);
         fingerServo = new CRServo(hardwareMap, "FS");
 
         elbowEncoder = hardwareMap.get(AnalogInput.class, "EE");
@@ -124,7 +125,7 @@ public class HWMap {
         imu.resetYaw();
     }
 
-    public CRServo getWristDeviServo() {
+    public ServoEx getWristDeviServo() {
         return wristDeviServo;
     }
 

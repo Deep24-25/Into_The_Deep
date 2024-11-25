@@ -68,12 +68,12 @@ public class MonkeyPawFSM {
     }
 
 
-    public void updateState(boolean rbPressed2,boolean xPressed2,boolean bPressed2, boolean aPressed , boolean yPressed) {
+    public void updateState(boolean rbPressed2,boolean xPressed2,boolean bPressed2, boolean aPressed, boolean dPadUpPressed , boolean yPressed, boolean dPadDownPressed, boolean dePadRightPressed) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
-        findTargetState(rbPressed2,xPressed2,bPressed2, aPressed, yPressed);
+        findTargetState(rbPressed2, dPadUpPressed, yPressed,dPadDownPressed, dePadRightPressed);
         switch (state) {
             // INTAKE STATES
             case PREPARING_TO_INTAKE_SAMPLE:
@@ -107,28 +107,29 @@ public class MonkeyPawFSM {
                 }
                 break;
             case INTAKING_SAMPLE:
-               /* if(xPressed2) {
-                    deviatorFSM.deviateRight();
-                }
-                else if(bPressed2) {
+               if(xPressed2) {
                     deviatorFSM.deviateLeft();
                 }
+                else if(bPressed2) {
+                    deviatorFSM.deviateRight();
+                }
+                else if (aPressed) {
+                    deviatorFSM.relax();
+               }
                 else if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.LEFT_DEVIATED()) {
-
-                */
                     elbowFSM.flexToSamplePos();
                     wristFSM.flex();
                     if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE() && wristFSM.FLEXED()) {
                         if(rbPressed2) {
                             fingerFSM.grip();
                         }
-                        if(fingerFSM.GRIPPED()) {
+                        else if(fingerFSM.GRIPPED()) {
                             state = States.RELAXING_WITH_SAMPLE;
                         }
 
 
                     }
-                //}
+                }
                 break;
             case RELAXING_WITH_SAMPLE:
                 elbowFSM.relax();
@@ -200,10 +201,13 @@ public class MonkeyPawFSM {
                 break;
             case MINI_INTAKED:
                 if(xPressed2) {
-                    deviatorFSM.deviateRight();
+                    deviatorFSM.deviateLeft();
                 }
                 else if (bPressed2) {
-                    deviatorFSM.deviateLeft();
+                    deviatorFSM.deviateRight();
+                }
+                else if(aPressed) {
+                    deviatorFSM.relax();
                 }
                 break;
             case RELAXING_MINI_INTAKE:
@@ -221,12 +225,12 @@ public class MonkeyPawFSM {
         }
     }
 
-    public void findTargetState(boolean rbPressed2,boolean xPressed2,boolean bPressed2, boolean aPressed, boolean yPressed) {
+    public void findTargetState(boolean rbPressed2, boolean dpadUpPressed, boolean yPressed, boolean dpadDownPressed, boolean dpadRightPressed) {
         if(limbFSM.PREPARING_TO_INTAKE()) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         }
         //else if(limbFSM.MOVED_TO_INTAKE_POS() && PREPARED_TO_INTAKE_SAMPLE()) {
-        else if(bPressed2) {
+        else if(dpadDownPressed) {
             state = States.INTAKING_SAMPLE;
         }
        // }
@@ -244,7 +248,7 @@ public class MonkeyPawFSM {
         }
         //}
         //else if(limbFSM.DEPOSITING_SAMPLE()) {
-        else if(aPressed) {
+        else if(dpadUpPressed) {
             state = States.DEPOSITING_SAMPLE;
         }
         //}
@@ -254,12 +258,12 @@ public class MonkeyPawFSM {
         }
         //}
         //else if(limbFSM.MOVED_TO_MINI_INTAKE()) {
-        else if(xPressed2 && !MINI_INTAKED()) {
+        else if(dpadRightPressed && !MINI_INTAKED()) {
             state = States.MINI_INTAKING;
         }
         //}
         //else if(limbFSM.RETRACTING_FROM_MINI_INTAKE()) {
-        else if (xPressed2 && MINI_INTAKED()) {
+        else if (dpadRightPressed && MINI_INTAKED()) {
             state = States.RELAXING_MINI_INTAKE;
         }
         //}
@@ -359,7 +363,6 @@ public class MonkeyPawFSM {
 
     public void updatePID() {
         fingerFSM.updatePID();
-        deviatorFSM.updatePID();
         elbowFSM.updatePID();
         wristFSM.updatePID();
     }
