@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,13 +17,15 @@ class LimbFSMTest {
     private LimbFSM sut;
     private ArmFSM armFSMMock;
     private ShoulderFSM shoulderFSMMock;
+    private MonkeyPawFSM pawFSMMock;
 
 
     @BeforeEach
     public void setup() {
-        sut = spy(new LimbFSM());
+        sut = spy(new LimbFSM(armFSMMock, shoulderFSMMock));
         armFSMMock = mock();
         shoulderFSMMock = mock();
+        pawFSMMock = mock();
     }
 
     /**
@@ -242,7 +247,7 @@ class LimbFSMTest {
     @Test
     public void retractingFromMiniIntakeIfMovedToMiniIntakeAndMonkeyPawMiniIntaked() {
         doReturn(true).when(sut.MOVED_TO_MINI_INTAKE());
-        //doReturn(true).when(monkeyPaw.MOVED_TO_MINI_INTAKE());
+        doReturn(true).when(pawFSMMock.MINI_INTAKED());
 
         sut.findTargetState(false, false, false, true, false, false, false);
 
@@ -257,16 +262,172 @@ class LimbFSMTest {
     @Test
     public void whenArmIsFullyRetracted(){
         sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+        when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+
+        sut.updateState();
+
+        verify(armFSMMock, never()).retractToIntake();
+        verify(shoulderFSMMock).goToDepositPos();
+
+        assertTrue(shoulderFSMMock.AT_DEPOSIT_CHAMBERS());
+        assertTrue(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN());
+        assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
+    }
+    @Test
+    public void whenArmIsNotFullyRetracted(){
+        sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+        when(armFSMMock.FULLY_RETRACTED()).thenReturn(false);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+
+
+        sut.updateState();
+
+        verify(armFSMMock, never()).retractToIntake();
+        verify(shoulderFSMMock).goToDepositPos();
+
+        assertTrue(shoulderFSMMock.AT_DEPOSIT_CHAMBERS());
+        assertTrue(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN());
+        assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
+    }
+    //Specimen: Intaking Specimen
+    @Test
+    public void whenPawHasNotIntaked(){
+        sut.setCurrentState(LimbFSM.States.INTAKING_SPECIMEN);
+        when(pawFSMMock.INTAKED_SPECIMEN()).thenReturn(false);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+
+        sut.updateState();
+
+        verify(armFSMMock, never()).goToSpecimenPickupHeight();
+        assertFalse(sut.INTAKED_SPECIMEN());
+        assertFalse(armFSMMock.atSpecimenPickupHeight());
+    }
+    @Test
+    public void whenPawHasIntaked(){
+        sut.setCurrentState(LimbFSM.States.INTAKING_SPECIMEN);
+        when(pawFSMMock.INTAKED_SPECIMEN()).thenReturn(true);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+
+        sut.updateState();
+
+        verify(armFSMMock).goToSpecimenPickupHeight();
+        assertTrue(sut.INTAKED_SPECIMEN());
+        assertTrue(armFSMMock.atSpecimenPickupHeight());
+    }
+    //Specimen: Extending Specimen
+    @Test
+    public void extendingSpecimenAndArmNotAtTargetPos(){
+        sut.setCurrentState(LimbFSM.States.EXTENDING_TO_SPECIMEN);
+        when(armFSMMock.atTargetPos()).thenReturn(false);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+        sut.updateState();
+
+        verify(sut).checkIndexUpOrDown();
+
+        assertFalse(sut.EXTENDED_SPECIMEN());
+    }
+
+    @Test
+    public void extendingSpecimenAndArmAtTargetPos(){
+        sut.setCurrentState(LimbFSM.States.EXTENDING_TO_SPECIMEN);
+        when(armFSMMock.atTargetPos()).thenReturn(true);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+        sut.updateState();
+
+        verify(sut).checkIndexUpOrDown();
+
+        assertTrue(sut.EXTENDED_SPECIMEN());
+    }
+    //Specimen: Extended Specimen
+    @Test
+    public void extendedSpecimenAndArmNotAtTargetPos(){
+        sut.setCurrentState(LimbFSM.States.EXTENDED_SPECIMEN);
+        when(armFSMMock.atTargetPos()).thenReturn(false);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+        sut.updateState();
+
+        verify(sut).checkIndexUpOrDown();
+
+        assertTrue(sut.EXTENDING_TO_SPECIMEN());
+    }
+
+    @Test
+    public void extendedSpecimenAndArmAtTargetPos(){
+        sut.setCurrentState(LimbFSM.States.EXTENDED_SPECIMEN);
+        when(armFSMMock.atTargetPos()).thenReturn(true);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+
+        sut.updateState();
+
+        verify(sut).checkIndexUpOrDown();
+
+        assertFalse(sut.EXTENDING_TO_SPECIMEN());
+    }
+    //Specimen: Depositing Specimen
+
+    @Test
+    public void depositingSpecimenAndArmNotAtTargetPos(){
+        sut.setCurrentState(LimbFSM.States.DEPOSITING_SPECIMEN);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+        when(armFSMMock.atTargetPos()).thenReturn(false);
+
+        sut.updateState();
+
+        verify(armFSMMock).moveToChamberLockHeight();
+
+        assertTrue(sut.DEPOSITING_SPECIMEN());
+    }
+
+    @Test
+    public void depositingSpecimenAndArmAtTargetPos(){
+        sut.setCurrentState(LimbFSM.States.DEPOSITING_SPECIMEN);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+        when(armFSMMock.atTargetPos()).thenReturn(true);
+        sut.updateState();
+
+        verify(armFSMMock).moveToChamberLockHeight();
+
+        assertTrue(sut.DEPOSITED_SPECIMEN());
+    }
+    //Specimen: Deposited Specimen
+    @Test
+    public void depositedSpecimenAndPawIsGripped(){
+        sut.setCurrentState(LimbFSM.States.DEPOSITED_SPECIMEN);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+        when(pawFSMMock.RELAXING_AFTER_DEPOSIT()).thenReturn(false);
+        sut.updateState();
+
+        assertTrue(sut.DEPOSITED_SPECIMEN());
+    }
+    @Test
+    public void depositedSpecimenAndPawIsUngripped(){
+        sut.setCurrentState(LimbFSM.States.DEPOSITED_SPECIMEN);
+        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
+        when(pawFSMMock.RELAXING_AFTER_DEPOSIT()).thenReturn(true);
+        sut.updateState();
+
+        assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
+    }
+    //Sample: Preparing to Deposit Sample
+    @Test
+    public void armNotRetracted() {
+        sut.setCurrentState(LimbFSM.States.PREPARING_TO_DEPOSIT_SAMPLE);
+        sut.setCurrentMode(LimbFSM.Mode.SAMPLE_MODE);
+        when(armFSMMock.FULLY_RETRACTED()).thenReturn(false);
+
         sut.updateState();
 
         verify(armFSMMock).retractToIntake();
-        verify(shoulderFSMMock).goToDepositPos();
-
-        assertTrue(armFSMMock.FULLY_RETRACTED());
-        assertTrue(pawFSM.PREPARED_TO_INTAKE_SPECIMEN);
-
-
+        verify(shoulderFSMMock, never()).isShoulderTargetPosDepositBasketAngle();
+        assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
     }
-
 
 }

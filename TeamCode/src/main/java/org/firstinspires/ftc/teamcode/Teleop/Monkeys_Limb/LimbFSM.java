@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import androidx.annotation.VisibleForTesting;
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.teamcode.Core.HWMap;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 
 
 public class LimbFSM {
@@ -14,8 +18,17 @@ public class LimbFSM {
 
     private States currentState = States.INTAKED_SPECIMEN;
     private Mode currentMode = Mode.SAMPLE_MODE;
-    public LimbFSM(){
-
+    private ArmFSM armFSM;
+    private ShoulderFSM shoulderFSM;
+    private HWMap hwMap;
+    public LimbFSM(HardwareMap hardwareMap){
+        hwMap = new HWMap(hardwareMap);
+        armFSM = new ArmFSM(hwMap, new ArmMotorsWrapper(hwMap));
+        shoulderFSM = new ShoulderFSM();
+    }
+    public LimbFSM(ArmFSM armFSM, ShoulderFSM shoulderFSM){
+        this.armFSM = armFSM;
+        this.shoulderFSM = shoulderFSM;
     }
     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rbPressed, boolean lbPressed,     boolean rightBumperPressed, boolean leftBumperPressed){
 
@@ -24,6 +37,9 @@ public class LimbFSM {
 
     }
 
+    public void checkIndexUpOrDown(){
+
+    }
     public boolean PREPARING_TO_INTAKE_SPECIMEN(){
         return currentState == States.PREPARING_TO_INTAKE_SPECIMEN;
     }

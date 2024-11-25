@@ -166,6 +166,10 @@ public class ArmFSM {
         return targetPosition == SUBMERSIBLE_HIGH || targetPosition == SUBMERSIBLE_LOW;
     }
 
+    public boolean atTargetPos() {
+        return targetPosition == measuredPosition;
+    }
+
     public void setPowerCapFinalMovements() {
         slidePowerCap = slideFinalMovementsCap;
     }
@@ -196,5 +200,17 @@ public class ArmFSM {
 
     public int getCurrentIndex() {
         return currentIndex;
+    }
+
+    //TODO: COULD NOT FIND WORKING INDEXING CODE SO ADDED THIS DUMMY FUNCTION FOR THE TEST, PLEASE FIX
+    public void goToSpecimenPickupHeight() {
+
+    }
+
+    public boolean atSpecimenPickupHeight() {
+        return false;
+    }
+    public void moveToChamberLockHeight(){
+
     }
 }
