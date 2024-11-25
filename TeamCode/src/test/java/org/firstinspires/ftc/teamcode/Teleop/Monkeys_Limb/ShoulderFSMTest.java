@@ -5,6 +5,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
@@ -18,20 +21,29 @@ class ShoulderFSMTest {
     private ShoulderFSM sut;
     private ShoulderWrapper shoulderWrapperMock = mock();
     private HWMap hwMap = mock();
+    private PIDFController pidfController = mock();
+    private static double P = 0;
+    private static double I = 0;
+    private static double D = 0;
+    private static double F = 0;
+    private double TOLERANCE = 3;
+
+
     @BeforeEach
     public void setup(){
-        sut = spy(new ShoulderFSM());
+        sut = spy(new ShoulderFSM(hwMap,shoulderWrapperMock,pidfController));
     }
     /**---------------------------updateState()---------------------------------**/
 
     @Test
     public void GOING_TO_CHAMBER(){
         doReturn(true).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosDepositChamberAngle();
+        when(pidfController.atSetPoint()).thenReturn(false);
 
         sut.updateState();
-
-        verify(shoulderWrapperMock).readAngle();
+        verify(pidfController).setPIDF(P, I, D, F);
+        verify(pidfController).setSetPoint(0);
+        verify(pidfController).setTolerance(TOLERANCE);
         assertTrue(sut.GOING_TO_CHAMBER());
 
     }
@@ -39,11 +51,10 @@ class ShoulderFSMTest {
     @Test
     public void AT_DEPOSIT_CHAMBERS(){
         doReturn(true).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(true).when(sut).isShoulderCurrentPosDepositChamberAngle();
+        when(pidfController.atSetPoint()).thenReturn(true);
 
         sut.updateState();
 
-        verify(shoulderWrapperMock).readAngle();
         assertTrue(sut.AT_DEPOSIT_CHAMBERS());
 
     }
@@ -51,10 +62,8 @@ class ShoulderFSMTest {
     @Test
     public void GOING_TO_INTAKE(){
         doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosDepositChamberAngle();
         doReturn(true).when(sut).isShoulderTargetPosIntakeAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosIntakeAngle();
-
+        doReturn(false).when(pidfController).atSetPoint();
         sut.updateState();
 
         verify(shoulderWrapperMock).readAngle();
@@ -64,11 +73,9 @@ class ShoulderFSMTest {
 
     @Test
     public void AT_INTAKE(){
-        doReturn(true).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(true).when(sut).isShoulderCurrentPosDepositChamberAngle();
+        doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
         doReturn(true).when(sut).isShoulderTargetPosIntakeAngle();
-        doReturn(true).when(sut).isShoulderCurrentPosIntakeAngle();
-
+        doReturn(true).when(pidfController).atSetPoint();
         sut.updateState();
 
         verify(shoulderWrapperMock).readAngle();
@@ -78,12 +85,9 @@ class ShoulderFSMTest {
     @Test
     public void GOING_TO_BASKET(){
         doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosDepositChamberAngle();
         doReturn(false).when(sut).isShoulderTargetPosIntakeAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosIntakeAngle();
         doReturn(true).when(sut).isShoulderTargetPosDepositBasketAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosDepositBasketAngle();
-
+        doReturn(false).when(pidfController).atSetPoint();
         sut.updateState();
 
         verify(shoulderWrapperMock).readAngle();
@@ -94,14 +98,12 @@ class ShoulderFSMTest {
     @Test
     public void AT_BASKET_DEPOSIT(){
         doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosDepositChamberAngle();
         doReturn(false).when(sut).isShoulderTargetPosIntakeAngle();
-        doReturn(false).when(sut).isShoulderCurrentPosIntakeAngle();
         doReturn(true).when(sut).isShoulderTargetPosDepositBasketAngle();
-        doReturn(true).when(sut).isShoulderCurrentPosDepositBasketAngle();
+        doReturn(true).when(pidfController).atSetPoint();
         sut.updateState();
-
         verify(shoulderWrapperMock).readAngle();
+
         assertTrue(sut.AT_BASKET_DEPOSIT());
 
     }

@@ -21,7 +21,7 @@ class LimbFSMTest {
      **/
     @Test
     public void preparingToIntakeSpecimenState() {
-        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
+        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
         doReturn(true).when(sut.SPECIMEN_MODE());
         doReturn(true).when(sut.PREPARED_TO_INTAKE());
 
@@ -29,7 +29,7 @@ class LimbFSMTest {
     }
     @Test
     public void intakingSpecimenState(){
-        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
+        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
         doReturn(true).when(sut.SPECIMEN_MODE());
         doReturn(true).when(sut.PREPARED_TO_INTAKE_SPECIMEN());
 
@@ -37,7 +37,7 @@ class LimbFSMTest {
     }
     @Test
     public void extendingToSpecimenState(){
-        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
+        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
         doReturn(true).when(sut.SPECIMEN_MODE());
         doReturn(true).when(sut.INTAKED_SPECIMEN());
 
@@ -45,7 +45,7 @@ class LimbFSMTest {
     }
     @Test
     public void depositingSpecimenState(){
-        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
+        sut.findTargetState(true, Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean());
         doReturn(true).when(sut.SPECIMEN_MODE());
         doReturn(true).when(sut.EXTENDED_SPECIMEN());
 
