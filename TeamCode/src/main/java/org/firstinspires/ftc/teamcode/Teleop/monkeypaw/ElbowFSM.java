@@ -36,6 +36,7 @@ public class ElbowFSM {
     public static  double SPECIMEN_FLEXED_POS = 30;
     public static  double DEPOSIT_FLEXED_POS = 180;
     public static  double RELAXED_POS = 0;
+    public static  double BASKET_RELAX_HEIGHT = 0;
 
     private AxonServoWrapper elbowServoWrapper;
     private PIDFController pidfController;

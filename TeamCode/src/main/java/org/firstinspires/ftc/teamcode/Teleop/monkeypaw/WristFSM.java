@@ -25,7 +25,8 @@ public class WristFSM {
     public static  double D = 0;
 
 
-    public static  double FLEXED_POS = 100;
+    public static  double SAMPLE_FLEXED_POS = 100;
+    public static double SPECIMEN_FLEX_POS = 20;
     public static  double RELAXED_POS = 50;
 
     private AxonServoWrapper wristServoWrapper;
@@ -75,7 +76,7 @@ public class WristFSM {
     }
 
     public boolean isTargetAngleToFlex() {
-        return targetAngle == FLEXED_POS;
+        return targetAngle == SAMPLE_FLEXED_POS;
     }
 
     public void updatePID() { // This method is used to update position every loop.
@@ -89,7 +90,7 @@ public class WristFSM {
     }
 
     public void flex() {
-        targetAngle = FLEXED_POS;
+        targetAngle = SAMPLE_FLEXED_POS;
     }
 
     public void relax() {
