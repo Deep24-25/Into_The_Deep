@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
-import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +61,7 @@ class ShoulderFSMTest {
     @Test
     public void GOING_TO_INTAKE(){
         doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(true).when(sut).isShoulderTargetPosIntakeAngle();
+        doReturn(true).when(sut).isShoulderTargetPosSampleIntakeAngle();
         doReturn(false).when(pidfController).atSetPoint();
         sut.updateState();
 
@@ -74,7 +73,7 @@ class ShoulderFSMTest {
     @Test
     public void AT_INTAKE(){
         doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(true).when(sut).isShoulderTargetPosIntakeAngle();
+        doReturn(true).when(sut).isShoulderTargetPosSampleIntakeAngle();
         doReturn(true).when(pidfController).atSetPoint();
         sut.updateState();
 
@@ -85,7 +84,7 @@ class ShoulderFSMTest {
     @Test
     public void GOING_TO_BASKET(){
         doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(false).when(sut).isShoulderTargetPosIntakeAngle();
+        doReturn(false).when(sut).isShoulderTargetPosSampleIntakeAngle();
         doReturn(true).when(sut).isShoulderTargetPosDepositBasketAngle();
         doReturn(false).when(pidfController).atSetPoint();
         sut.updateState();
@@ -98,7 +97,7 @@ class ShoulderFSMTest {
     @Test
     public void AT_BASKET_DEPOSIT(){
         doReturn(false).when(sut).isShoulderTargetPosDepositChamberAngle();
-        doReturn(false).when(sut).isShoulderTargetPosIntakeAngle();
+        doReturn(false).when(sut).isShoulderTargetPosSampleIntakeAngle();
         doReturn(true).when(sut).isShoulderTargetPosDepositBasketAngle();
         doReturn(true).when(pidfController).atSetPoint();
         sut.updateState();

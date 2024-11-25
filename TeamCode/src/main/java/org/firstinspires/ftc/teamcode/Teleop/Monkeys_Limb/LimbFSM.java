@@ -132,13 +132,13 @@ public class LimbFSM {
         switch (states) {
             case PREPARING_TO_INTAKE_SPECIMEN:
                 if (armFSM.FULLY_RETRACTED()){
-                    shoulderFSM.moveToDepositPosition();
-                    if (shoulderFSM.AT_DEPOSIT_CHAMBERS() || monkeysPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                    shoulderFSM.moveToSpecimenIntakeAngle();
+                    if (shoulderFSM.AT_SPECIMEN_INTAKE() || monkeysPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
                         states = States.PREPARED_TO_INTAKE_SPECIMEN;
                     }
                 }
                 else{
-                    armFSM.retractToIntake();
+                    armFSM.retract();
                 }
                 break;
             case INTAKED_SPECIMEN:
