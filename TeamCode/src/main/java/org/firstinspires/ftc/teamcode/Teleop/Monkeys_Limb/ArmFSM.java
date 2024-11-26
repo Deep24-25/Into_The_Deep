@@ -17,6 +17,7 @@ public class ArmFSM {
     private static final double SUBMERSIBLE_LOW = 4;
     private static final double SUBMERSIBLE_HIGH = 8;
     private static final double FULLY_RETRACTED = 0;
+    private static final double MINI_INTAKE = 0;
     private static final int MAX_HEIGHT = 0;
     // for specimen intake go up in index to pick up
     // to lock on to chamber go up and index

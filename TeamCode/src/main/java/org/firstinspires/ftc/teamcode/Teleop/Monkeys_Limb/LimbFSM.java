@@ -55,8 +55,8 @@ public class LimbFSM {
     private States states = States.INTAKED_SPECIMEN;
     private Mode mode = Mode.SAMPLE_MODE;
 
-    public LimbFSM(HWMap hwMap){
-    this.hwMap = hwMap;
+    public LimbFSM(){
+
     }
 
     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean leftBumperPressed){
@@ -127,7 +127,7 @@ public class LimbFSM {
          }
      }
     }
-    public void updateState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean leftBumperPressed) {
+    public void updateState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTwoBumperPressed, boolean leftBumperPressed, boolean leftTwoBumperPressed) {
         updateLowLevelFSMStates();
         switch (states) {
             case PREPARING_TO_INTAKE_SPECIMEN:
@@ -141,26 +141,31 @@ public class LimbFSM {
                     armFSM.retract();
                 }
                 break;
-            case INTAKED_SPECIMEN:
+            case INTAKING_SPECIMEN:
                 if (monkeysPawFSM.INTAKED_SPECIMEN()) {
                     armFSM.indexIncrement();
-                    if (armFSM.AT_SPECIMEN_PICKUP_HEIGHT)
-                        states = States.INTAKED_SPECIMEN;
+                    states = States.INTAKED_SPECIMEN;
             }
                 break;
             case EXTENDING_SPECIMEN:
-                armFSM.getCurrentIndex();
-                armFSM.isTargetPosAtSubmersibleHeight();
+                if (leftTwoBumperPressed) {
+                    shoulderFSM.moveToLowChamberAngle();
+                    armFSM.moveToSubmersibleLowHeight();
+                }
+                else if (rightTwoBumperPressed){
+                    shoulderFSM.moveToHighChamberAngle();
+                    armFSM.moveToSubmersibleHighHeight();
+                }
                 if (armFSM.AT_SUBMERSIBLE_HEIGHT()) {
-                states = States.EXTENDED_SPECIMEN;
-            }
+                        states = States.EXTENDED_SPECIMEN;
+                }
                 else {
                     states = States.EXTENDING_SPECIMEN;
                 }
                 break;
             case DEPOSITING_SPECIMEN:
                 armFSM.indexIncrement();
-                if (armFSM.isTargetPosAtSubmersibleHeight()){
+                if (armFSM.AT_SUBMERSIBLE_HEIGHT()){
                     states = States.DEPOSITED_SPECIMEN;
                 }
                 break;
@@ -171,24 +176,25 @@ public class LimbFSM {
             case PREPARING_TO_DEPOSIT_SAMPLE:
                 if (armFSM.FULLY_RETRACTED()){
                     shoulderFSM.GOING_TO_BASKET();
-                    shoulderFSM.AT_BASKET_DEPOSIT();
-                    states = States.PREPARED_TO_DEPOSIT_SAMPLE;
+                    if (shoulderFSM.AT_BASKET_DEPOSIT()) {
+                        states = States.PREPARED_TO_DEPOSIT_SAMPLE;
+                    }
                 }
                 else {
-                    armFSM.retractToIntake();
-                    armFSM.FULLY_RETRACTED();
+                    armFSM.retract();
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                armFSM.moveToSelectedIndexPosition();
-                if (armFSM.AT_TARGET_POSITION()){
+                armFSM.indexIncrement();
+                if (armFSM.AT_BASKET_HEIGHT()){
                     states = States.EXTENDED_TO_BASKET_HEIGHT;
                 }
                 break;
             case EXTENDED_TO_BASKET_HEIGHT:
                 armFSM.getCurrentIndex();
-                !armFSM??
-                states = States.EXTENDING_TO_BASKET_HEIGHT;
+                if (!armFSM.AT_BASKET_HEIGHT()) {
+                    states = States.EXTENDING_TO_BASKET_HEIGHT;
+                }
                 break;
             case DEPOSITING_SAMPLE:
                 monkeysPawFSM.RELAXED_AFTER_DEPOSIT;
@@ -196,10 +202,10 @@ public class LimbFSM {
                 break;
             case PREPARING_TO_INTAKE:
                 if (shoulderFSM.AT_INTAKE()){
-                    if (armFSM.FULLY_RETRACTED()){
+                    if (!armFSM.FULLY_RETRACTED()){
                         armFSM.moveToSafeHeight();
                         if (monkeysPawFSM.PREPARED_TO_INTAKE || monkeysPawFSM.RELAXED_WITH_SAMPLE){
-                            armFSM.retractToIntake();
+                            armFSM.retract();
                             if (armFSM.FULLY_RETRACTED()) {
                                 states = States.PREPARED_TO_INTAKE;
                             }
@@ -210,7 +216,7 @@ public class LimbFSM {
                     }
                 }
                 else {
-                    armFSM.retractToIntake();
+                    armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()){
                         shoulderFSM.moveToIntakeAngle();
                         if (shoulderFSM.AT_INTAKE()){
@@ -222,9 +228,11 @@ public class LimbFSM {
                 }
                 break;
             case MOVING_TO_INTAKE_POS:
-                armFSM.FULLY_EXTENDED();
-                if (aPressed){
-                    states = States.MOVED_TO_INTAKE_POS;
+                if (armFSM.FULLY_EXTENDED()) {
+                    armFSM.setPowerCapMovement();
+                    if (aPressed) {
+                        states = States.MOVED_TO_INTAKE_POS;
+                    }
                 }
                 break;
             case MOVED_TO_INTAKE_POS:
@@ -233,14 +241,12 @@ public class LimbFSM {
                 }
                 break;
             case MOVING_TO_MINI_INTAKE:
-                armFSM.moveToMiniIntake();
-                if (armFSM.isTargetPosAboveSafeHeight()){
-                    states = States.MOVED_TO_MINI_INTAKE;
-                }
+                armFSM.indexIncrement();
+                states = States.MOVED_TO_MINI_INTAKE;
                 break;
             case RETRACTING_FROM_MINI_INTAKE:
                 if (monkeysPawFSM.RELAXED_MINI_INTAKE()){
-                    armFSM.retractToIntake();
+                    armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()){
                         states = States.PREPARED_TO_INTAKE;
                     }
@@ -249,6 +255,7 @@ public class LimbFSM {
         }
 
     }
+
 
     public void updateLowLevelFSMStates(){
         armFSM.updateState();
