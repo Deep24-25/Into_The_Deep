@@ -47,6 +47,8 @@ public class MonkeyPawFSM {
     private LimbFSM limbFSM;
     private Logger logger;
     private States state;
+    private boolean keepRelaxed;
+
 
     public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
         this.logger = logger;
@@ -113,19 +115,22 @@ public class MonkeyPawFSM {
                 else if(bPressed2) {
                     deviatorFSM.deviateRight();
                 }
-                else if (aPressed) {
+                else if ((deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.LEFT_DEVIATED()) && (aPressed && !deviatorFSM.RELAXED())) {
                     deviatorFSM.relax();
                }
-                else if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.LEFT_DEVIATED()) {
+                if(aPressed) {
+                    keepRelaxed = true;
+                }
+                else if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.LEFT_DEVIATED() || (keepRelaxed)) {
                     elbowFSM.flexToSamplePos();
                     wristFSM.flex();
                     if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE() && wristFSM.FLEXED()) {
                         if(rbPressed2) {
                             fingerFSM.grip();
                         }
-                        else if(fingerFSM.GRIPPED()) {
-                            state = States.RELAXING_WITH_SAMPLE;
-                        }
+                            if(fingerFSM.GRIPPED()) {
+                                state = States.RELAXING_WITH_SAMPLE;
+                            }
 
 
                     }
@@ -135,7 +140,7 @@ public class MonkeyPawFSM {
                 elbowFSM.relax();
                 wristFSM.relax();
                 deviatorFSM.relax();
-                if(elbowFSM.RELAXED() && wristFSM.RELAXED() && deviatorFSM.RELAXED() && fingerFSM.GRIPPED()) {
+                if(elbowFSM.RELAXED() && wristFSM.RELAXED() && deviatorFSM.RELAXED()) {
                     state = States.RELAXED_POS_WITH_SAMPLE;
                 }
                 break;
@@ -218,7 +223,7 @@ public class MonkeyPawFSM {
                     elbowFSM.relax();
                     wristFSM.relax();
                 }
-                if(elbowFSM.RELAXED() && wristFSM.RELAXED() && fingerFSM.GRIPPED()) {
+                if(elbowFSM.RELAXED() && wristFSM.RELAXED()) {
                     state = States.RELAXED_MINI_INTAKE;
                 }
                 break;
@@ -362,7 +367,7 @@ public class MonkeyPawFSM {
     }
 
     public void updatePID() {
-        fingerFSM.updatePID();
+        deviatorFSM.updatePID();
         elbowFSM.updatePID();
         wristFSM.updatePID();
     }

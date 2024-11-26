@@ -28,7 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-*/
+
+
 
 
 package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
@@ -45,7 +46,6 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 
 
-/*
 * This OpMode scans a single servo back and forward until Stop is pressed.
  * The code is structured as a LinearOpMode
  * INCREMENT sets how much to increase/decrease the servo position each cycle
@@ -59,7 +59,8 @@ import org.firstinspires.ftc.teamcode.Core.HWMap;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
 
-*/
+
+
 
 
 @Config
@@ -163,3 +164,4 @@ public class ConceptScanServo extends LinearOpMode {
     }
 }
 
+*/
