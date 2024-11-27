@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 
 @Config
 public class MonkeyPawFSM {
+
+
     public enum States {
 
         // Intake states
@@ -318,6 +320,7 @@ public class MonkeyPawFSM {
     public boolean RELAXED_AFTER_DEPOSIT() {
         return state == States.RELAXED_AFTER_DEPOSIT;
     }
+
 
     @VisibleForTesting
     public void setState(States state) {

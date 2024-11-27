@@ -5,9 +5,11 @@ import androidx.annotation.VisibleForTesting;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
+import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 
 public class LimbFSM {
@@ -53,20 +55,20 @@ public class LimbFSM {
 
 
     private HWMap hwMap;
-    private volatile ArmFSM armFSM;
-    private volatile ArmMotorsWrapper armMotorsWrapper;
-    private volatile ShoulderFSM shoulderFSM;
-    private volatile ShoulderWrapper shoulderWrapper;
+    private ArmFSM armFSM;
+    private ShoulderFSM shoulderFSM;
+    private MonkeyPawFSM monkeyPawFSM;
 
     private States states = States.INTAKED_SPECIMEN;
     private Mode mode = Mode.SAMPLE_MODE;
 
 
 
-    public LimbFSM(HardwareMap hardwareMap){
-        hwMap = new HWMap(hardwareMap);
-        armFSM = new ArmFSM(hwMap, new ArmMotorsWrapper(hwMap));
-        shoulderFSM = new ShoulderFSM();
+    public LimbFSM(HWMap hwMap, MonkeyPawFSM monkeyPawFSM){
+        this.hwMap = hwMap;
+        armFSM = new ArmFSM(hwMap);
+        shoulderFSM = new ShoulderFSM(hwMap);
+        this.monkeyPawFSM = monkeyPawFSM;
     }
 
     public LimbFSM(ArmFSM armFSM, ShoulderFSM shoulderFSM){
@@ -120,7 +122,7 @@ public class LimbFSM {
      if (rightBumperPressed){
          if (PREPARED_TO_INTAKE()){
              states = States.MOVING_TO_MINI_INTAKE;
-         } else if (MOVED_TO_MINI_INTAKE() && monkeyPaw.MINI_INTAKED()){
+         } else if (MOVED_TO_MINI_INTAKE() && monkeyPawFSM.MINI_INTAKED()){
              states = States.RETRACTING_FROM_MINI_INTAKE;
          }
      }
@@ -147,7 +149,7 @@ public class LimbFSM {
             case PREPARING_TO_INTAKE_SPECIMEN:
                 if (armFSM.FULLY_RETRACTED()){
                     shoulderFSM.moveToSpecimenIntakeAngle();
-                    if (shoulderFSM.AT_SPECIMEN_INTAKE() || monkeysPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                    if (shoulderFSM.AT_SPECIMEN_INTAKE() || monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
                         states = States.PREPARED_TO_INTAKE_SPECIMEN;
                     }
                 }
@@ -156,7 +158,7 @@ public class LimbFSM {
                 }
                 break;
             case INTAKING_SPECIMEN:
-                if (monkeysPawFSM.INTAKED_SPECIMEN()) {
+                if (monkeyPawFSM.INTAKED_SPECIMEN()) {
                     armFSM.indexIncrement();
                     states = States.INTAKED_SPECIMEN;
             }
@@ -184,7 +186,7 @@ public class LimbFSM {
                 }
                 break;
             case DEPOSITED_SPECIMEN:
-                monkeysPawFSM.UNGRIPPED();
+                monkeyPawFSM.DEPOSITED_SPECIMEN();
                 states = States.PREPARED_TO_INTAKE_SPECIMEN;
                 break;
             case PREPARING_TO_DEPOSIT_SAMPLE:
@@ -211,14 +213,14 @@ public class LimbFSM {
                 }
                 break;
             case DEPOSITING_SAMPLE:
-                monkeysPawFSM.RELAXED_AFTER_DEPOSIT;
+                monkeyPawFSM.RELAXED_AFTER_DEPOSIT();
                 states = States.DEPOSITED_SAMPLE;
                 break;
             case PREPARING_TO_INTAKE:
                 if (shoulderFSM.AT_INTAKE()){
                     if (!armFSM.FULLY_RETRACTED()){
                         armFSM.moveToSafeHeight();
-                        if (monkeysPawFSM.PREPARED_TO_INTAKE || monkeysPawFSM.RELAXED_WITH_SAMPLE){
+                        if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()){
                             armFSM.retract();
                             if (armFSM.FULLY_RETRACTED()) {
                                 states = States.PREPARED_TO_INTAKE;
@@ -234,7 +236,7 @@ public class LimbFSM {
                     if (armFSM.FULLY_RETRACTED()){
                         shoulderFSM.moveToIntakeAngle();
                         if (shoulderFSM.AT_INTAKE()){
-                            if (monkeysPawFSM.PREPARED_TO_INTAKE || monkeysPawFSM.RELAXED_WITH_SAMPLE){
+                            if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()){
                                 states = States.PREPARED_TO_INTAKE;
                             }
                         }
@@ -259,7 +261,7 @@ public class LimbFSM {
                 states = States.MOVED_TO_MINI_INTAKE;
                 break;
             case RETRACTING_FROM_MINI_INTAKE:
-                if (monkeysPawFSM.RELAXED_MINI_INTAKE()){
+                if (monkeyPawFSM.RELAXED_MINI_INTAKE()){
                     armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()){
                         states = States.PREPARED_TO_INTAKE;
@@ -303,21 +305,18 @@ public class LimbFSM {
     public boolean DEPOSITED_SPECIMEN(){
         return states == States.DEPOSITED_SPECIMEN;
     }
+    public boolean PREPARING_TO_DEPOSIT_SPECIMEN(){
+        return states == States.PREPARING_TO_DEPOSIT_SPECIMEN;
+    }
+
+    public boolean PREPARED_TO_DEPOSIT_SPECIMEN(){
+        return states == States.PREPARED_TO_DEPOSIT_SPECIMEN;
+    }
     public boolean PREPARING_TO_DEPOSIT_SAMPLE(){
         return states == States.PREPARING_TO_DEPOSIT_SAMPLE;
-    public boolean PREPARING_TO_DEPOSIT_SPECIMEN(){
-        return currentState == States.PREPARING_TO_DEPOSIT_SPECIMEN;
     }
     public boolean PREPARED_TO_DEPOSIT_SAMPLE(){
         return states == States.PREPARED_TO_DEPOSIT_SAMPLE;
-    public boolean PREPARED_TO_DEPOSIT_SPECIMEN(){
-        return currentState == States.PREPARED_TO_DEPOSIT_SPECIMEN;
-    }
-    public boolean PREPARING_TO_DEPOSIT_SAMPLE(){
-        return currentState == States.PREPARING_TO_DEPOSIT_SAMPLE;
-    }
-    public boolean PREPARED_TO_DEPOSIT_SAMPLE(){
-        return currentState == States.PREPARED_TO_DEPOSIT_SAMPLE;
     }
     public boolean EXTENDING_TO_BASKET_HEIGHT(){
         return states == States.EXTENDING_TO_BASKET_HEIGHT;
@@ -362,15 +361,15 @@ public class LimbFSM {
         return mode == Mode.SAMPLE_MODE;
     }
     public boolean SPECIMEN_MODE(){
-        return currentMode == Mode.SPECIMEN_MODE;
+        return mode == Mode.SPECIMEN_MODE;
     }
     @VisibleForTesting
     public void setCurrentState(States state) {
-        currentState = state;
+        states = state;
     }
     @VisibleForTesting
     public void setCurrentMode(Mode mode) {
-        this.currentMode = mode;
+        this.mode = mode;
     }
 
 }

@@ -40,9 +40,9 @@ public class ShoulderFSM {
     private double power;
     private double TOLERANCE = 3;
 
-    public ShoulderFSM(HWMap hwMap, ShoulderWrapper shoulderWrapper) {
+    public ShoulderFSM(HWMap hwMap) {
         this.pidfController = new PIDFController(P, I, D,F);
-        this.shoulderWrapper = shoulderWrapper;
+       shoulderWrapper = new ShoulderWrapper(hwMap);
     }
 
     @VisibleForTesting

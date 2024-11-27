@@ -41,8 +41,8 @@ public class ArmFSM {
     private double power = 0;
     private double tolerance = 1.5;
 
-    public ArmFSM(HWMap hwMap, ArmMotorsWrapper armMotorsWrapper) {
-        this.armMotorsWrapper = armMotorsWrapper;
+    public ArmFSM(HWMap hwMap) {
+        this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         currentIndex = 1;
         targetPosition = 0;
