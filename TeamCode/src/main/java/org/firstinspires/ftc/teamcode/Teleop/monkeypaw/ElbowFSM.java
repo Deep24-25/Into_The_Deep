@@ -17,10 +17,20 @@ public class ElbowFSM {
         FLEXED_TO_SAMPLE_INTAKE,
         FLEXING_TO_SPECIMEN_INTAKE,
         FLEXED_TO_SPECIMEN_INTAKE,
+        RELAXING_TO_SPECIMEN_INTAKE_RELAX_POS,
+        RELAXED_TO_SPECIMEN_INTAKE_RELAX_POS,
         RELAXED,
         RELAXING,
-        FLEXING_TO_DEPOSIT,
-        FLEXED_TO_DEPOSIT
+        FLEXING_TO_BASKET_DEPOSIT,
+        FLEXED_TO_BASKET_DEPOSIT,
+        FLEXING_TO_HIGH_CHAMBER_DEPOSIT,
+        FLEXED_TO_HIGH_CHAMBER_DEPOSIT,
+        FLEXING_TO_LOW_CHAMBER_DEPOSIT,
+        FLEXED_TO_LOW_CHAMBER_DEPOSIT,
+        RELAXING_FROM_CHAMBER_DEPOSIT,
+        RELAXED_FROM_CHAMBER_DEPOSIT,
+        RELAXING_FROM_BASKET_DEPOSIT,
+        RELAXED_FROM_BASKET_DEPOSIT
     }
     private double targetAngle;
     public static  double PID_TOLERANCE = 5;
@@ -32,15 +42,15 @@ public class ElbowFSM {
     public static  double F = 0;
 
 
-    public static  double SAMPLE_FLEXED_POS = 90;
+    public static  double SAMPLE_INTAKE_FLEXED_POS = 90;
     public static  double SPECIMEN_INTAKE_FLEXED_POS = 30;
     public static  double SPECIMEN_INTAKE_RELAX_POS = 30;
-    public static  double BAKSET_DEPOSIT_FLEXED_POS = 180;
+    public static  double BASKET_DEPOSIT_FLEXED_POS = 180;
     public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 180;
     public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 180;
     public static  double RELAXED_POS = 0;
-    public static  double BASKET_RELAX_HEIGHT = 0;
-    public static double CHAMBER_RELAX_HEIGHT = 0;
+    public static  double BASKET_RELAX_POS = 0;
+    public static double CHAMBER_RELAX_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
     private PIDFController pidfController;
@@ -82,13 +92,52 @@ public class ElbowFSM {
                 state = ElbowStates.FLEXING_TO_SPECIMEN_INTAKE;
             }
         }
-        else if (isTargetAngleToDepositFlexedPos()) {
+        else if (isTargetAngleToSpecimenIntakeRelaxedPos()) {
             if (pidfController.atSetPoint()) {
-                state = ElbowStates.FLEXED_TO_DEPOSIT;
+                state = ElbowStates.RELAXED_TO_SPECIMEN_INTAKE_RELAX_POS;
             } else {
-                state = ElbowStates.FLEXING_TO_DEPOSIT;
+                state = ElbowStates.RELAXING_TO_SPECIMEN_INTAKE_RELAX_POS;
             }
         }
+        else if (isTargetAngleToBasketDepositFlexedPos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_BASKET_DEPOSIT;
+            } else {
+                state = ElbowStates.FLEXING_TO_BASKET_DEPOSIT;
+            }
+        }
+        else if (isTargetAngleToHighChamberDepositFlexedPos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_HIGH_CHAMBER_DEPOSIT;
+            } else {
+                state = ElbowStates.FLEXING_TO_HIGH_CHAMBER_DEPOSIT;
+            }
+        }
+
+        else if (isTargetAngleToLowChamberDepositFlexedPos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_LOW_CHAMBER_DEPOSIT;
+            } else {
+                state = ElbowStates.FLEXING_TO_LOW_CHAMBER_DEPOSIT;
+            }
+        }
+
+        else if (isTargetAngleToChamberRelaxPos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.RELAXED_FROM_CHAMBER_DEPOSIT;
+            } else {
+                state = ElbowStates.RELAXING_FROM_CHAMBER_DEPOSIT;
+            }
+        }
+
+        else if (isTargetAngleToBasketRelaxPos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.RELAXED_FROM_BASKET_DEPOSIT;
+            } else {
+                state = ElbowStates.RELAXING_FROM_BASKET_DEPOSIT;
+            }
+        }
+
         else if (isTargetAngleToRelax()) {
             if (pidfController.atSetPoint()) {
                 state = ElbowStates.RELAXED;
@@ -103,16 +152,36 @@ public class ElbowFSM {
     }
 
     public boolean isTargetAngleToSampleFlexedPos() {
-        return targetAngle == SAMPLE_FLEXED_POS;
+        return targetAngle == SAMPLE_INTAKE_FLEXED_POS;
     }
 
     public boolean isTargetAngleToSpecimenFlexedPos() {
-        return targetAngle == SPECIMEN_FLEXED_POS;
+        return targetAngle == SPECIMEN_INTAKE_FLEXED_POS;
     }
 
-    public boolean isTargetAngleToDepositFlexedPos() {
-        return targetAngle == DEPOSIT_FLEXED_POS;
+    public boolean isTargetAngleToSpecimenIntakeRelaxedPos() {
+        return targetAngle == SPECIMEN_INTAKE_RELAX_POS;
     }
+
+    public boolean isTargetAngleToBasketDepositFlexedPos() {
+        return targetAngle == BASKET_DEPOSIT_FLEXED_POS;
+    }
+    public boolean isTargetAngleToHighChamberDepositFlexedPos() {
+        return targetAngle == HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
+    }
+
+    public boolean isTargetAngleToLowChamberDepositFlexedPos() {
+        return targetAngle == LOW_CHAMBER_DEPOSIT_FLEXED_POS;
+    }
+
+    public boolean isTargetAngleToBasketRelaxPos() {
+        return targetAngle == BASKET_RELAX_POS;
+    }
+
+    public boolean isTargetAngleToChamberRelaxPos() {
+        return targetAngle == CHAMBER_RELAX_POS;
+    }
+
 
 
     public void updatePID() { // This method is used to update position every loop.
@@ -127,19 +196,42 @@ public class ElbowFSM {
 
 
 
-    public void flexToSamplePos() {
-        targetAngle = SAMPLE_FLEXED_POS;
+    public void flexToSampleIntakePos() {
+        targetAngle = SAMPLE_INTAKE_FLEXED_POS;
     }
 
-    public void flexToSpecimenPos() {
-        targetAngle = SPECIMEN_FLEXED_POS;
+    public void flexToSpecimenIntakePos() {
+        targetAngle = SPECIMEN_INTAKE_FLEXED_POS;
     }
-    public void flexToDepositPos() {
-        targetAngle = DEPOSIT_FLEXED_POS;
+
+
+    public void relaxToSpecimenIntakeRelaxedPos() {
+        targetAngle = SPECIMEN_INTAKE_RELAX_POS;
     }
+
+    public void flexToBasketDepositFlexedPos() {
+        targetAngle = BASKET_DEPOSIT_FLEXED_POS;
+    }
+
+    public void relaxToBasketDepositRelaxedPos() {
+        targetAngle = BASKET_RELAX_POS;
+    }
+
+    public void flexToHighChamberDepositFlexedPos() {
+        targetAngle = HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
+    }
+    public void flexToLowChamberDepositFlexedPos() {
+        targetAngle = LOW_CHAMBER_DEPOSIT_FLEXED_POS;
+    }
+
+    public void relaxToChamberDepositRelaxedPos() {
+        targetAngle = CHAMBER_RELAX_POS;
+    }
+
     public void relax() {
         targetAngle = RELAXED_POS;
     }
+
 
 
     // Finds the smallest distance between 2 angles, input and output in degrees
