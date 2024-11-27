@@ -17,7 +17,12 @@ public class ArmFSM {
     private static final double SUBMERSIBLE_LOW = 4;
     private static final double SUBMERSIBLE_HIGH = 8;
     private static final double FULLY_RETRACTED = 0;
+    private static final double MINI_INTAKE = 0;
     private static final int MAX_HEIGHT = 0;
+    // for specimen intake go up in index to pick up
+    // to lock on to chamber go up and index
+
+
     public static double PHorizontal = 0, IHorizontal = 0, DHorizontal = 0, FHorizontal = 0;
     public static double PVertical = 0, IVertical = 0, DVertical = 0, FVertical = 0;
     public static double PAngle = 0, IAngle = 0, DAngle = 0, FAngle = 0;
@@ -29,7 +34,6 @@ public class ArmFSM {
     private double measuredPosition;
     private States currentState = States.FULLY_RETRACTED;
     private int currentIndex;
-    private boolean slowMovement;
     private double slidePowerCap = 1.0;
     private final double slideFinalMovementsCap = 1.0;
     private final double slideMovementCap = 1.0;
@@ -46,24 +50,29 @@ public class ArmFSM {
     }
 
     public void updateState() {
+        updatePIDF();
+        pidfController.setSetPoint(0);
         armMotorsWrapper.readPositionInCM();
-        if (atPos(tolerance)) {
+        measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
+        if (pidfController.atSetPoint()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
             else if (isTargetPosAtBasketHeight())
                 currentState = States.AT_BASKET_HEIGHT;
             else if (isTargetPosAtSubmersibleHeight())
                 currentState = States.AT_SUBMERSIBLE_HEIGHT;
-            else
-                currentState = States.FULLY_EXTENDED;
+        } else if (isFullyExtended()) {
+            currentState = States.FULLY_EXTENDED;
         } else {
-            measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
             if (isTargetPosAboveSafeHeight())
                 currentState = States.MOVING_ABOVE_SAFE_HEIGHT;
             else if (isTargetPosBelowSafeHeight())
                 currentState = States.MOVING_BELOW_SAFE_HEIGHT;
         }
+    }
 
+    private boolean isFullyExtended() {
+        return measuredPosition == MAX_HEIGHT;
     }
 
     public void setHorizontalPID() {
@@ -79,7 +88,7 @@ public class ArmFSM {
         pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
     }
 
-    // set state
+    // get state
     public boolean AT_BASKET_HEIGHT() {
         return currentState == States.AT_BASKET_HEIGHT;
     }
@@ -119,17 +128,6 @@ public class ArmFSM {
 
     public void moveToSelectedIndexPosition() {
         targetPosition = currentIndex;
-        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
-    }
-
-    public void moveToSafeHeight() {
-        targetPosition = SAFE_HEIGHT;
-        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
-    }
-
-    public void retractToIntake() {
-        targetPosition = FULLY_RETRACTED;
-        pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
     }
 
     public void indexIncrement() {
@@ -181,9 +179,6 @@ public class ArmFSM {
         slidePowerCap = slideMovementCap;
     }
 
-    public boolean atPos(double tolerance) {
-        return ((targetPosition + tolerance) >= measuredPosition) && ((targetPosition - tolerance) <= measuredPosition);
-    }
 
     public double getTolerance() {
         return tolerance;
@@ -205,15 +200,28 @@ public class ArmFSM {
         return currentIndex;
     }
 
-    //TODO: COULD NOT FIND WORKING INDEXING CODE SO ADDED THIS DUMMY FUNCTION FOR THE TEST, PLEASE FIX
-    public void goToSpecimenPickupHeight() {
-
+    public void moveToSubmersibleLowHeight() {
+        targetPosition = SUBMERSIBLE_LOW;
     }
 
-    public boolean atSpecimenPickupHeight() {
-        return false;
+    public void moveToSubmersibleHighHeight() {
+        targetPosition = SUBMERSIBLE_HIGH;
     }
-    public void moveToChamberLockHeight(){
 
+    public void moveToBasketHighHeight() {
+        targetPosition = BASKET_HIGH;
     }
+
+    public void moveToBasketLowHeight() {
+        targetPosition = BASKET_LOW;
+    }
+
+    public void retract() {
+        targetPosition = FULLY_RETRACTED;
+    }
+
+    public void moveToSafeHeight() {
+        targetPosition = SAFE_HEIGHT;
+    }
+
 }
