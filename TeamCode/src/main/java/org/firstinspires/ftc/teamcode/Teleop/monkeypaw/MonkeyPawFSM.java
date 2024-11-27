@@ -93,7 +93,7 @@ public class MonkeyPawFSM {
                                 state = States.PREPARED_TO_INTAKE_SAMPLE;
                             }
                             else {
-                                fingerFSM.release();
+                                fingerFSM.releaseSample();
                             }
                         }
                         else {
@@ -126,7 +126,7 @@ public class MonkeyPawFSM {
                     wristFSM.flex();
                     if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE() && wristFSM.FLEXED()) {
                         if(rbPressed2) {
-                            fingerFSM.grip();
+                            fingerFSM.gripSample();
                         }
                             if(fingerFSM.GRIPPED()) {
                                 state = States.RELAXING_WITH_SAMPLE;
@@ -145,7 +145,7 @@ public class MonkeyPawFSM {
                 }
                 break;
             case DEPOSITING_SAMPLE_TO_HP:
-                fingerFSM.release();
+                fingerFSM.releaseSample();
                 if(fingerFSM.RELEASED()) {
                     state = States.DEPOSITED_SAMPLE_TO_HP;
                 }
@@ -155,7 +155,7 @@ public class MonkeyPawFSM {
             case DEPOSITING_SAMPLE:
                 elbowFSM.flexToDepositPos();
                 if(elbowFSM.FLEXED_TO_DEPOSIT()) {
-                    fingerFSM.release();
+                    fingerFSM.releaseSample();
                     if(fingerFSM.RELEASED()) {
                         state = States.RELAXING_AFTER_DEPOSIT;
                     }
@@ -176,7 +176,7 @@ public class MonkeyPawFSM {
                 }
                 break;
             case INTAKING_SPECIMEN:
-                fingerFSM.grip();
+                fingerFSM.gripSpecimen();
                 if(fingerFSM.GRIPPED()) {
                     state = States.INTAKED_SPECIMEN;
                 }
@@ -184,7 +184,7 @@ public class MonkeyPawFSM {
             case DEPOSITING_SPECIMEN:
                 elbowFSM.flexToDepositPos();
                 if(elbowFSM.FLEXED_TO_DEPOSIT()) {
-                    fingerFSM.release();
+                    fingerFSM.releaseSpecimen();
                 }
                 if(fingerFSM.RELEASED()) {
                     elbowFSM.relax();
@@ -217,7 +217,7 @@ public class MonkeyPawFSM {
                 break;
             case RELAXING_MINI_INTAKE:
                 if(rbPressed2) {
-                    fingerFSM.grip();
+                    fingerFSM.gripSample();
                 }
                 if(fingerFSM.GRIPPED()) {
                     elbowFSM.relax();

@@ -3,15 +3,11 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.util.Timing;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 
-import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 @Config
@@ -27,8 +23,10 @@ public class FingerFSM {
     private double fingerCurrentAngle;
 
 
-    public static  double GRIPPED_POS = 90;
-    public static  double RELEASED_POS = 0;
+    public static  double SAMPLE_GRIPPED_POS = 90;
+    public static double SPECIMEN_GRIPPED_POS = 45;
+    public static  double SAMPLE_RELEASED_POS = 0;
+    public static double SPECIMEN_RELEASED_POS = 180;
 
     private FingerServoWrapper fingerServoWrapper;
 
@@ -80,11 +78,11 @@ public class FingerFSM {
     }
 
     public boolean isTargetAngleToRelease() {
-        return targetAngle == RELEASED_POS;
+        return targetAngle == SAMPLE_RELEASED_POS || targetAngle == SPECIMEN_RELEASED_POS;
     }
 
     public boolean isTargetAngleToGrip() {
-        return targetAngle == GRIPPED_POS;
+        return targetAngle == SAMPLE_GRIPPED_POS || targetAngle == SPECIMEN_GRIPPED_POS;
     }
 
    // public void updatePID() { // This method is used to update position every loop.
@@ -99,15 +97,22 @@ public class FingerFSM {
 
 
 
-    public void grip() {
-        targetAngle = GRIPPED_POS;
+    public void gripSample() {
+        targetAngle = SAMPLE_GRIPPED_POS;
+        fingerServoWrapper.setAngle(targetAngle);
+    }
+    public void gripSpecimen() {
+        targetAngle = SPECIMEN_GRIPPED_POS;
         fingerServoWrapper.setAngle(targetAngle);
     }
 
-    public void release() {
-        targetAngle = RELEASED_POS;
+    public void releaseSample() {
+        targetAngle = SAMPLE_RELEASED_POS;
         fingerServoWrapper.setAngle(targetAngle);
-
+    }
+    public void releaseSpecimen() {
+        targetAngle = SPECIMEN_RELEASED_POS;
+        fingerServoWrapper.setAngle(targetAngle);
     }
 
 
@@ -152,10 +157,10 @@ public class FingerFSM {
     }
 
     public double getGrippedPos() {
-        return GRIPPED_POS;
+        return SAMPLE_GRIPPED_POS;
     }
     public double getReleasedPos() {
-        return RELEASED_POS;
+        return SAMPLE_RELEASED_POS;
     }
 
 
