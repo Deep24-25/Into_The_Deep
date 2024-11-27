@@ -10,7 +10,7 @@ public class ArmFSM {
         AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
     }
 
-
+    //Random Values
     private static final double SAFE_HEIGHT = 3;
     private static final double BASKET_LOW = 6;
     private static final double BASKET_HIGH = 10;
@@ -162,6 +162,13 @@ public class ArmFSM {
 
     public boolean isTargetPosAtSubmersibleHeight() {
         return targetPosition == SUBMERSIBLE_HIGH || targetPosition == SUBMERSIBLE_LOW;
+    }
+
+    public boolean atTargetPos() {
+        return targetPosition == measuredPosition;
+    }
+    public void moveToMiniIntake(){
+
     }
 
     public void setPowerCapFinalMovements() {
