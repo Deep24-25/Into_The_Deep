@@ -17,6 +17,10 @@ public class MainTeleOp extends LinearOpMode {
     private Logger logger;
     private LimbFSM limbFSM;
     private MonkeyPawFSM monkeyPawFSM;
+    private boolean leftTriggerWasJustPressed;
+    private boolean rightTriggerWasJustPressed;
+    private double prevLeftTrigger;
+    private double prevRightTrigger;
     @Override
     public void runOpMode() throws InterruptedException {
         try {
@@ -35,7 +39,12 @@ public class MainTeleOp extends LinearOpMode {
         while (opModeIsActive()){
             gamePad1.readButtons();
             gamePad2.readButtons();
-            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
+            triggersWasJustPressed();
+
+
+            limbFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.Y),gamePad2.wasJustPressed(GamepadKeys.Button.A),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),rightTriggerWasJustPressed,gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), leftTriggerWasJustPressed);
+           // monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
+
 
             monkeyPawFSM.updatePID();
             log();
@@ -46,5 +55,14 @@ public class MainTeleOp extends LinearOpMode {
 
     private void log() {
         monkeyPawFSM.log();
+    }
+
+    private void triggersWasJustPressed() {
+        leftTriggerWasJustPressed = gamePad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) == 1.0 & prevLeftTrigger != 1.0;
+        rightTriggerWasJustPressed = gamePad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) == 1.0 & prevRightTrigger != 1.0;
+
+
+        prevLeftTrigger = gamePad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
+        prevRightTrigger = gamePad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
     }
 }

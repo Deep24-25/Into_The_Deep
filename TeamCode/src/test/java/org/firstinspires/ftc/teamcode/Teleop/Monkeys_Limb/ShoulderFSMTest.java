@@ -19,7 +19,6 @@ class ShoulderFSMTest {
 
     private ShoulderFSM sut;
     private ShoulderWrapper shoulderWrapperMock = mock();
-    private HWMap hwMap = mock();
     private PIDFController pidfController = mock();
     private static double P = 0;
     private static double I = 0;
@@ -30,7 +29,7 @@ class ShoulderFSMTest {
 
     @BeforeEach
     public void setup(){
-        sut = spy(new ShoulderFSM(hwMap,shoulderWrapperMock,pidfController));
+        sut = spy(new ShoulderFSM(shoulderWrapperMock,pidfController));
     }
     /**---------------------------updateState()---------------------------------**/
 

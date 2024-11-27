@@ -46,7 +46,7 @@ public class ShoulderFSM {
     }
 
     @VisibleForTesting
-    public ShoulderFSM(HWMap hwMap, ShoulderWrapper shoulderWrapper, PIDFController pidfController) {
+    public ShoulderFSM(ShoulderWrapper shoulderWrapper, PIDFController pidfController) {
         this.shoulderWrapper = shoulderWrapper;
         this.pidfController = pidfController;
 

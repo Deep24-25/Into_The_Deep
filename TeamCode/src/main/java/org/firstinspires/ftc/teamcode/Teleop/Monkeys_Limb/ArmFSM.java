@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 
 public class ArmFSM {
     private enum States {
@@ -49,11 +52,16 @@ public class ArmFSM {
         pidfController.setTolerance(tolerance);
     }
 
-    public void updateState() {
+    @VisibleForTesting
+    public ArmFSM( ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController) {
+        this.armMotorsWrapper = armMotorsWrapper;
+        this.pidfController = pidfController;
+
+    }
+        public void updateState() {
         updatePIDF();
         pidfController.setSetPoint(0);
         armMotorsWrapper.readPositionInCM();
-        measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
         if (pidfController.atSetPoint()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
@@ -71,7 +79,7 @@ public class ArmFSM {
         }
     }
 
-    private boolean isFullyExtended() {
+    public boolean isFullyExtended() {
         return measuredPosition == MAX_HEIGHT;
     }
 
