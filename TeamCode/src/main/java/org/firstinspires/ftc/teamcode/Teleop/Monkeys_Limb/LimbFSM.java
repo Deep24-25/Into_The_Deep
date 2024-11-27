@@ -75,7 +75,7 @@ public class LimbFSM {
         this.armFSM = armFSM;
         this.shoulderFSM = shoulderFSM;
     }
-     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean leftBumperPressed){
+     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed){
      if (yPressed && SPECIMEN_MODE()){
          if (PREPARED_TO_INTAKE() || DEPOSITED_SPECIMEN()){
              states = States.PREPARING_TO_INTAKE_SPECIMEN;
@@ -143,8 +143,9 @@ public class LimbFSM {
          }
      }
     }
-    public void updateState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTwoBumperPressed, boolean leftBumperPressed, boolean leftTwoBumperPressed) {
+    public void updateState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed) {
         updateLowLevelFSMStates();
+        findTargetState(yPressed,aPressed,xPressed,rightBumperPressed, rightTriggerPressed, leftBumperPressed, leftTriggerPressed);
         switch (states) {
             case PREPARING_TO_INTAKE_SPECIMEN:
                 if (armFSM.FULLY_RETRACTED()){
@@ -164,11 +165,11 @@ public class LimbFSM {
             }
                 break;
             case EXTENDING_SPECIMEN:
-                if (leftTwoBumperPressed) {
+                if (leftTriggerPressed) {
                     shoulderFSM.moveToLowChamberAngle();
                     armFSM.moveToSubmersibleLowHeight();
                 }
-                else if (rightTwoBumperPressed){
+                else if (rightTriggerPressed){
                     shoulderFSM.moveToHighChamberAngle();
                     armFSM.moveToSubmersibleHighHeight();
                 }
