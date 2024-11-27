@@ -28,9 +28,11 @@ class LimbFSMTest {
         pawFSMMock = mock();
     }
 
-    /**
-     * ------------------------------------findTargetState()-----------------------------------
-     **/
+
+     /** ------------------------------------findTargetState()-----------------------------------
+
+      **/
+
 
     // Specimen State Tests
     @Test
@@ -256,9 +258,9 @@ class LimbFSMTest {
     }
 
 
-    /**
-     * ------------------------------------updateState()-----------------------------------
+    /** ------------------------------------updateState()-----------------------------------
      **/
+
     //Specimen: Preparing To Intake Specimen
     @Test
     public void whenArmIsFullyRetracted() {

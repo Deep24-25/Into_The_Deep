@@ -25,7 +25,7 @@ public class MainTeleOp extends LinearOpMode {
             gamePad2 = new GamepadEx(gamepad2);
             hwMap = new HWMap(hardwareMap);
             logger = new Logger(telemetry);
-            limbFSM = new LimbFSM();
+            limbFSM = new LimbFSM(hwMap,monkeyPawFSM);
             monkeyPawFSM = new MonkeyPawFSM(hwMap,logger,limbFSM);
         }catch (Exception e){
             logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
