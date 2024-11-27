@@ -169,6 +169,9 @@ public class ArmFSM {
     public boolean atTargetPos() {
         return targetPosition == measuredPosition;
     }
+    public void moveToMiniIntake(){
+
+    }
 
     public void setPowerCapFinalMovements() {
         slidePowerCap = slideFinalMovementsCap;

@@ -22,6 +22,10 @@ public class ShoulderFSM {
     public boolean isShoulderCurrentPosIntakeAngle(){return false;}
     public boolean isShoulderCurrentPosDepositBasketAngle(){return false;}
 
+    public void goToIntakeAngle(){}
+    public void goToChamberAngle(){}
+    public void goToBasketAngle(){}
+
     public boolean GOING_TO_CHAMBER(){
        return currentState == States.GOING_TO_CHAMBER;
     }
