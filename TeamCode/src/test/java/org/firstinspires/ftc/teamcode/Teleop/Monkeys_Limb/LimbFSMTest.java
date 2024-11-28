@@ -313,25 +313,25 @@ class LimbFSMTest {
 
         sut.updateState(false,false,false,false,false,false,false);
 
-        verify(armFSMMock, never()).goToSpecimenPickupHeight();
+        verify(armFSMMock, never()).moveToSpecimenPickUpHeight();
         assertFalse(sut.INTAKED_SPECIMEN());
-        assertFalse(armFSMMock.atSpecimenPickupHeight());
+        assertFalse(armFSMMock.AT_SPECIMEN_PICKUP_HEIGHT());
     }
-/*
+
     @Test
     public void whenPawHasIntaked() {
         sut.setCurrentState(LimbFSM.States.INTAKING_SPECIMEN);
         when(pawFSMMock.INTAKED_SPECIMEN()).thenReturn(true);
+        when(armFSMMock.AT_SPECIMEN_PICKUP_HEIGHT()).thenReturn(true);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
         sut.updateState(false,false,false,false,false,false,false);
 
-        verify(armFSMMock).goToSpecimenPickupHeight();
+        verify(armFSMMock).moveToSpecimenPickUpHeight();
         assertTrue(sut.INTAKED_SPECIMEN());
-        assertTrue(armFSMMock.atSpecimenPickupHeight());
     }
-
+/*
     //Specimen: Extending Specimen
     @Test
     public void extendingSpecimenAndArmNotAtTargetPos() {

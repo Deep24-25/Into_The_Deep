@@ -162,8 +162,10 @@ public class LimbFSM {
                 break;
             case INTAKING_SPECIMEN:
                 if (monkeyPawFSM.INTAKED_SPECIMEN()) {
-                    armFSM.
-                    states = States.INTAKED_SPECIMEN;
+                    armFSM.moveToSpecimenPickUpHeight();
+                    if(armFSM.AT_SPECIMEN_PICKUP_HEIGHT()) {
+                        states = States.INTAKED_SPECIMEN;
+                    }
             }
                 break;
             case EXTENDING_SPECIMEN:
