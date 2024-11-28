@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 public class LimbFSM {
     public enum States{
-        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_TO_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE
+        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE
     }
     public enum Mode{
         SAMPLE_MODE, SPECIMEN_MODE
@@ -86,7 +86,7 @@ public class LimbFSM {
              states = States.INTAKING_SPECIMEN;
          }
          else if (INTAKED_SPECIMEN()){
-             states = States.EXTENDING_TO_SPECIMEN;
+             states = States.EXTENDING_SPECIMEN;
          }
          else if (EXTENDED_SPECIMEN()){
              states = States.DEPOSITING_SPECIMEN;
@@ -107,7 +107,7 @@ public class LimbFSM {
          if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()){
              states = States.PREPARING_TO_INTAKE_SPECIMEN;
          }
-         else if (EXTENDING_TO_SPECIMEN() || EXTENDED_SPECIMEN())
+         else if (EXTENDING_SPECIMEN() || EXTENDED_SPECIMEN())
              states = States.INTAKING_SPECIMEN;
          else if (DEPOSITING_SPECIMEN()){
              states = States.EXTENDING_SPECIMEN;
@@ -169,19 +169,16 @@ public class LimbFSM {
             }
                 break;
             case EXTENDING_SPECIMEN:
-                if (leftTriggerPressed) {
+                if (rightTriggerPressed) {
                     shoulderFSM.moveToLowChamberAngle();
                     armFSM.moveToSubmersibleLowHeight();
                 }
-                else if (rightTriggerPressed){
+                else if (leftTriggerPressed){
                     shoulderFSM.moveToHighChamberAngle();
                     armFSM.moveToSubmersibleHighHeight();
                 }
-                if (armFSM.AT_SUBMERSIBLE_HEIGHT()) {
+                if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                         states = States.EXTENDED_SPECIMEN;
-                }
-                else {
-                    states = States.EXTENDING_SPECIMEN;
                 }
                 break;
             case DEPOSITING_SPECIMEN:
@@ -298,8 +295,8 @@ public class LimbFSM {
     public boolean INTAKED_SPECIMEN(){
         return states == States.INTAKED_SPECIMEN;
     }
-    public boolean EXTENDING_TO_SPECIMEN(){
-        return states == States.EXTENDING_TO_SPECIMEN;
+    public boolean EXTENDING_SPECIMEN(){
+        return states == States.EXTENDING_SPECIMEN;
     }
     public boolean EXTENDED_SPECIMEN(){
         return states == States.EXTENDED_SPECIMEN;

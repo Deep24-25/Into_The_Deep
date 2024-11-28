@@ -331,34 +331,38 @@ class LimbFSMTest {
         verify(armFSMMock).moveToSpecimenPickUpHeight();
         assertTrue(sut.INTAKED_SPECIMEN());
     }
-/*
+
     //Specimen: Extending Specimen
     @Test
     public void extendingSpecimenAndArmNotAtTargetPos() {
-        sut.setCurrentState(LimbFSM.States.EXTENDING_TO_SPECIMEN);
-        when(armFSMMock.atTargetPos()).thenReturn(false);
+        sut.setCurrentState(LimbFSM.States.EXTENDING_SPECIMEN);
+        when(armFSMMock.AT_SUBMERSIBLE_HEIGHT()).thenReturn(false);
+        when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(false);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false,false,false,false,false,false,false);
+        sut.updateState(false,false,false,false,true,false,false);
 
-        verify(sut).checkIndexUpOrDown();
+        verify(shoulderFSMMock).moveToLowChamberAngle();
+        verify(armFSMMock).moveToSubmersibleLowHeight();
 
         assertFalse(sut.EXTENDED_SPECIMEN());
     }
 
     @Test
     public void extendingSpecimenAndArmAtTargetPos() {
-        sut.setCurrentState(LimbFSM.States.EXTENDING_TO_SPECIMEN);
-        when(armFSMMock.atTargetPos()).thenReturn(true);
+        sut.setCurrentState(LimbFSM.States.EXTENDING_SPECIMEN);
+        when(armFSMMock.AT_SUBMERSIBLE_HEIGHT()).thenReturn(true);
+        when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(true);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false,false,false,false,false,false,false);
+        sut.updateState(false,false,false,false,false,false,true);
 
-        verify(sut).checkIndexUpOrDown();
+        verify(shoulderFSMMock).moveToHighChamberAngle();
+        verify(armFSMMock).moveToSubmersibleHighHeight();
 
         assertTrue(sut.EXTENDED_SPECIMEN());
     }
-
+/*
     //Specimen: Extended Specimen
     @Test
     public void extendedSpecimenAndArmNotAtTargetPos() {
