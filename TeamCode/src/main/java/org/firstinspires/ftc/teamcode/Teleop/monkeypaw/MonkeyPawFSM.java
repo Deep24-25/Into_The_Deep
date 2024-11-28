@@ -35,6 +35,7 @@ public class MonkeyPawFSM {
         PREPARED_TO_INTAKE_SPECIMEN,
         INTAKING_SPECIMEN,
         INTAKED_SPECIMEN,
+        RELAXING_FROM_SPECIMEN_INTAKE,
         DEPOSITING_SPECIMEN,
         DEPOSITED_SPECIMEN
     }
@@ -170,14 +171,15 @@ public class MonkeyPawFSM {
 
             //SPECIMEN DEPOSIT STATES
             case PREPARING_TO_INTAKE_SPECIMEN:
-                elbowFSM.flexToSpecimenPos();
+                elbowFSM.flexToSpecimenIntakePos();
                 if(elbowFSM.FLEXED_TO_SPECIMEN_INTAKE()) {
                     state = States.PREPARED_TO_INTAKE_SPECIMEN;
                 }
                 break;
             case INTAKING_SPECIMEN:
                 fingerFSM.gripSpecimen();
-                if(fingerFSM.GRIPPED()) {
+                elbowFSM.relaxToSpecimenIntakeRelaxedPos();
+                if(fingerFSM.GRIPPED() && elbowFSM.RELAXED_TO_SPECIMEN_INTAKE_RELAX_POS()) {
                     state = States.INTAKED_SPECIMEN;
                 }
                 break;

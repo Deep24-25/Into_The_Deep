@@ -266,14 +266,9 @@ public class ElbowFSM {
         return state == ElbowStates.FLEXED_TO_SPECIMEN_INTAKE;
     }
 
-    public boolean FLEXED_TO_DEPOSIT() {
-        return state == ElbowStates.FLEXED_TO_DEPOSIT;
+    public boolean RELAXED_TO_SPECIMEN_INTAKE_RELAX_POS() {
+        return state == ElbowStates.RELAXED_TO_SPECIMEN_INTAKE_RELAX_POS;
     }
-
-    public boolean FLEXING_TO_DEPOSIT() {
-        return state == ElbowStates.FLEXING_TO_DEPOSIT;
-    }
-
     public boolean RELAXING() {
         return state == ElbowStates.RELAXING;
     }
