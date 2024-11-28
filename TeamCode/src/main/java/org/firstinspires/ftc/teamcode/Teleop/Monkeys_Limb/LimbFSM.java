@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 public class LimbFSM {
-    public enum States {
-        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_TO_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE
+    public enum States{
+        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE
     }
 
     public enum Mode {
@@ -114,7 +114,7 @@ public class LimbFSM {
             } else if (PREPARED_TO_INTAKE_SPECIMEN()) {
                 states = States.INTAKING_SPECIMEN;
             } else if (INTAKED_SPECIMEN()) {
-                states = States.EXTENDING_TO_SPECIMEN;
+                states = States.EXTENDED_SPECIMEN;
             } else if (EXTENDED_SPECIMEN()) {
                 states = States.DEPOSITING_SPECIMEN;
             }
@@ -130,7 +130,7 @@ public class LimbFSM {
         if (xPressed) {
             if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()) {
                 states = States.PREPARING_TO_INTAKE_SPECIMEN;
-            } else if (EXTENDING_TO_SPECIMEN() || EXTENDED_SPECIMEN())
+            } else if (EXTENDING_SPECIMEN() || EXTENDED_SPECIMEN())
                 states = States.INTAKING_SPECIMEN;
             else if (DEPOSITING_SPECIMEN()) {
                 states = States.EXTENDING_SPECIMEN;
@@ -175,74 +175,107 @@ public class LimbFSM {
             case PREPARING_TO_INTAKE_SPECIMEN:
                 if (armFSM.FULLY_RETRACTED()) {
                     shoulderFSM.moveToSpecimenIntakeAngle();
-                    if (shoulderFSM.AT_SPECIMEN_INTAKE() || monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                    if (shoulderFSM.AT_SPECIMEN_INTAKE() && monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
                         states = States.PREPARED_TO_INTAKE_SPECIMEN;
                     }
-                } else {
-                    armFSM.retractToIntake();
+                }
+                else{
+                    armFSM.retract();
                 }
                 break;
             case INTAKING_SPECIMEN:
                 if (monkeyPawFSM.INTAKED_SPECIMEN()) {
-                    armFSM.indexIncrement();
-                    states = States.INTAKED_SPECIMEN;
-                }
+                    armFSM.moveToSpecimenPickUpHeight();
+                    if(armFSM.AT_SPECIMEN_PICKUP_HEIGHT()) {
+                        states = States.INTAKED_SPECIMEN;
+                    }
+            }
                 break;
             case EXTENDING_SPECIMEN:
-                if (leftTriggerPressed) {
+                if (rightTriggerPressed) {
                     shoulderFSM.moveToLowChamberAngle();
                     armFSM.moveToSubmersibleLowHeight();
-                } else if (rightTriggerPressed) {
+                }
+                else if (leftTriggerPressed){
                     shoulderFSM.moveToHighChamberAngle();
                     armFSM.moveToSubmersibleHighHeight();
                 }
-                if (armFSM.AT_SUBMERSIBLE_HEIGHT()) {
+                if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                        states = States.EXTENDED_SPECIMEN;
+                }
+                break;
+            case EXTENDED_SPECIMEN:
+                if (rightTriggerPressed) {
+                    shoulderFSM.moveToLowChamberAngle();
+                    armFSM.moveToSubmersibleLowHeight();
+                }
+                else if (leftTriggerPressed){
+                    shoulderFSM.moveToHighChamberAngle();
+                    armFSM.moveToSubmersibleHighHeight();
+                }
+                if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     states = States.EXTENDED_SPECIMEN;
-                } else {
+                }
+                else {
                     states = States.EXTENDING_SPECIMEN;
                 }
                 break;
             case DEPOSITING_SPECIMEN:
-                armFSM.indexIncrement();
-                if (armFSM.AT_SUBMERSIBLE_HEIGHT()) {
-                    states = States.DEPOSITED_SPECIMEN;
+                armFSM.moveToChamberLockHeight();
+                if (armFSM.AT_CHAMBER_LOCK_HEIGHT()){
+                    if(monkeyPawFSM.DEPOSITED_SPECIMEN()) {
+                        states = States.DEPOSITED_SPECIMEN;
+                    }
                 }
                 break;
-            case DEPOSITED_SPECIMEN:
-                monkeyPawFSM.DEPOSITED_SPECIMEN();
-                states = States.PREPARED_TO_INTAKE_SPECIMEN;
-                break;
             case PREPARING_TO_DEPOSIT_SAMPLE:
-                if (armFSM.FULLY_RETRACTED()) {
-                    shoulderFSM.GOING_TO_BASKET();
+                if (armFSM.FULLY_RETRACTED()){
+                    shoulderFSM.moveToBasketAngle();
                     if (shoulderFSM.AT_BASKET_DEPOSIT()) {
                         states = States.PREPARED_TO_DEPOSIT_SAMPLE;
                     }
-                } else {
-                    armFSM.retractToIntake();
+                }
+                else {
+                    armFSM.retract();
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                armFSM.indexIncrement();
-                if (armFSM.AT_BASKET_HEIGHT()) {
+                armFSM.moveToBasketHighHeight();
+                if(leftTriggerPressed) {
+                    armFSM.moveToBasketHighHeight();
+                }
+                if(rightTriggerPressed) {
+                    armFSM.moveToBasketLowHeight();
+                }
+                if (armFSM.AT_BASKET_HEIGHT()){
                     states = States.EXTENDED_TO_BASKET_HEIGHT;
                 }
                 break;
             case EXTENDED_TO_BASKET_HEIGHT:
-                if (!armFSM.AT_BASKET_HEIGHT()) {
+                if(leftTriggerPressed) {
+                    armFSM.moveToBasketHighHeight();
+                }
+                if(rightTriggerPressed) {
+                    armFSM.moveToBasketLowHeight();
+                }
+                if (armFSM.AT_BASKET_HEIGHT()) {
+                    states = States.EXTENDED_TO_BASKET_HEIGHT;
+                }
+                else {
                     states = States.EXTENDING_TO_BASKET_HEIGHT;
                 }
                 break;
             case DEPOSITING_SAMPLE:
-                monkeyPawFSM.RELAXED_AFTER_DEPOSIT();
-                states = States.DEPOSITED_SAMPLE;
+                if(monkeyPawFSM.RELAXED_AFTER_DEPOSIT()) {
+                    states = States.DEPOSITED_SAMPLE;
+                }
                 break;
             case PREPARING_TO_INTAKE:
                 if (shoulderFSM.AT_INTAKE()) {
                     if (!armFSM.FULLY_RETRACTED()) {
                         armFSM.moveToSafeHeight();
-                        if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
-                            armFSM.retractToIntake();
+                        if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()){
+                            armFSM.retract();
                             if (armFSM.FULLY_RETRACTED()) {
                                 states = States.PREPARED_TO_INTAKE;
                             }
@@ -250,12 +283,13 @@ public class LimbFSM {
                     } else {
                         states = States.PREPARED_TO_INTAKE;
                     }
-                } else {
-                    armFSM.retractToIntake();
-                    if (armFSM.FULLY_RETRACTED()) {
+                }
+                else {
+                    armFSM.retract();
+                    if (armFSM.FULLY_RETRACTED()){
                         shoulderFSM.moveToIntakeAngle();
-                        if (shoulderFSM.AT_INTAKE()) {
-                            if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
+                        if (shoulderFSM.AT_INTAKE()){
+                            if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()){
                                 states = States.PREPARED_TO_INTAKE;
                             }
                         }
@@ -271,7 +305,7 @@ public class LimbFSM {
                 }
                 break;
             case MOVED_TO_INTAKE_POS:
-                if (xPressed) {
+                if (xPressed){
                     states = States.MOVING_TO_INTAKE_POS;
                 }
                 break;
@@ -280,9 +314,9 @@ public class LimbFSM {
                 states = States.MOVED_TO_MINI_INTAKE;
                 break;
             case RETRACTING_FROM_MINI_INTAKE:
-                if (monkeyPawFSM.RELAXED_MINI_INTAKE()) {
-                    armFSM.retractToIntake();
-                    if (armFSM.FULLY_RETRACTED()) {
+                if (monkeyPawFSM.RELAXED_MINI_INTAKE()){
+                    armFSM.retract();
+                    if (armFSM.FULLY_RETRACTED()){
                         states = States.PREPARED_TO_INTAKE;
                     }
                 }
@@ -292,12 +326,12 @@ public class LimbFSM {
     }
 
 
-    public void updateLowLevelFSMStates() {
+    public void updateLowLevelFSMStates(){
         armFSM.updateState();
         shoulderFSM.updateState();
     }
 
-    public void checkIndexUpOrDown() {
+    public void checkIndexUpOrDown(){
 
     }
 
@@ -316,14 +350,10 @@ public class LimbFSM {
     public boolean INTAKED_SPECIMEN() {
         return states == States.INTAKED_SPECIMEN;
     }
-
-    public boolean EXTENDING_TO_SPECIMEN() {
-        return states == States.EXTENDING_TO_SPECIMEN;
-    }
-    public boolean EXTENDING_SPECIMEN() {
+    public boolean EXTENDING_SPECIMEN(){
         return states == States.EXTENDING_SPECIMEN;
     }
-    public boolean EXTENDED_SPECIMEN() {
+    public boolean EXTENDED_SPECIMEN(){
         return states == States.EXTENDED_SPECIMEN;
     }
 
@@ -335,13 +365,6 @@ public class LimbFSM {
         return states == States.DEPOSITED_SPECIMEN;
     }
 
-    public boolean PREPARING_TO_DEPOSIT_SPECIMEN() {
-        return states == States.PREPARING_TO_DEPOSIT_SPECIMEN;
-    }
-
-    public boolean PREPARED_TO_DEPOSIT_SPECIMEN() {
-        return states == States.PREPARED_TO_DEPOSIT_SPECIMEN;
-    }
 
     public boolean PREPARING_TO_DEPOSIT_SAMPLE() {
         return states == States.PREPARING_TO_DEPOSIT_SAMPLE;

@@ -251,17 +251,13 @@ public class ArmFSM {
         targetPosition = BASKET_LOW;
     }
 
-    public void retractToIntake() {
+    public void retract() {
         targetPosition = FULLY_RETRACTED;
     }
 
     public void moveToSafeHeight() {
         targetPosition = SAFE_HEIGHT;
     }
-
-    //TODO: ADD 2 MORE POSITIONS
-    public void specimenPickupHeight(){}
-    public void chamberLockHeight(){}
 
 
 }
