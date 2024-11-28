@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 
 public class ArmFSM {
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
     }
 
     //Random Values
@@ -74,6 +74,9 @@ public class ArmFSM {
             else if(isTargetPosChamberLockHeight()) {
                 currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             }
+            else if(isTargetPosMiniIntakeHeight()) {
+                currentState = States.AT_MINI_INTAKE;
+            }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
         } else {
@@ -132,6 +135,11 @@ public class ArmFSM {
 
     public boolean AT_CHAMBER_LOCK_HEIGHT() {
         return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
+
+    }
+
+    public boolean AT_MINI_INTAKE() {
+        return currentState == States.AT_MINI_INTAKE;
 
     }
     public void updatePIDF() {
@@ -193,9 +201,12 @@ public class ArmFSM {
         return targetPosition == CHAMBER_LOCK_HEIGHT;
     }
 
+    public boolean isTargetPosMiniIntakeHeight() {
+        return targetPosition == MINI_INTAKE;
+    }
 
     public void moveToMiniIntake(){
-
+        targetPosition = MINI_INTAKE;
     }
 
     public void setPowerCapFinalMovements() {

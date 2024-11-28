@@ -310,8 +310,10 @@ public class LimbFSM {
                 }
                 break;
             case MOVING_TO_MINI_INTAKE:
-                armFSM.indexIncrement();
-                states = States.MOVED_TO_MINI_INTAKE;
+                armFSM.moveToMiniIntake();
+                if(armFSM.AT_MINI_INTAKE()) {
+                    states = States.MOVED_TO_MINI_INTAKE;
+                }
                 break;
             case RETRACTING_FROM_MINI_INTAKE:
                 if (monkeyPawFSM.RELAXED_MINI_INTAKE()){

@@ -484,7 +484,7 @@ class LimbFSMTest {
         assertTrue(sut.EXTENDING_TO_BASKET_HEIGHT());
     }
 
-/*
+
     //Sample: Depositing Sample
     //TODO: 1 of the 2 tests pass (which is not good) but the logic is flawed as here I also see another boolean function not in an if loop.
     @Test
@@ -587,6 +587,8 @@ class LimbFSMTest {
         verify(shoulderFSMMock, never()).moveToIntakeAngle();
         assertTrue(sut.PREPARED_TO_INTAKE());
     }
+
+
     //Intake: Moving To Intake
 
     //TODO: Do not know the logic yet
@@ -596,7 +598,7 @@ class LimbFSMTest {
     @Test
     public void movingToMiniIntake() {
         sut.setCurrentState(LimbFSM.States.MOVING_TO_MINI_INTAKE);
-        when(armFSMMock.atTargetPos()).thenReturn(true);
+        when(armFSMMock.AT_MINI_INTAKE()).thenReturn(true);
 
         sut.updateState(false, false, false, false, false, false, false, true);
 
@@ -629,7 +631,7 @@ class LimbFSMTest {
         assertTrue(sut.RETRACTING_FROM_MINI_INTAKE());
     }
 
- */
+
 
 
 }
