@@ -114,12 +114,12 @@ public class LimbFSM {
             } else if (PREPARED_TO_INTAKE_SPECIMEN()) {
                 states = States.INTAKING_SPECIMEN;
             } else if (INTAKED_SPECIMEN()) {
-                states = States.EXTENDED_SPECIMEN;
+                states = States.EXTENDING_SPECIMEN;
             } else if (EXTENDED_SPECIMEN()) {
                 states = States.DEPOSITING_SPECIMEN;
             }
         } else if (yPressed && SAMPLE_MODE()) {
-            if (!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() || DEPOSITED_SAMPLE()) {
+            if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE()) || DEPOSITED_SAMPLE()) {
                 states = States.PREPARING_TO_DEPOSIT_SAMPLE;
             } else if (PREPARED_TO_DEPOSIT_SAMPLE()) {
                 states = States.EXTENDING_TO_BASKET_HEIGHT;

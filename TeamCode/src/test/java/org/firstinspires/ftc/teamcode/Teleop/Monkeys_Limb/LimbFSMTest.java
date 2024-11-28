@@ -126,7 +126,6 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.DEPOSITING_SPECIMEN()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(false);
-        when(sut.EXTENDING_SPECIMEN()).thenReturn(false);
 
         sut.findTargetState(false, false, true, false, false, false, false);
 
@@ -195,7 +194,7 @@ class LimbFSMTest {
         when(sut.EXTENDED_TO_BASKET_HEIGHT()).thenReturn(true);
         when(sut.SAMPLE_MODE()).thenReturn(true);
         when(sut.PREPARED_TO_DEPOSIT_SAMPLE()).thenReturn(false);
-        when(sut.DEPOSITED_SAMPLE()).thenReturn(true);
+        when(sut.DEPOSITING_SAMPLE()).thenReturn(true);
         when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
 
         sut.findTargetState(true, false, false, false, false, false, false);
