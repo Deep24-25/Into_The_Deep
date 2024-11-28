@@ -181,6 +181,22 @@ public class LimbFSM {
                         states = States.EXTENDED_SPECIMEN;
                 }
                 break;
+            case EXTENDED_SPECIMEN:
+                if (rightTriggerPressed) {
+                    shoulderFSM.moveToLowChamberAngle();
+                    armFSM.moveToSubmersibleLowHeight();
+                }
+                else if (leftTriggerPressed){
+                    shoulderFSM.moveToHighChamberAngle();
+                    armFSM.moveToSubmersibleHighHeight();
+                }
+                if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                    states = States.EXTENDED_SPECIMEN;
+                }
+                else {
+                    states = States.EXTENDING_SPECIMEN;
+                }
+                break;
             case DEPOSITING_SPECIMEN:
                 armFSM.indexIncrement();
                 if (armFSM.AT_SUBMERSIBLE_HEIGHT()){
