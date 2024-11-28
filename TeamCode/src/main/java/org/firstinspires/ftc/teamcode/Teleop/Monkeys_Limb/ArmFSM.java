@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 
 public class ArmFSM {
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
     }
 
     //Random Values
@@ -21,8 +21,8 @@ public class ArmFSM {
     private static final double FULLY_RETRACTED = 0;
     private static final double MINI_INTAKE = 0;
     private static final int MAX_HEIGHT = 0;
-    // for specimen intake go up in index to pick up
-    // to lock on to chamber go up and index
+    private static final double SPECIMEN_PICKUP = 0;
+    private static final double CHAMBER_LOCK_HEIGHT = 0;
 
 
     public static double PHorizontal = 0, IHorizontal = 0, DHorizontal = 0, FHorizontal = 0;
@@ -68,6 +68,12 @@ public class ArmFSM {
                 currentState = States.AT_BASKET_HEIGHT;
             else if (isTargetPosAtSubmersibleHeight())
                 currentState = States.AT_SUBMERSIBLE_HEIGHT;
+            else if(isTargetPosSpecimenPickUpHeight()) {
+                currentState = States.AT_SPECIMEN_PICKUP;
+            }
+            else if(isTargetPosChamberLockHeight()) {
+                currentState = States.AT_CHAMBER_LOCK_HEIGHT;
+            }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
         } else {
@@ -119,7 +125,15 @@ public class ArmFSM {
     public boolean MOVING_BELOW_SAFE_HEIGHT() {
         return currentState == States.MOVING_BELOW_SAFE_HEIGHT;
     }
+    public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
+        return currentState == States.AT_SPECIMEN_PICKUP;
 
+    }
+
+    public boolean AT_CHAMBER_LOCK_HEIGHT() {
+        return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
+
+    }
     public void updatePIDF() {
         // TODO: Can use sample and specimen mode instead
         if (targetPosition == BASKET_HIGH || targetPosition == BASKET_LOW)
@@ -171,9 +185,15 @@ public class ArmFSM {
         return targetPosition == SUBMERSIBLE_HIGH || targetPosition == SUBMERSIBLE_LOW;
     }
 
-    public boolean atTargetPos() {
-        return targetPosition == measuredPosition;
+    public boolean isTargetPosSpecimenPickUpHeight() {
+        return targetPosition == SPECIMEN_PICKUP;
     }
+
+    public boolean isTargetPosChamberLockHeight() {
+        return targetPosition == CHAMBER_LOCK_HEIGHT;
+    }
+
+
     public void moveToMiniIntake(){
 
     }
@@ -213,6 +233,14 @@ public class ArmFSM {
 
     public void moveToSubmersibleHighHeight() {
         targetPosition = SUBMERSIBLE_HIGH;
+    }
+
+    public void moveToSpecimenPickUpHeight() {
+        targetPosition = SPECIMEN_PICKUP;
+    }
+
+    public void moveToChamberLockHeight() {
+        targetPosition = CHAMBER_LOCK_HEIGHT;
     }
 
     public void moveToBasketHighHeight() {
