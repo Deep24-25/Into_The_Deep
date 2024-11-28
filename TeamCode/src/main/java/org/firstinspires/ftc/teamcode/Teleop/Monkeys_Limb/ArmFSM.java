@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 
 public class ArmFSM {
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
     }
 
     //Random Values
@@ -23,7 +23,7 @@ public class ArmFSM {
     private static final double MINI_INTAKE = 0;
     private static final int MAX_HEIGHT = 0;
     private static final double SPECIMEN_PICKUP = 0;
-    // to lock on to chamber go up and index
+    private static final double CHAMBER_LOCK_HEIGHT = 0;
 
 
     public static double PHorizontal = 0, IHorizontal = 0, DHorizontal = 0, FHorizontal = 0;
@@ -71,6 +71,9 @@ public class ArmFSM {
                 currentState = States.AT_SUBMERSIBLE_HEIGHT;
             else if(isTargetPosSpecimenPickUpHeight()) {
                 currentState = States.AT_SPECIMEN_PICKUP;
+            }
+            else if(isTargetPosChamberLockHeight()) {
+                currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
@@ -125,6 +128,11 @@ public class ArmFSM {
     }
     public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
         return currentState == States.AT_SPECIMEN_PICKUP;
+
+    }
+
+    public boolean AT_CHAMBER_LOCK_HEIGHT() {
+        return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
 
     }
     public void updatePIDF() {
@@ -182,9 +190,11 @@ public class ArmFSM {
         return targetPosition == SPECIMEN_PICKUP;
     }
 
-    public boolean atTargetPos() {
-        return targetPosition == measuredPosition;
+    public boolean isTargetPosChamberLockHeight() {
+        return targetPosition == CHAMBER_LOCK_HEIGHT;
     }
+
+
     public void moveToMiniIntake(){
 
     }
@@ -230,6 +240,9 @@ public class ArmFSM {
         targetPosition = SPECIMEN_PICKUP;
     }
 
+    public void moveToChamberLockHeight() {
+        targetPosition = CHAMBER_LOCK_HEIGHT;
+    }
 
     public void moveToBasketHighHeight() {
         targetPosition = BASKET_HIGH;

@@ -395,13 +395,14 @@ class LimbFSMTest {
 
         assertTrue(sut.EXTENDED_SPECIMEN());
     }
-/*
+
     //Specimen: Depositing Specimen
     @Test
     public void depositingSpecimenAndArmNotAtTargetPos() {
         sut.setCurrentState(LimbFSM.States.DEPOSITING_SPECIMEN);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
-        when(armFSMMock.atTargetPos()).thenReturn(false);
+        when(armFSMMock.AT_CHAMBER_LOCK_HEIGHT()).thenReturn(false);
+        when(pawFSMMock.DEPOSITED_SPECIMEN()).thenReturn(false);
 
         sut.updateState(false,false,false,false,false,false,false);
 
@@ -414,7 +415,8 @@ class LimbFSMTest {
     public void depositingSpecimenAndArmAtTargetPos() {
         sut.setCurrentState(LimbFSM.States.DEPOSITING_SPECIMEN);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
-        when(armFSMMock.atTargetPos()).thenReturn(true);
+        when(armFSMMock.AT_CHAMBER_LOCK_HEIGHT()).thenReturn(true);
+        when(pawFSMMock.DEPOSITED_SPECIMEN()).thenReturn(true);
         sut.updateState(false,false,false,false,false,false,false);
 
         verify(armFSMMock).moveToChamberLockHeight();
@@ -422,27 +424,7 @@ class LimbFSMTest {
         assertTrue(sut.DEPOSITED_SPECIMEN());
     }
 
-    //Specimen: Deposited Specimen
-    @Test
-    public void depositedSpecimenAndPawIsGripped() {
-        sut.setCurrentState(LimbFSM.States.DEPOSITED_SPECIMEN);
-        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
-        when(pawFSMMock.RELAXING_AFTER_DEPOSIT()).thenReturn(false);
-        sut.updateState(false,false,false,false,false,false,false);
-
-        assertTrue(sut.DEPOSITED_SPECIMEN());
-    }
-
-    @Test
-    public void depositedSpecimenAndPawIsUngripped() {
-        sut.setCurrentState(LimbFSM.States.DEPOSITED_SPECIMEN);
-        sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
-        when(pawFSMMock.RELAXING_AFTER_DEPOSIT()).thenReturn(true);
-        sut.updateState(false,false,false,false,false,false,false);
-
-        assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
-    }
-
+/*
     //Sample: Preparing to Deposit Sample
     @Test
     public void armNotRetracted() {

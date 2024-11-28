@@ -198,14 +198,12 @@ public class LimbFSM {
                 }
                 break;
             case DEPOSITING_SPECIMEN:
-                armFSM.indexIncrement();
-                if (armFSM.AT_SUBMERSIBLE_HEIGHT()){
-                    states = States.DEPOSITED_SPECIMEN;
+                armFSM.moveToChamberLockHeight();
+                if (armFSM.AT_CHAMBER_LOCK_HEIGHT()){
+                    if(monkeyPawFSM.DEPOSITED_SPECIMEN()) {
+                        states = States.DEPOSITED_SPECIMEN;
+                    }
                 }
-                break;
-            case DEPOSITED_SPECIMEN:
-                monkeyPawFSM.DEPOSITED_SPECIMEN();
-                states = States.PREPARED_TO_INTAKE_SPECIMEN;
                 break;
             case PREPARING_TO_DEPOSIT_SAMPLE:
                 if (armFSM.FULLY_RETRACTED()){
