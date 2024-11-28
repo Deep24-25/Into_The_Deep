@@ -302,7 +302,7 @@ class LimbFSMTest {
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
-/*
+
     //Specimen: Intaking Specimen
     @Test
     public void whenPawHasNotIntaked() {
@@ -317,7 +317,7 @@ class LimbFSMTest {
         assertFalse(sut.INTAKED_SPECIMEN());
         assertFalse(armFSMMock.atSpecimenPickupHeight());
     }
-
+/*
     @Test
     public void whenPawHasIntaked() {
         sut.setCurrentState(LimbFSM.States.INTAKING_SPECIMEN);

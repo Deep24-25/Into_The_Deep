@@ -162,7 +162,7 @@ public class LimbFSM {
                 break;
             case INTAKING_SPECIMEN:
                 if (monkeyPawFSM.INTAKED_SPECIMEN()) {
-                    armFSM.indexIncrement();
+                    armFSM.
                     states = States.INTAKED_SPECIMEN;
             }
                 break;
