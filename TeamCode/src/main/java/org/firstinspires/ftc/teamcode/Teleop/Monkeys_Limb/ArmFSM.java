@@ -6,7 +6,6 @@ import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
-import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 
 public class ArmFSM {
     private enum States {
@@ -224,12 +223,17 @@ public class ArmFSM {
         targetPosition = BASKET_LOW;
     }
 
-    public void retract() {
+    public void retractToIntake() {
         targetPosition = FULLY_RETRACTED;
     }
 
     public void moveToSafeHeight() {
         targetPosition = SAFE_HEIGHT;
     }
+
+    //TODO: ADD 2 MORE POSITIONS
+    public void specimenPickupHeight(){}
+    public void chamberLockHeight(){}
+
 
 }

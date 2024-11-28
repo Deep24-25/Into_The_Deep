@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
+
 @TeleOp
 public class MainTeleOp extends LinearOpMode {
     private GamepadEx gamePad1;
@@ -21,41 +22,48 @@ public class MainTeleOp extends LinearOpMode {
     private boolean rightTriggerWasJustPressed;
     private double prevLeftTrigger;
     private double prevRightTrigger;
+
     @Override
     public void runOpMode() throws InterruptedException {
-        while (opModeInInit()) {
-            try {
-                this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-                gamePad1 = new GamepadEx(gamepad1);
-                gamePad2 = new GamepadEx(gamepad2);
-                hwMap = new HWMap(hardwareMap);
-                logger = new Logger(telemetry);
-                if (monkeyPawFSM != null) {
-                    limbFSM = new LimbFSM(hwMap, monkeyPawFSM);
-                    break;
-                }
-                monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
-            } catch (Exception e) {
-                logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
-                logger.print();
-            }
-        }
-            waitForStart();
-
-        while (opModeIsActive()){
-            gamePad1.readButtons();
-            gamePad2.readButtons();
-            triggersWasJustPressed();
-
-
-            limbFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.Y),gamePad2.wasJustPressed(GamepadKeys.Button.A),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),rightTriggerWasJustPressed,gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), leftTriggerWasJustPressed);
-           // monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
-
-
-            monkeyPawFSM.updatePID();
-            log();
+        try {
+            this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+            gamePad1 = new GamepadEx(gamepad1);
+            gamePad2 = new GamepadEx(gamepad2);
+            hwMap = new HWMap(hardwareMap);
+            logger = new Logger(telemetry);
+            limbFSM = new LimbFSM(hwMap, logger);
+            monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
+        } catch (Exception e) {
+            logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
             logger.print();
+            while (opModeInInit()) {
+                try {
+                    this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+                    gamePad1 = new GamepadEx(gamepad1);
+                    gamePad2 = new GamepadEx(gamepad2);
+                    hwMap = new HWMap(hardwareMap);
+                    logger = new Logger(telemetry);
+                    monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
+                } catch (Exception exception) {
+                    logger.log("-", exception.getMessage(), Logger.LogLevels.PRODUCTION);
+                    logger.print();
+                }
+            }
+            waitForStart();
+            while (opModeIsActive()) {
+                gamePad1.readButtons();
+                gamePad2.readButtons();
 
+
+                limbFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.X), gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), rightTriggerWasJustPressed, gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), leftTriggerWasJustPressed, false);
+                // monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
+
+
+                monkeyPawFSM.updatePID();
+                log();
+                logger.print();
+
+            }
         }
     }
 
