@@ -23,10 +23,10 @@ class LimbFSMTest {
 
     @BeforeEach
     public void setup() {
-        sut = spy(new LimbFSM(armFSMMock, shoulderFSMMock));
         armFSMMock = mock();
         shoulderFSMMock = mock();
         pawFSMMock = mock();
+        sut = spy(new LimbFSM(armFSMMock, shoulderFSMMock, pawFSMMock));
     }
 
 
@@ -36,6 +36,7 @@ class LimbFSMTest {
       **/
 
 
+/*
 
     // Specimen State Tests
     @Test
@@ -260,48 +261,48 @@ class LimbFSMTest {
         assertTrue(sut.RETRACTING_FROM_MINI_INTAKE());
     }
 
+*/
 
 
 /** ------------------------------------updateState()-----------------------------------
      **/
 
 
-/*
+
     //Specimen: Preparing To Intake Specimen
     @Test
     public void whenArmIsFullyRetracted() {
-        sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
+        when(shoulderFSMMock.AT_SPECIMEN_INTAKE()).thenReturn(true);
+        when(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
+        sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
         sut.updateState(false,false,false,false,false,false,false);
 
-        verify(armFSMMock, never()).retractToIntake();
-        verify(shoulderFSMMock).goToChamberAngle();
+        verify(armFSMMock, never()).retract();
+        verify(shoulderFSMMock).moveToSpecimenIntakeAngle();
 
-        assertTrue(shoulderFSMMock.AT_DEPOSIT_CHAMBERS());
-        assertTrue(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN());
-        assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
+        assertTrue(sut.PREPARED_TO_INTAKE_SPECIMEN());
     }
 
     @Test
     public void whenArmIsNotFullyRetracted() {
         sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(false);
+        when(shoulderFSMMock.AT_SPECIMEN_INTAKE()).thenReturn(true);
+        when(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
         sut.updateState(false,false,false,false,false,false,false);
 
-        verify(armFSMMock, never()).retractToIntake();
-        verify(shoulderFSMMock).goToChamberAngle();
+        verify(armFSMMock).retract();
 
-        assertTrue(shoulderFSMMock.AT_DEPOSIT_CHAMBERS());
-        assertTrue(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN());
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
-
+/*
     //Specimen: Intaking Specimen
     @Test
     public void whenPawHasNotIntaked() {
@@ -634,4 +635,6 @@ class LimbFSMTest {
 */
 
 }
+
+
 

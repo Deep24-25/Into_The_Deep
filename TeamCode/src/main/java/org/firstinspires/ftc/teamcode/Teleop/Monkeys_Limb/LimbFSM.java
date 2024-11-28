@@ -71,9 +71,11 @@ public class LimbFSM {
         this.monkeyPawFSM = monkeyPawFSM;
     }
 
-    public LimbFSM(ArmFSM armFSM, ShoulderFSM shoulderFSM){
+    @VisibleForTesting
+    public LimbFSM(ArmFSM armFSM, ShoulderFSM shoulderFSM, MonkeyPawFSM monkeyPawFSM){
         this.armFSM = armFSM;
         this.shoulderFSM = shoulderFSM;
+        this.monkeyPawFSM = monkeyPawFSM;
     }
      public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed){
      if (yPressed && SPECIMEN_MODE()){
@@ -150,7 +152,7 @@ public class LimbFSM {
             case PREPARING_TO_INTAKE_SPECIMEN:
                 if (armFSM.FULLY_RETRACTED()){
                     shoulderFSM.moveToSpecimenIntakeAngle();
-                    if (shoulderFSM.AT_SPECIMEN_INTAKE() || monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                    if (shoulderFSM.AT_SPECIMEN_INTAKE() && monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
                         states = States.PREPARED_TO_INTAKE_SPECIMEN;
                     }
                 }

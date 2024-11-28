@@ -23,19 +23,25 @@ public class MainTeleOp extends LinearOpMode {
     private double prevRightTrigger;
     @Override
     public void runOpMode() throws InterruptedException {
-        try {
-            this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-            gamePad1 = new GamepadEx(gamepad1);
-            gamePad2 = new GamepadEx(gamepad2);
-            hwMap = new HWMap(hardwareMap);
-            logger = new Logger(telemetry);
-            limbFSM = new LimbFSM(hwMap,monkeyPawFSM);
-            monkeyPawFSM = new MonkeyPawFSM(hwMap,logger,limbFSM);
-        }catch (Exception e){
-            logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
-            logger.print();
+        while (opModeInInit()) {
+            try {
+                this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+                gamePad1 = new GamepadEx(gamepad1);
+                gamePad2 = new GamepadEx(gamepad2);
+                hwMap = new HWMap(hardwareMap);
+                logger = new Logger(telemetry);
+                if (monkeyPawFSM != null) {
+                    limbFSM = new LimbFSM(hwMap, monkeyPawFSM);
+                    break;
+                }
+                monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
+            } catch (Exception e) {
+                logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
+                logger.print();
+            }
         }
-        waitForStart();
+            waitForStart();
+
         while (opModeIsActive()){
             gamePad1.readButtons();
             gamePad2.readButtons();
