@@ -277,13 +277,51 @@ public class ElbowFSM {
         return state == ElbowStates.RELAXED;
     }
 
+    public boolean FLEXING_TO_BASKET_DEPOSIT(){
+        return state == ElbowStates.FLEXING_TO_BASKET_DEPOSIT;
+    }
+    public boolean FLEXED_TO_BASKET_DEPOSIT(){
+        return state == ElbowStates.FLEXING_TO_BASKET_DEPOSIT;
+    }
+
+    public boolean FLEXING_TO_HIGH_CHAMBER_DEPOSIT(){
+        return state == ElbowStates.FLEXING_TO_HIGH_CHAMBER_DEPOSIT;
+    }
+
+    public boolean FLEXED_TO_HIGH_CHAMBER_DEPOSIT(){
+        return state == ElbowStates.FLEXED_TO_HIGH_CHAMBER_DEPOSIT;
+    }
+
+    public boolean FLEXING_TO_LOW_CHAMBER_DEPOSIT(){
+        return state == ElbowStates.FLEXING_TO_LOW_CHAMBER_DEPOSIT;
+    }
+
+    public boolean FLEXED_TO_LOW_CHAMBER_DEPOSIT(){
+        return state == ElbowStates.FLEXED_TO_LOW_CHAMBER_DEPOSIT;
+    }
+
+    public boolean RELAXING_FROM_CHAMBER_DEPOSIT(){
+        return state == ElbowStates.RELAXING_FROM_CHAMBER_DEPOSIT;
+    }
+
+    public boolean RELAXED_FROM_CHAMBER_DEPOSIT(){
+        return state == ElbowStates.RELAXED_FROM_CHAMBER_DEPOSIT;
+    }
+
+    public boolean RELAXING_FROM_BASKET_DEPOSIT(){
+        return state == ElbowStates.RELAXING_FROM_BASKET_DEPOSIT;
+    }
+
+    public boolean RELAXED_FROM_BASKET_DEPOSIT(){
+        return state == ElbowStates.RELAXED_FROM_BASKET_DEPOSIT;
+    }
+    
     public void log() {
         logger.log("Elbow State",state, Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Current Position",elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
 
     }
-
 
 
 
