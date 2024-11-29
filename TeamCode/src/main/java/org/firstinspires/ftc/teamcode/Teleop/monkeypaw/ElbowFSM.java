@@ -315,7 +315,7 @@ public class ElbowFSM {
     public boolean RELAXED_FROM_BASKET_DEPOSIT(){
         return state == ElbowStates.RELAXED_FROM_BASKET_DEPOSIT;
     }
-    
+
     public void log() {
         logger.log("Elbow State",state, Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Current Position",elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
