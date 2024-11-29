@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.Core;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -49,3 +50,4 @@ public class MainTeleOp extends LinearOpMode {
         monkeyPawFSM.log();
     }
 }
+*/
