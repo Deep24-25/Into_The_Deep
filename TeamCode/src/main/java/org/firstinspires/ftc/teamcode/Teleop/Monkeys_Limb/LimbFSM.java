@@ -297,11 +297,16 @@ public class LimbFSM {
                 }
                 break;
             case MOVING_TO_INTAKE_POS:
-                if (armFSM.FULLY_EXTENDED()) {
-                    armFSM.setPowerCapMovement();
-                    if (aPressed) {
-                        states = States.MOVED_TO_INTAKE_POS;
-                    }
+                if(leftTriggerPressed) {
+                    armFSM.indexIncrement();
+                    armFSM.moveToSelectedIndexPosition();
+
+                } else if (rightTriggerPressed) {
+                    armFSM.indexDecrement();
+                    armFSM.moveToSelectedIndexPosition();
+                }
+                if (aPressed || armFSM.FULLY_EXTENDED()) {
+                    states = States.MOVED_TO_INTAKE_POS;
                 }
                 break;
             case MOVED_TO_INTAKE_POS:
