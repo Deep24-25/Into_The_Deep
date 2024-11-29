@@ -1,13 +1,15 @@
-/*
 package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
 import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.util.Timing;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
+
+import java.util.concurrent.TimeUnit;
 
 @Config
 public class MonkeyPawFSM {
@@ -50,6 +52,7 @@ public class MonkeyPawFSM {
     private Logger logger;
     private States state;
     private boolean keepRelaxed;
+    private Timing.Timer timer;
 
 
     public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
@@ -59,6 +62,7 @@ public class MonkeyPawFSM {
         wristFSM = new WristFSM(hwMap, logger);
         elbowFSM = new ElbowFSM(hwMap, logger);
         this.limbFSM = limbFSM;
+        timer =  new Timing.Timer(5000, TimeUnit.MILLISECONDS);
         state = States.PREPARING_TO_INTAKE_SAMPLE;
     }
     @VisibleForTesting
@@ -107,7 +111,7 @@ public class MonkeyPawFSM {
                     }
                 }
                 else {
-                    elbowFSM.relax();
+                    elbowFSM.flexToSampleIntakeReadyPos();
                 }
                 break;
             case INTAKING_SAMPLE:
@@ -124,25 +128,27 @@ public class MonkeyPawFSM {
                     keepRelaxed = true;
                 }
                 else if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.LEFT_DEVIATED() || (keepRelaxed)) {
-                    elbowFSM.flexToSamplePos();
+                    elbowFSM.flexToSampleIntakeCapturePos();
                     wristFSM.flex();
-                    if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE() && wristFSM.FLEXED()) {
-                        if(rbPressed2) {
-                            fingerFSM.gripSample();
-                        }
+                    if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS() && wristFSM.FLEXED()) {
+                        fingerFSM.gripSample();
                             if(fingerFSM.GRIPPED()) {
-                                state = States.RELAXING_WITH_SAMPLE;
+                                if(!timer.isTimerOn()) {
+                                    timer.start();
+                                }
+                                if(timer.done()) {
+                                    timer.pause();
+                                    state = States.RELAXING_WITH_SAMPLE;
+                                }
                             }
-
-
                     }
                 }
                 break;
             case RELAXING_WITH_SAMPLE:
-                elbowFSM.relax();
+                elbowFSM.flexToSampleIntakeControlPos();
                 wristFSM.relax();
                 deviatorFSM.relax();
-                if(elbowFSM.RELAXED() && wristFSM.RELAXED() && deviatorFSM.RELAXED()) {
+                if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS() && wristFSM.RELAXED() && deviatorFSM.RELAXED()) {
                     state = States.RELAXED_POS_WITH_SAMPLE;
                 }
                 break;
@@ -240,6 +246,9 @@ public class MonkeyPawFSM {
         //else if(limbFSM.MOVED_TO_INTAKE_POS() && PREPARED_TO_INTAKE_SAMPLE()) {
         else if(dpadDownPressed) {
             state = States.INTAKING_SAMPLE;
+        }
+        else if() {
+
         }
        // }
         else if(rbPressed2 && !INTAKING_SAMPLE() && !RELAXING_MINI_INTAKE()) {
@@ -376,4 +385,3 @@ public class MonkeyPawFSM {
     }
 
 }
-*/

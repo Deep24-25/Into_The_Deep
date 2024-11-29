@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
@@ -13,8 +12,14 @@ import org.firstinspires.ftc.teamcode.Core.Logger;
 public class ElbowFSM {
 
     public enum ElbowStates{
-        FLEXING_TO_SAMPLE_INTAKE,
-        FLEXED_TO_SAMPLE_INTAKE,
+        FLEXING_TO_SAMPLE_INTAKE_READY_POS,
+        FLEXED_TO_SAMPLE_INTAKE_READY_POS,
+        FLEXING_TO_SAMPLE_INTAKE_CAPTURE_POS,
+        FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS,
+        FLEXING_TO_SAMPLE_INTAKE_CONTROL_POS,
+        FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS,
+        FLEXING_TO_SAMPLE_INTAKE_RETRACT_POS,
+        FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS,
         FLEXING_TO_SPECIMEN_INTAKE,
         FLEXED_TO_SPECIMEN_INTAKE,
         RELAXING_TO_SPECIMEN_INTAKE_RELAX_POS,
@@ -41,14 +46,17 @@ public class ElbowFSM {
     public static  double D = 0;
     public static  double F = 0;
 
-
-    public static  double SAMPLE_INTAKE_FLEXED_POS = 90;
+    public static  double RELAXED_POS = 0;
+    public static  double SAMPLE_INTAKE_READY_POS = 90;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 0;
+    public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
+    public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
     public static  double SPECIMEN_INTAKE_FLEXED_POS = 30;
     public static  double SPECIMEN_INTAKE_RELAX_POS = 30;
     public static  double BASKET_DEPOSIT_FLEXED_POS = 180;
     public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 180;
     public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 180;
-    public static  double RELAXED_POS = 0;
+
     public static  double BASKET_RELAX_POS = 0;
     public static double CHAMBER_RELAX_POS = 0;
 
@@ -78,11 +86,35 @@ public class ElbowFSM {
         pidfController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
 
-        if (isTargetAngleToSampleFlexedPos()) {
+        if (isTargetAngleToSampleIntakeReadyFlexedPos()) {
             if (pidfController.atSetPoint()) {
-                state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE;
+                state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
             } else {
-                state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE;
+                state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_READY_POS;
+            }
+        }
+
+        else if (isTargetAngleToSampleIntakeCapturePos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS;
+            } else {
+                state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_CAPTURE_POS;
+            }
+        }
+
+        else if (isTargetAngleToSampleIntakeControlPos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS;
+            } else {
+                state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_CONTROL_POS;
+            }
+        }
+
+        else if (isTargetAngleToSampleIntakeRetractPos()) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
+            } else {
+                state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_RETRACT_POS;
             }
         }
         else if (isTargetAngleToSpecimenFlexedPos()) {
@@ -151,9 +183,22 @@ public class ElbowFSM {
         return targetAngle == RELAXED_POS;
     }
 
-    public boolean isTargetAngleToSampleFlexedPos() {
-        return targetAngle == SAMPLE_INTAKE_FLEXED_POS;
+    public boolean isTargetAngleToSampleIntakeReadyFlexedPos() {
+        return targetAngle == SAMPLE_INTAKE_READY_POS;
     }
+
+    public boolean isTargetAngleToSampleIntakeCapturePos() {
+        return targetAngle == SAMPLE_INTAKE_CAPTURE_POS;
+    }
+
+    public boolean isTargetAngleToSampleIntakeControlPos() {
+        return targetAngle == SAMPLE_INTAKE_CONTROL_POS;
+    }
+
+    public boolean isTargetAngleToSampleIntakeRetractPos() {
+        return targetAngle == SAMPLE_INTAKE_RETRACT_POS;
+    }
+
 
     public boolean isTargetAngleToSpecimenFlexedPos() {
         return targetAngle == SPECIMEN_INTAKE_FLEXED_POS;
@@ -196,9 +241,22 @@ public class ElbowFSM {
 
 
 
-    public void flexToSampleIntakePos() {
-        targetAngle = SAMPLE_INTAKE_FLEXED_POS;
+    public void flexToSampleIntakeReadyPos() {
+        targetAngle = SAMPLE_INTAKE_READY_POS;
     }
+
+    public void flexToSampleIntakeControlPos() {
+        targetAngle = SAMPLE_INTAKE_CONTROL_POS;
+    }
+
+    public void flexToSampleIntakeCapturePos() {
+        targetAngle = SAMPLE_INTAKE_CAPTURE_POS;
+    }
+
+    public void flexToSampleIntakeRetractPos() {
+        targetAngle = SAMPLE_INTAKE_RETRACT_POS;
+    }
+
 
     public void flexToSpecimenIntakePos() {
         targetAngle = SPECIMEN_INTAKE_FLEXED_POS;
@@ -250,12 +308,24 @@ public class ElbowFSM {
         return (angle + 360) % 360;
     }
 
-    public boolean FLEXED_TO_SAMPLE_INTAKE() {
-        return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE;
+    public boolean FLEXED_TO_SAMPLE_INTAKE_READY_POS() {
+        return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
     }
 
-    public boolean FLEXING_TO_SAMPLE_INTAKE() {
-        return state == ElbowStates.FLEXING_TO_SAMPLE_INTAKE;
+    public boolean FLEXING_TO_SAMPLE_INTAKE_READY_POS() {
+        return state == ElbowStates.FLEXING_TO_SAMPLE_INTAKE_READY_POS;
+    }
+
+    public boolean FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS() {
+        return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS;
+    }
+
+    public boolean FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS() {
+        return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS;
+    }
+
+    public boolean FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() {
+        return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
     }
 
     public boolean FLEXING_TO_SPECIMEN_INTAKE() {
