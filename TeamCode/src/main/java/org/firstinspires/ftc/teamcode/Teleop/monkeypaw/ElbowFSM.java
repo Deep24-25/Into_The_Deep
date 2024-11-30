@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
@@ -41,10 +42,12 @@ public class ElbowFSM {
     public static  double PID_TOLERANCE = 5;
     private double elbowCurrentAngle;
     //Robot CONSTANTS:
-    public static  double P = 0.01;
-    public static  double I = 0;
-    public static  double D = 0;
-    public static  double F = 0;
+
+    public static double P = 0.007;
+    public static double I = 0;
+    public static double D = 0;
+    public static double F = -0.1;
+
 
     public static  double RELAXED_POS = 37;
     public static  double SAMPLE_INTAKE_READY_POS = 140;
@@ -61,7 +64,7 @@ public class ElbowFSM {
     public static double CHAMBER_RELAX_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
-    private PIDFController pidfController;
+    private PIDController pidController;
 
     private ElbowStates state;
     private Logger logger;
@@ -71,33 +74,33 @@ public class ElbowFSM {
 
     public ElbowFSM(HWMap hwMap, Logger logger) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),false, false); // check if you need to reverse axons
-        pidfController = new PIDFController(P, I, D, F);
+        pidController = new PIDController(P, I, D);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
     }
     @VisibleForTesting
-    public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDFController pidfController) {
+    public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
         elbowServoWrapper = axonServoWrapper;
-        this.pidfController = pidfController;
+        this.pidController = pidController;
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
     }
 
     public void updateState() {
-        pidfController.setPIDF(P, I, D, F);
-        pidfController.setSetPoint(0); // PIDs the error to 0
-        pidfController.setTolerance(PID_TOLERANCE); // sets the buffer
+        pidController.setPIDF(P, I, D, F);
+        pidController.setSetPoint(0); // PIDs the error to 0
+        pidController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
 
          if (isTargetAngleToRelax() && relaxCalled) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.RELAXED;
             } else {
                 state = ElbowStates.RELAXING;
             }
         }
         else if (isTargetAngleToSampleIntakeReadyFlexedPos() && !sampleControl) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_READY_POS;
@@ -105,7 +108,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToSampleIntakeCapturePos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_CAPTURE_POS;
@@ -113,7 +116,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToSampleIntakeControlPos() && sampleControl) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_CONTROL_POS;
@@ -121,35 +124,35 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToSampleIntakeRetractPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_RETRACT_POS;
             }
         }
         else if (isTargetAngleToSpecimenFlexedPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SPECIMEN_INTAKE;
             } else {
                 state = ElbowStates.FLEXING_TO_SPECIMEN_INTAKE;
             }
         }
         else if (isTargetAngleToSpecimenIntakeRelaxedPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.RELAXED_TO_SPECIMEN_INTAKE_RELAX_POS;
             } else {
                 state = ElbowStates.RELAXING_TO_SPECIMEN_INTAKE_RELAX_POS;
             }
         }
         else if (isTargetAngleToBasketDepositFlexedPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_BASKET_DEPOSIT;
             } else {
                 state = ElbowStates.FLEXING_TO_BASKET_DEPOSIT;
             }
         }
         else if (isTargetAngleToHighChamberDepositFlexedPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_HIGH_CHAMBER_DEPOSIT;
             } else {
                 state = ElbowStates.FLEXING_TO_HIGH_CHAMBER_DEPOSIT;
@@ -157,7 +160,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToLowChamberDepositFlexedPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_LOW_CHAMBER_DEPOSIT;
             } else {
                 state = ElbowStates.FLEXING_TO_LOW_CHAMBER_DEPOSIT;
@@ -165,7 +168,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToChamberRelaxPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.RELAXED_FROM_CHAMBER_DEPOSIT;
             } else {
                 state = ElbowStates.RELAXING_FROM_CHAMBER_DEPOSIT;
@@ -173,7 +176,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToBasketRelaxPos()) {
-            if (pidfController.atSetPoint()) {
+            if (pidController.atSetPoint()) {
                 state = ElbowStates.RELAXED_FROM_BASKET_DEPOSIT;
             } else {
                 state = ElbowStates.RELAXING_FROM_BASKET_DEPOSIT;
@@ -231,14 +234,31 @@ public class ElbowFSM {
     }
 
 
-
     public void updatePID() { // This method is used to update position every loop.
+
+        if(targetAngle < 36) {
+            targetAngle = 36;
+        }
+        if(targetAngle > 312) {
+            targetAngle = 312;
+        }
+
+
         elbowServoWrapper.readPos();
         double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(elbowServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
-        double power = pidfController.calculate(angleDelta*sign) + (F*Math.cos(elbowServoWrapper.getLastReadPos())); // calculates the remaining error(PID)
-        logger.log("Elbow Power",power, Logger.LogLevels.DEBUG);
-        elbowServoWrapper.set(power);
+
+
+        if(!isActualSignEqualToDesiredSign(sign)) {
+            sign = -sign;
+            angleDelta = negateError(angleDelta);
+        }
+        double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
+        logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
+        logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos()))))), Logger.LogLevels.PRODUCTION);
+        logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())), Logger.LogLevels.PRODUCTION);
+        logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
+        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos()))))));
 
     }
 
@@ -313,6 +333,25 @@ public class ElbowFSM {
     //Prevents the servos from looping around
     private static double normalizeDegrees(double angle) {
         return (angle + 360) % 360;
+    }
+
+
+    private boolean isActualSignEqualToDesiredSign(double actualSign) {
+        return actualSign == desiredSign();
+    }
+
+    private double desiredSign() {
+        if(targetAngle > elbowServoWrapper.getLastReadPos()) {
+            return 1;
+        }
+        else if(targetAngle < elbowServoWrapper.getLastReadPos()) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private double negateError(double currentError) {
+        return 360 - Math.abs(currentError);
     }
 
     public boolean FLEXED_TO_SAMPLE_INTAKE_READY_POS() {

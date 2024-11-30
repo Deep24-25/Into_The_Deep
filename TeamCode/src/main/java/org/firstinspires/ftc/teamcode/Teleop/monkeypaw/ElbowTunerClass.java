@@ -42,11 +42,11 @@ public class ElbowTunerClass extends LinearOpMode {
 
     public void updatePID() { // This method is used to update position every loop.
 
-        if(targetAngle < 65) {
-            targetAngle = 65;
+        if(targetAngle < 36) {
+            targetAngle = 36;
         }
-        if(targetAngle > 340) {
-            targetAngle = 340;
+        if(targetAngle > 312) {
+            targetAngle = 312;
         }
 
 
@@ -61,10 +61,10 @@ public class ElbowTunerClass extends LinearOpMode {
         }
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
-        logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos() - 30))))), Logger.LogLevels.PRODUCTION);
-        logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - 30)), Logger.LogLevels.PRODUCTION);
+        logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos()))))), Logger.LogLevels.PRODUCTION);
+        logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())), Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos()  -30))))));
+        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos()))))));
 
     }
 
