@@ -41,6 +41,18 @@ class LimbFSMTest {
     public void preparingToIntakeSpecimenState() {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.PREPARED_TO_INTAKE()).thenReturn(true);
+        when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
+
+
+        sut.findTargetState(true, false, false, false, false, false, false);
+
+        assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
+    }
+    @Test
+    public void preparingToIntakeSpecimenStateWithDepositedSpecimen() {
+        when(sut.SPECIMEN_MODE()).thenReturn(true);
+        when(sut.PREPARED_TO_INTAKE()).thenReturn(false);
+        when(sut.DEPOSITED_SPECIMEN()).thenReturn(true);
 
         sut.findTargetState(true, false, false, false, false, false, false);
 
@@ -71,10 +83,11 @@ class LimbFSMTest {
     public void depositingSpecimenState() {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.EXTENDED_SPECIMEN()).thenReturn(true);
+        when(sut.INTAKED_SPECIMEN()).thenReturn(false);
 
         sut.findTargetState(true, false, false, false, false, false, false);
 
-        assertTrue(sut.EXTENDING_SPECIMEN());
+        assertTrue(sut.DEPOSITING_SPECIMEN());
     }
 
     @Test
@@ -156,8 +169,23 @@ class LimbFSMTest {
 
     //Sample State Tests
     @Test
+    public void preparingToDepositStateAndNotDepositingSampleAndNotPreparedToDepositSample() {
+        when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
+        when(sut.DEPOSITING_SAMPLE()).thenReturn(false);
+        when(sut.PREPARED_TO_DEPOSIT_SAMPLE()).thenReturn(false);
+        when(sut.SAMPLE_MODE()).thenReturn(true);
+
+        sut.findTargetState(true, false, false, false, false, false, false);
+
+        assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
+
+    }
+    @Test
     public void preparingToDepositStateAndNotDepositedSample() {
         when(sut.DEPOSITED_SAMPLE()).thenReturn(true);
+        when(sut.DEPOSITING_SAMPLE()).thenReturn(true);
+        when(sut.PREPARED_TO_DEPOSIT_SAMPLE()).thenReturn(true);
+        when(sut.SAMPLE_MODE()).thenReturn(true);
         when(sut.SAMPLE_MODE()).thenReturn(true);
 
         sut.findTargetState(true, false, false, false, false, false, false);
@@ -196,6 +224,7 @@ class LimbFSMTest {
         when(sut.PREPARED_TO_DEPOSIT_SAMPLE()).thenReturn(false);
         when(sut.DEPOSITING_SAMPLE()).thenReturn(true);
         when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
+        when(sut.INTAKING_SPECIMEN()).thenReturn(false);
 
         sut.findTargetState(true, false, false, false, false, false, false);
 
@@ -204,8 +233,12 @@ class LimbFSMTest {
 
     //Intake States
     @Test
-    public void preparingToIntakeAndNotPreparedToIntake() {
-        when(sut.PREPARED_TO_INTAKE()).thenReturn(false);
+    public void preparingToIntakeAndNotPreparedToIntakeSpecimen() {
+        when(sut.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(false);
+        when(sut.MOVING_TO_INTAKE_POS()).thenReturn(true);
+        when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
+        when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
+
 
         sut.findTargetState(false, true, false, false, false, false, false);
 
@@ -214,7 +247,10 @@ class LimbFSMTest {
 
     @Test
     public void preparingToIntakeAndNotMovingToIntakePos() {
-        when(sut.PREPARED_TO_INTAKE()).thenReturn(false);
+        when(sut.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
+        when(sut.MOVING_TO_INTAKE_POS()).thenReturn(false);
+        when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
+        when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
 
         sut.findTargetState(false, true, false, false, false, false, false);
 
@@ -222,8 +258,11 @@ class LimbFSMTest {
     }
 
     @Test
-    public void preparingToIntakeAndDepositingSample() {
-        when(sut.DEPOSITING_SAMPLE()).thenReturn(true);
+    public void preparingToIntakeAndDepositedSample() {
+        when(sut.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
+        when(sut.MOVING_TO_INTAKE_POS()).thenReturn(true);
+        when(sut.DEPOSITED_SAMPLE()).thenReturn(true);
+        when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
 
         sut.findTargetState(false, true, false, false, false, false, false);
 
@@ -231,8 +270,11 @@ class LimbFSMTest {
     }
 
     @Test
-    public void preparingToIntakeAndDepositingSpecimen() {
-        when(sut.DEPOSITING_SPECIMEN()).thenReturn(true);
+    public void preparingToIntakeAndDepositedSpecimen() {
+        when(sut.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
+        when(sut.MOVING_TO_INTAKE_POS()).thenReturn(true);
+        when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
+        when(sut.DEPOSITED_SPECIMEN()).thenReturn(true);
 
         sut.findTargetState(false, true, false, false, false, false, false);
 
@@ -252,6 +294,9 @@ class LimbFSMTest {
     @Test
     public void movingToMiniIntakeIfPreparedToIntake() {
         when(sut.PREPARED_TO_INTAKE()).thenReturn(true);
+        when(sut.MOVED_TO_MINI_INTAKE()).thenReturn(false);
+        when(pawFSMMock.MINI_INTAKED()).thenReturn(false);
+
 
         sut.findTargetState(false, false, false, true, false, false, false);
 
@@ -260,6 +305,7 @@ class LimbFSMTest {
 
     @Test
     public void retractingFromMiniIntakeIfMovedToMiniIntakeAndMonkeyPawMiniIntaked() {
+        when(sut.PREPARED_TO_INTAKE()).thenReturn(false);
         when(sut.MOVED_TO_MINI_INTAKE()).thenReturn(true);
         when(pawFSMMock.MINI_INTAKED()).thenReturn(true);
 
@@ -267,7 +313,14 @@ class LimbFSMTest {
 
         assertTrue(sut.RETRACTING_FROM_MINI_INTAKE());
     }
+    @Test
+    public void sampleMode(){
+        when(sut.SPECIMEN_MODE()).thenReturn(true);
 
+        sut.findTargetState(false, false, false, false, false, true, false);
+
+        assertTrue(sut.SAMPLE_MODE());
+    }
 
     /**
      * ------------------------------------updateState()-----------------------------------
