@@ -236,11 +236,11 @@ public class ElbowFSM {
 
     public void updatePID() { // This method is used to update position every loop.
 
-        if(targetAngle < 36) {
-            targetAngle = 36;
+        if(targetAngle < 22) {
+            targetAngle = 22;
         }
-        if(targetAngle > 312) {
-            targetAngle = 312;
+        if(targetAngle > 296) {
+            targetAngle = 296;
         }
 
 

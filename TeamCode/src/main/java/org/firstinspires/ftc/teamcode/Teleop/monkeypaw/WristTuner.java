@@ -10,15 +10,14 @@ import org.firstinspires.ftc.teamcode.Core.Logger;
 
 @TeleOp
 @Config
-public class ElbowTunerClass extends LinearOpMode {
+public class WristTuner extends LinearOpMode {
     private HWMap hwMap;
     public static double targetAngle;
-    private AxonServoWrapper elbowServoWrapper;
+    private AxonServoWrapper wristServoWrapper;
     private PIDController pidController;
-    public static double P = 0.007;
+    public static double P = 0.0049;
     public static double I = 0;
     public static double D = 0;
-    public static double F = -0.1;
     public static double PID_TOLERANCE = 5;
     private Logger logger;
 
@@ -26,7 +25,7 @@ public class ElbowTunerClass extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false,false);
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,false);
         pidController = new PIDController(P,I,D);
         waitForStart();
         while (opModeIsActive()) {
@@ -34,7 +33,7 @@ public class ElbowTunerClass extends LinearOpMode {
             pidController.setSetPoint(0); // PIDs the error to 0
             pidController.setTolerance(PID_TOLERANCE); // sets the buffer
             updatePID();
-            logger.log("Current Angle", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+            logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
             logger.log("Target Angle", targetAngle, Logger.LogLevels.PRODUCTION);
             logger.print();
         }
@@ -42,17 +41,16 @@ public class ElbowTunerClass extends LinearOpMode {
 
     public void updatePID() { // This method is used to update position every loop.
 
-        if(targetAngle < 22) {
-            targetAngle = 22;
+        if(targetAngle < 18) {
+            targetAngle = 120;
         }
-        if(targetAngle > 296) {
-            targetAngle = 296;
+        if(targetAngle > 224) {
+            targetAngle = 224;
         }
 
-
-        elbowServoWrapper.readPos();
-        double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
-       double sign = angleDeltaSign(elbowServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
+        wristServoWrapper.readPos();
+        double angleDelta = angleDelta(wristServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
+        double sign = angleDeltaSign(wristServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
 
 
         if(!isActualSignEqualToDesiredSign(sign)) {
@@ -61,10 +59,8 @@ public class ElbowTunerClass extends LinearOpMode {
         }
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
-        logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos()))))), Logger.LogLevels.PRODUCTION);
-        logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())), Logger.LogLevels.PRODUCTION);
-        logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos()))))));
+        logger.log("Actual Servo Power", wristServoWrapper.get(), Logger.LogLevels.PRODUCTION);
+        wristServoWrapper.set(power);
 
     }
 
@@ -91,10 +87,10 @@ public class ElbowTunerClass extends LinearOpMode {
     }
 
     private double desiredSign() {
-        if(targetAngle > elbowServoWrapper.getLastReadPos()) {
+        if(targetAngle > wristServoWrapper.getLastReadPos()) {
             return 1;
         }
-        else if(targetAngle < elbowServoWrapper.getLastReadPos()) {
+        else if(targetAngle < wristServoWrapper.getLastReadPos()) {
             return -1;
         }
         return 0;
@@ -103,7 +99,6 @@ public class ElbowTunerClass extends LinearOpMode {
     private double negateError(double currentError) {
         return 360 - Math.abs(currentError);
     }
-
 
 
 
