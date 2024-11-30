@@ -26,7 +26,7 @@ public class ElbowTunerClass extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false,false);
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), true,true, 7.0);
         pidController = new PIDController(P,I,D);
         waitForStart();
         while (opModeIsActive()) {
@@ -49,6 +49,7 @@ public class ElbowTunerClass extends LinearOpMode {
             targetAngle = 296;
         }
 
+//        targetAngle = convertGroundAngleToEncoder(targetAngle);
 
         elbowServoWrapper.readPos();
         double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
@@ -103,6 +104,7 @@ public class ElbowTunerClass extends LinearOpMode {
     private double negateError(double currentError) {
         return 360 - Math.abs(currentError);
     }
+
 
 
 

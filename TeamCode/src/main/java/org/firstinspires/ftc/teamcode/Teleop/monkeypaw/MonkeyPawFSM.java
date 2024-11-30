@@ -88,7 +88,6 @@ public class MonkeyPawFSM {
         switch (state) {
             // INTAKE STATES
             case START:
-
                 if(elbowFSM.RELAXED()) {
                     logger.log("Elbow Is Relaxed",elbowFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                     if(wristFSM.RELAXED()) {
@@ -118,7 +117,6 @@ public class MonkeyPawFSM {
                 }
                 break;
             case PREPARING_TO_INTAKE_SAMPLE:
-
                if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS()) {
                    logger.log("Elbow Is Relaxed",elbowFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                     if(wristFSM.FLEXING_TO_SAMPLE_INTAKE_READY_POS()) {

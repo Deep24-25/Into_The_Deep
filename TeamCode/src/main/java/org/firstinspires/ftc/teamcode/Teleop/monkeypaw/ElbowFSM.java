@@ -48,12 +48,13 @@ public class ElbowFSM {
     public static double D = 0;
     public static double F = -0.1;
 
-
-    public static  double RELAXED_POS = 37;
-    public static  double SAMPLE_INTAKE_READY_POS = 140;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 180;
+    public static  double RELAXED_POS = 316.873;
+    public static  double SAMPLE_INTAKE_READY_POS = 151.43;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 159.539;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
+
+
     public static  double SPECIMEN_INTAKE_FLEXED_POS = 30;
     public static  double SPECIMEN_INTAKE_RELAX_POS = 30;
     public static  double BASKET_DEPOSIT_FLEXED_POS = 180;
@@ -72,8 +73,10 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
+    public static double ENCODER_OFFSET = 7.0;
+
     public ElbowFSM(HWMap hwMap, Logger logger) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),false, false); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),true, true, ENCODER_OFFSET); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
@@ -236,11 +239,11 @@ public class ElbowFSM {
 
     public void updatePID() { // This method is used to update position every loop.
 
-        if(targetAngle < 22) {
-            targetAngle = 22;
+        if(targetAngle > 338) {
+            targetAngle = 338;
         }
-        if(targetAngle > 296) {
-            targetAngle = 296;
+        if(targetAngle < 64) {
+            targetAngle = 64;
         }
 
 
@@ -353,6 +356,8 @@ public class ElbowFSM {
     private double negateError(double currentError) {
         return 360 - Math.abs(currentError);
     }
+
+
 
     public boolean FLEXED_TO_SAMPLE_INTAKE_READY_POS() {
         return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;

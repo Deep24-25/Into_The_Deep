@@ -40,7 +40,7 @@ public class DeviatorFSM {
     private Logger logger;
 
     public DeviatorFSM(HWMap hwMap, Logger logger) {
-        deviatorServoWrapper = new AxonServoWrapper(hwMap.getWristDeviServo(),hwMap.getWristDeviEncoder(),false, false); // check if you need to reverse axons
+        deviatorServoWrapper = new AxonServoWrapper(hwMap.getWristDeviServo(),hwMap.getWristDeviEncoder(),false, false, 0); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
 
         this.logger = logger;
