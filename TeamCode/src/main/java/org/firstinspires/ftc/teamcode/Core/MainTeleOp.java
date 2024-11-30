@@ -36,7 +36,8 @@ public class MainTeleOp extends LinearOpMode {
         } catch (Exception e) {
             logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
             logger.print();
-            while (opModeInInit()) {
+        }
+/*            while (opModeInInit()) {
                 try {
                     this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
                     gamePad1 = new GamepadEx(gamepad1);
@@ -48,7 +49,7 @@ public class MainTeleOp extends LinearOpMode {
                     logger.log("-", exception.getMessage(), Logger.LogLevels.PRODUCTION);
                     logger.print();
                 }
-            }
+            }*/
             waitForStart();
             while (opModeIsActive()) {
                 gamePad1.readButtons();
@@ -59,13 +60,12 @@ public class MainTeleOp extends LinearOpMode {
                 // monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
 
 
-                monkeyPawFSM.updatePID();
+               // monkeyPawFSM.updatePID();
                 log();
                 logger.print();
 
             }
         }
-    }
 
     private void log() {
         monkeyPawFSM.log();
