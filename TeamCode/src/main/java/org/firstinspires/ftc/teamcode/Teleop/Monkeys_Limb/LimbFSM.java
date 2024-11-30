@@ -71,7 +71,7 @@ public class LimbFSM {
         if (armFSM == null) {
             synchronized (this) {
                 if (armFSM == null) {
-                    armFSM = new ArmFSM(hwMap);
+                    armFSM = new ArmFSM(hwMap, logger);
                 }
             }
         }
@@ -82,7 +82,7 @@ public class LimbFSM {
         if (shoulderFSM == null) {
             synchronized (this) {
                 if (shoulderFSM == null) {
-                    shoulderFSM = new ShoulderFSM(hwMap);
+                    shoulderFSM = new ShoulderFSM(hwMap, logger);
                 }
             }
         }
@@ -330,6 +330,12 @@ public class LimbFSM {
                 break;
         }
 
+    }
+
+    public void log() {
+        logger.log("Limb State", states, Logger.LogLevels.PRODUCTION);
+        armFSM.log();
+        shoulderFSM.log();
     }
 
 

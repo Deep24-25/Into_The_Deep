@@ -5,9 +5,12 @@ import androidx.annotation.VisibleForTesting;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
+import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 
 public class ArmFSM {
+
+
     private enum States {
         AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
     }
@@ -43,12 +46,15 @@ public class ArmFSM {
     private double power = 0;
     private double tolerance = 1.5;
 
-    public ArmFSM(HWMap hwMap) {
+    private Logger logger;
+
+    public ArmFSM(HWMap hwMap, Logger logger) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         currentIndex = 1;
         targetPosition = 0;
         pidfController.setTolerance(tolerance);
+        this.logger = logger;
     }
 
     @VisibleForTesting
@@ -268,6 +274,12 @@ public class ArmFSM {
 
     public void moveToSafeHeight() {
         targetPosition = SAFE_HEIGHT;
+    }
+
+    public void log() {
+        logger.log("arm state", currentState, Logger.LogLevels.PRODUCTION);
+        logger.log("current height", armMotorsWrapper.getLastReadPositionInCM(), Logger.LogLevels.PRODUCTION);
+        logger.log("Target height", targetPosition, Logger.LogLevels.PRODUCTION);
     }
 
 

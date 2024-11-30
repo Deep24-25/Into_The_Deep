@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
+import android.util.Log;
+
 import androidx.annotation.VisibleForTesting;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
+import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 
 public class ShoulderFSM {
@@ -40,9 +43,12 @@ public class ShoulderFSM {
     private double power;
     private double TOLERANCE = 3;
 
-    public ShoulderFSM(HWMap hwMap) {
+    private Logger logger;
+
+    public ShoulderFSM(HWMap hwMap, Logger logger) {
         this.pidfController = new PIDFController(P, I, D,F);
        shoulderWrapper = new ShoulderWrapper(hwMap);
+       this.logger = logger;
     }
 
     @VisibleForTesting
@@ -190,6 +196,12 @@ public class ShoulderFSM {
 
     public double getTolerance() {
         return TOLERANCE;
+    }
+
+    public void log() {
+        logger.log("shoulder state", currentState, Logger.LogLevels.PRODUCTION);
+        logger.log("shoulder Current angle", shoulderWrapper.getLastReadAngle(), Logger.LogLevels.PRODUCTION);
+        logger.log("shoulder target angle", targetAngle, Logger.LogLevels.PRODUCTION);
     }
 
 }

@@ -69,6 +69,7 @@ public class MainTeleOp extends LinearOpMode {
 
     private void log() {
         monkeyPawFSM.log();
+        limbFSM.log();
     }
 
     private void triggersWasJustPressed() {
