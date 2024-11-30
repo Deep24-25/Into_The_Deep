@@ -28,7 +28,7 @@ public class WristFSM {
     public static  double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     //Robot CONSTANTS:
-    public static double P = 0.01;
+    public static double P = 0.0049;
     public static  double I = 0;
     public static  double D = 0;
 
@@ -148,16 +148,31 @@ public class WristFSM {
         return targetAngle == SAMPLE_INTAKE_RETRACT_POS;
     }
 
-
     public void updatePID() { // This method is used to update position every loop.
+
+        if(targetAngle < 18) {
+            targetAngle = 120;
+        }
+        if(targetAngle > 224) {
+            targetAngle = 224;
+        }
+
         wristServoWrapper.readPos();
         double angleDelta = angleDelta(wristServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(wristServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
+
+
+        if(!isActualSignEqualToDesiredSign(sign)) {
+            sign = -sign;
+            angleDelta = negateError(angleDelta);
+        }
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-        logger.log("Wrist Power",power, Logger.LogLevels.PRODUCTION);
+        logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
+        logger.log("Actual Servo Power", wristServoWrapper.get(), Logger.LogLevels.PRODUCTION);
         wristServoWrapper.set(power);
 
     }
+
 
     public void flex() {
         targetAngle = SAMPLE_FLEXED_POS;
@@ -203,6 +218,25 @@ public class WristFSM {
     private static double normalizeDegrees(double angle) {
         return (angle + 360) % 360;
     }
+
+    private boolean isActualSignEqualToDesiredSign(double actualSign) {
+        return actualSign == desiredSign();
+    }
+
+    private double desiredSign() {
+        if(targetAngle > wristServoWrapper.getLastReadPos()) {
+            return 1;
+        }
+        else if(targetAngle < wristServoWrapper.getLastReadPos()) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private double negateError(double currentError) {
+        return 360 - Math.abs(currentError);
+    }
+
 
     public boolean FLEXED() {
         return state == WristStates.FLEXED;
