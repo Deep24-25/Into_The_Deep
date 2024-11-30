@@ -37,7 +37,7 @@ public class ArmFSM {
     private final PIDFController pidfController;
     private double targetPosition;
     private double measuredPosition;
-    private States currentState = States.FULLY_RETRACTED;
+    private States currentState;
     private int currentIndex;
     private double slidePowerCap = 1.0;
     private final double slideFinalMovementsCap = 1.0;
@@ -149,6 +149,7 @@ public class ArmFSM {
 
     }
     public void updatePIDF() {
+        armMotorsWrapper.readPositionInCM();
         // TODO: Can use sample and specimen mode instead
         if (targetPosition == BASKET_HIGH || targetPosition == BASKET_LOW)
             pidfController.setPIDF(PVertical, IVertical, DVertical, FVertical);

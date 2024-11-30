@@ -19,8 +19,6 @@ public class MainTeleOp extends LinearOpMode {
     private HWMap hwMap;
     private Logger logger;
     private LimbFSM limbFSM;
-    private ArmFSM armFSM;
-    private ShoulderFSM shoulderFSM;
     private MonkeyPawFSM monkeyPawFSM;
     private boolean leftTriggerWasJustPressed;
     private boolean rightTriggerWasJustPressed;
@@ -38,8 +36,8 @@ public class MainTeleOp extends LinearOpMode {
             limbFSM = new LimbFSM(hwMap, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
         } catch (Exception e) {
-            logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
-            logger.print();
+            telemetry.addData("-", e.getMessage());
+            telemetry.update();
         }
 /*            while (opModeInInit()) {
                 try {
@@ -60,10 +58,10 @@ public class MainTeleOp extends LinearOpMode {
                 gamePad2.readButtons();
 
 
-                limbFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.X), gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), rightTriggerWasJustPressed, gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), leftTriggerWasJustPressed, false);
+                limbFSM.updateState(gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.A), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), rightTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), leftTriggerWasJustPressed, false);
                 // monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
 
-
+                updatePID();
                // monkeyPawFSM.updatePID();
                 log();
                 logger.print();
@@ -86,8 +84,8 @@ public class MainTeleOp extends LinearOpMode {
     }
 
     public void updatePID(){
-        monkeyPawFSM.updatePID();
-        armFSM.updatePIDF();
-        shoulderFSM.updatePID();
+       // monkeyPawFSM.updatePID();
+       limbFSM.updatePID();
+
     }
 }

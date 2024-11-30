@@ -443,6 +443,11 @@ public class LimbFSM {
         return mode == Mode.SPECIMEN_MODE;
     }
 
+    public void updatePID() {
+        armFSM.updatePIDF();
+        shoulderFSM.updatePID();
+    }
+
     @VisibleForTesting
     public void setCurrentState(States state) {
         states = state;

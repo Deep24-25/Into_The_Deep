@@ -37,7 +37,7 @@ public class ShoulderFSM {
     private final PIDFController pidfController;
     private static double targetAngle;
     private double measuredAngle;
-    private States currentState = States.GOING_TO_CHAMBER;
+    private States currentState;
 
     private double lastPIDAngle = 0;
     private double power;
@@ -143,6 +143,8 @@ public class ShoulderFSM {
     }
 
     public void updatePID() { // This method is used to update position every loop.
+        shoulderWrapper.readAngle();
+
         if (lastPIDAngle != targetAngle) {
             pidfController.reset();
         }
