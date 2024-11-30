@@ -1,4 +1,3 @@
-/*
 package org.firstinspires.ftc.teamcode.Core;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -36,7 +35,7 @@ public class MainTeleOp extends LinearOpMode {
         while (opModeIsActive()){
             gamePad1.readButtons();
             gamePad2.readButtons();
-            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP),gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN),gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT));
+            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP),gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN),gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT),gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.A));
 
 
             monkeyPawFSM.updatePID();
@@ -50,4 +49,3 @@ public class MainTeleOp extends LinearOpMode {
         monkeyPawFSM.log();
     }
 }
-*/

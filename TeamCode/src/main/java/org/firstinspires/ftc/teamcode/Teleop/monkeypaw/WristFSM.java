@@ -10,6 +10,14 @@ import org.firstinspires.ftc.teamcode.Core.Logger;
 @Config
 public class WristFSM {
     private enum WristStates {
+        FLEXING_TO_SAMPLE_INTAKE_READY_POS,
+        FLEXED_TO_SAMPLE_INTAKE_READY_POS,
+        FLEXING_TO_SAMPLE_INTAKE_CAPTURE_POS,
+        FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS,
+        FLEXING_TO_SAMPLE_INTAKE_CONTROL_POS,
+        FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS,
+        FLEXING_TO_SAMPLE_INTAKE_RETRACT_POS,
+        FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS,
         FLEXING,
         FLEXED,
         RELAXING,
@@ -24,16 +32,24 @@ public class WristFSM {
     public static  double I = 0;
     public static  double D = 0;
 
-
-    public static  double SAMPLE_FLEXED_POS = 100;
-    public static double SPECIMEN_FLEX_POS = 20;
     public static  double RELAXED_POS = 50;
+    public static  double SAMPLE_FLEXED_POS = 100;
+    public static  double SAMPLE_INTAKE_READY_POS = 90;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 45;
+    public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
+    public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
+    public static double SPECIMEN_FLEX_POS = 20;
+
 
     private AxonServoWrapper wristServoWrapper;
     private PIDController pidController;
 
     private WristStates state;
     private Logger logger;
+
+    private boolean relaxCalled = false;
+    private boolean sampleControl = false;
+
 
     public WristFSM(HWMap hwMap, Logger logger) {
         wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),false, false); // check if you need to reverse axons
@@ -55,8 +71,45 @@ public class WristFSM {
         pidController.setSetPoint(0); // PIDs the error to 0
         pidController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
+        if (isTargetAngleToRelax() && relaxCalled) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.RELAXED;
+            } else {
+                state = WristStates.RELAXING;
+            }
+        }
+        else if (isTargetAngleToSampleIntakeReadyFlexedPos() && !sampleControl) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
+            } else {
+                state = WristStates.FLEXING_TO_SAMPLE_INTAKE_READY_POS;
+            }
+        }
 
-        if (isTargetAngleToFlex()) {
+        else if (isTargetAngleToSampleIntakeCapturePos()) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS;
+            } else {
+                state = WristStates.FLEXING_TO_SAMPLE_INTAKE_CAPTURE_POS;
+            }
+        }
+
+        else if (isTargetAngleToSampleIntakeControlPos() && sampleControl) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS;
+            } else {
+                state = WristStates.FLEXING_TO_SAMPLE_INTAKE_CONTROL_POS;
+            }
+        }
+
+        else if (isTargetAngleToSampleIntakeRetractPos()) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
+            } else {
+                state = WristStates.FLEXING_TO_SAMPLE_INTAKE_RETRACT_POS;
+            }
+        }
+        else if (isTargetAngleToFlex()) {
             if (pidController.atSetPoint()) {
                 state = WristStates.FLEXED;
             } else {
@@ -79,6 +132,23 @@ public class WristFSM {
         return targetAngle == SAMPLE_FLEXED_POS;
     }
 
+    public boolean isTargetAngleToSampleIntakeReadyFlexedPos() {
+        return targetAngle == SAMPLE_INTAKE_READY_POS;
+    }
+
+    public boolean isTargetAngleToSampleIntakeCapturePos() {
+        return targetAngle == SAMPLE_INTAKE_CAPTURE_POS;
+    }
+
+    public boolean isTargetAngleToSampleIntakeControlPos() {
+        return targetAngle == SAMPLE_INTAKE_CONTROL_POS;
+    }
+
+    public boolean isTargetAngleToSampleIntakeRetractPos() {
+        return targetAngle == SAMPLE_INTAKE_RETRACT_POS;
+    }
+
+
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
         double angleDelta = angleDelta(wristServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
@@ -93,8 +163,28 @@ public class WristFSM {
         targetAngle = SAMPLE_FLEXED_POS;
     }
 
+    public void flexToSampleIntakeReadyPos() {
+        targetAngle = SAMPLE_INTAKE_READY_POS;
+        sampleControl = false;
+    }
+
+    public void flexToSampleIntakeControlPos() {
+        targetAngle = SAMPLE_INTAKE_CONTROL_POS;
+        sampleControl = true;
+    }
+
+    public void flexToSampleIntakeCapturePos() {
+        targetAngle = SAMPLE_INTAKE_CAPTURE_POS;
+    }
+
+    public void flexToSampleIntakeRetractPos() {
+        targetAngle = SAMPLE_INTAKE_RETRACT_POS;
+        relaxCalled = false;
+    }
+
     public void relax() {
         targetAngle = RELAXED_POS;
+        relaxCalled = true;
     }
 
 
@@ -129,6 +219,28 @@ public class WristFSM {
     public boolean RELAXING() {
         return state == WristStates.RELAXING;
     }
+
+
+    public boolean FLEXED_TO_SAMPLE_INTAKE_READY_POS() {
+        return state == WristStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
+    }
+
+    public boolean FLEXING_TO_SAMPLE_INTAKE_READY_POS() {
+        return state == WristStates.FLEXING_TO_SAMPLE_INTAKE_READY_POS;
+    }
+
+    public boolean FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS() {
+        return state == WristStates.FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS;
+    }
+
+    public boolean FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS() {
+        return state == WristStates.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS;
+    }
+
+    public boolean FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() {
+        return state == WristStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
+    }
+
 
     public void log() {
         logger.log("Wrist State",state, Logger.LogLevels.PRODUCTION);

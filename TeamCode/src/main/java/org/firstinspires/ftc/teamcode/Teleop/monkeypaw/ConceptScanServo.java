@@ -15,8 +15,7 @@ import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
-
-
+import org.firstinspires.ftc.teamcode.Core.Logger;
 
 
 @Config
@@ -84,7 +83,8 @@ public class ConceptScanServo extends LinearOpMode {
             pidController.setTolerance(pidTolerance); // sets the buffer
 
 
-           WFS.set(wristPower);
+
+            WFS.set(wristPower);
            WDS.set(deviatorPower);
 
 

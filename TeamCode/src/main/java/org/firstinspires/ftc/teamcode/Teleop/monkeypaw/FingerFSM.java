@@ -171,7 +171,7 @@ public class FingerFSM {
         logger.log("Finger Current Angle",fingerServoWrapper.readAngle(), Logger.LogLevels.PRODUCTION);
         logger.log("Finger Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
         logger.log("At Target Pos", fingerServoWrapper.readAngle() == targetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("Timer", timer.elapsedTime(), Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Servo Timer", timer.elapsedTime(), Logger.LogLevels.PRODUCTION);
 
     }
 

@@ -46,9 +46,9 @@ public class ElbowFSM {
     public static  double D = 0;
     public static  double F = 0;
 
-    public static  double RELAXED_POS = 0;
-    public static  double SAMPLE_INTAKE_READY_POS = 90;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 0;
+    public static  double RELAXED_POS = 37;
+    public static  double SAMPLE_INTAKE_READY_POS = 140;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 180;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
     public static  double SPECIMEN_INTAKE_FLEXED_POS = 30;
@@ -65,6 +65,9 @@ public class ElbowFSM {
 
     private ElbowStates state;
     private Logger logger;
+
+    private boolean relaxCalled = false;
+    private boolean sampleControl = false;
 
     public ElbowFSM(HWMap hwMap, Logger logger) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),false, false); // check if you need to reverse axons
@@ -86,7 +89,14 @@ public class ElbowFSM {
         pidfController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
 
-        if (isTargetAngleToSampleIntakeReadyFlexedPos()) {
+         if (isTargetAngleToRelax() && relaxCalled) {
+            if (pidfController.atSetPoint()) {
+                state = ElbowStates.RELAXED;
+            } else {
+                state = ElbowStates.RELAXING;
+            }
+        }
+        else if (isTargetAngleToSampleIntakeReadyFlexedPos() && !sampleControl) {
             if (pidfController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
             } else {
@@ -102,7 +112,7 @@ public class ElbowFSM {
             }
         }
 
-        else if (isTargetAngleToSampleIntakeControlPos()) {
+        else if (isTargetAngleToSampleIntakeControlPos() && sampleControl) {
             if (pidfController.atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS;
             } else {
@@ -170,13 +180,6 @@ public class ElbowFSM {
             }
         }
 
-        else if (isTargetAngleToRelax()) {
-            if (pidfController.atSetPoint()) {
-                state = ElbowStates.RELAXED;
-            } else {
-                state = ElbowStates.RELAXING;
-            }
-        }
     }
 
     public boolean isTargetAngleToRelax() {
@@ -233,7 +236,7 @@ public class ElbowFSM {
         elbowServoWrapper.readPos();
         double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(elbowServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
-        double power = pidfController.calculate(angleDelta*sign); // calculates the remaining error(PID)
+        double power = pidfController.calculate(angleDelta*sign) + (F*Math.cos(elbowServoWrapper.getLastReadPos())); // calculates the remaining error(PID)
         logger.log("Elbow Power",power, Logger.LogLevels.DEBUG);
         elbowServoWrapper.set(power);
 
@@ -243,10 +246,12 @@ public class ElbowFSM {
 
     public void flexToSampleIntakeReadyPos() {
         targetAngle = SAMPLE_INTAKE_READY_POS;
+        sampleControl = false;
     }
 
     public void flexToSampleIntakeControlPos() {
         targetAngle = SAMPLE_INTAKE_CONTROL_POS;
+        sampleControl = true;
     }
 
     public void flexToSampleIntakeCapturePos() {
@@ -255,6 +260,7 @@ public class ElbowFSM {
 
     public void flexToSampleIntakeRetractPos() {
         targetAngle = SAMPLE_INTAKE_RETRACT_POS;
+        relaxCalled = false;
     }
 
 
@@ -288,6 +294,7 @@ public class ElbowFSM {
 
     public void relax() {
         targetAngle = RELAXED_POS;
+        relaxCalled = true;
     }
 
 

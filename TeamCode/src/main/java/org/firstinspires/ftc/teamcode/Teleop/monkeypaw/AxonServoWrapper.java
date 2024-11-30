@@ -24,6 +24,10 @@ public class AxonServoWrapper {
         axon.set(power * sign);
     }
 
+    public double get() {
+        return axon.get()*sign;
+    }
+
     public double readPos() {
         lastReadPosition = Math.abs(encoderOffset - (encoder.getVoltage() / 3.3 * 360));
         return lastReadPosition;
