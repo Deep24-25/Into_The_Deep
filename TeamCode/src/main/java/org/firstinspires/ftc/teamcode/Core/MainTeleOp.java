@@ -7,7 +7,9 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 @TeleOp
@@ -17,6 +19,8 @@ public class MainTeleOp extends LinearOpMode {
     private HWMap hwMap;
     private Logger logger;
     private LimbFSM limbFSM;
+    private ArmFSM armFSM;
+    private ShoulderFSM shoulderFSM;
     private MonkeyPawFSM monkeyPawFSM;
     private boolean leftTriggerWasJustPressed;
     private boolean rightTriggerWasJustPressed;
@@ -79,5 +83,11 @@ public class MainTeleOp extends LinearOpMode {
 
         prevLeftTrigger = gamePad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
         prevRightTrigger = gamePad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
+    }
+
+    public void updatePID(){
+        monkeyPawFSM.updatePID();
+        armFSM.updatePIDF();
+        shoulderFSM.updatePID();
     }
 }
