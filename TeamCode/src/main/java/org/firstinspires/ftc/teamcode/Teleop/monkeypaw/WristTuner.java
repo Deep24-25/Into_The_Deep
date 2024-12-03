@@ -15,8 +15,8 @@ public class WristTuner extends LinearOpMode {
     public static double targetAngle;
     private AxonServoWrapper wristServoWrapper;
     private PIDController pidController;
-    public static double P = 0.0049;
-    public static double I = 0;
+    public static double P = 0.0075;
+    public static double I = 0.00;
     public static double D = 0;
     public static double PID_TOLERANCE = 5;
     private Logger logger;
@@ -41,11 +41,11 @@ public class WristTuner extends LinearOpMode {
 
     public void updatePID() { // This method is used to update position every loop.
 
-        if(targetAngle < 18) {
+        if(targetAngle < 120) {
             targetAngle = 120;
         }
-        if(targetAngle > 224) {
-            targetAngle = 224;
+        if(targetAngle > 277) {
+            targetAngle = 277;
         }
 
         wristServoWrapper.readPos();

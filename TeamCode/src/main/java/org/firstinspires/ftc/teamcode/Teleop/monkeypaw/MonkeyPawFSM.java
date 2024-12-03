@@ -62,8 +62,8 @@ public class MonkeyPawFSM {
         this.logger = logger;
         fingerFSM = new FingerFSM(hwMap, logger);
         deviatorFSM = new DeviatorFSM(hwMap, logger);
-        wristFSM = new WristFSM(hwMap, logger);
         elbowFSM = new ElbowFSM(hwMap, logger);
+        wristFSM = new WristFSM(hwMap, logger, elbowFSM);
         this.limbFSM = limbFSM;
         timer =  new Timing.Timer(5000, TimeUnit.MILLISECONDS);
         state = States.START;

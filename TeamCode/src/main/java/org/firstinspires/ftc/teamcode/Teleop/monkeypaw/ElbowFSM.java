@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
@@ -48,7 +47,8 @@ public class ElbowFSM {
     public static double D = 0;
     public static double F = -0.1;
 
-    public static  double RELAXED_POS = 316.873;
+
+    public static  double RELAXED_POS = 135;
     public static  double SAMPLE_INTAKE_READY_POS = 151.43;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 159.539;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
@@ -76,7 +76,7 @@ public class ElbowFSM {
     public static double ENCODER_OFFSET = 7.0;
 
     public ElbowFSM(HWMap hwMap, Logger logger) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),true, true, ENCODER_OFFSET); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),false, false, ENCODER_OFFSET); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
@@ -435,6 +435,10 @@ public class ElbowFSM {
 
     public boolean RELAXED_FROM_BASKET_DEPOSIT(){
         return state == ElbowStates.RELAXED_FROM_BASKET_DEPOSIT;
+    }
+
+    public double getElbowTargetAngle() {
+        return targetAngle;
     }
 
     public void log() {
