@@ -118,15 +118,10 @@ public class MonkeyPawFSM {
                 break;
             case PREPARING_TO_INTAKE_SAMPLE:
                if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS()) {
-                   logger.log("Elbow Is Relaxed",elbowFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                     if(wristFSM.FLEXING_TO_SAMPLE_INTAKE_READY_POS()) {
 
-                        logger.log("Wrist Is Relaxed",wristFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                         if(deviatorFSM.RELAXED()) {
-
-                            logger.log("deviator Is Relaxed",deviatorFSM.RELAXED(), Logger.LogLevels.PRODUCTION);
                             if(fingerFSM.RELEASED()) {
-                                logger.log("Finger is Released",fingerFSM.RELEASED(), Logger.LogLevels.PRODUCTION);
                                 state = States.PREPARED_TO_INTAKE_SAMPLE;
                             }
                             else {

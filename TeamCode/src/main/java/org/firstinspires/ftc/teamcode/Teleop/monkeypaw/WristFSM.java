@@ -32,7 +32,7 @@ public class WristFSM {
     public static  double I = 0;
     public static  double D = 0;
 
-    public static  double RELAXED_POS = 180;
+    public static  double RELAXED_POS = 90;
     public static  double SAMPLE_FLEXED_POS = 270;
     public static  double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
@@ -155,7 +155,7 @@ public class WristFSM {
 
         wristServoWrapper.readPos();
 
-        double encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowTargetAngle());
+        double encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
 
         if(encoderTargetAngle < 85) {
             encoderTargetAngle = 85;
@@ -200,7 +200,7 @@ public class WristFSM {
         globalTargetAngle = SAMPLE_INTAKE_CONTROL_POS;
         sampleControl = true;
         relaxCalled = false;
-        sampleIntakeReady = true;
+        sampleIntakeReady = false;
         sampleCapture = false;
     }
 
@@ -263,8 +263,8 @@ public class WristFSM {
         return 360 - Math.abs(currentError);
     }
 
-    private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowTargetAngle) {
-        return (globalWristAngle - elbowTargetAngle) + 180;
+    private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowCurrentAngle) {
+        return (globalWristAngle - elbowCurrentAngle) + 180;
        /* if(elbowAngle > 180) {
             return wristAngle + (360 -elbowAngle);
         }

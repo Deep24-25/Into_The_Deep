@@ -50,7 +50,7 @@ public class ElbowFSM {
 
     public static  double RELAXED_POS = 135;
     public static  double SAMPLE_INTAKE_READY_POS = 151.43;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 159.539;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 210;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
@@ -438,9 +438,10 @@ public class ElbowFSM {
         return state == ElbowStates.RELAXED_FROM_BASKET_DEPOSIT;
     }
 
-    public double getElbowTargetAngle() {
-        return targetAngle;
+    public double getElbowCurrentAngle() {
+        return elbowServoWrapper.getLastReadPos();
     }
+
 
     public void log() {
         logger.log("Elbow State",state, Logger.LogLevels.PRODUCTION);
