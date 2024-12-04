@@ -24,7 +24,7 @@ public class WristFSM {
         RELAXED
     }
 
-    private double targetAngle;
+    private double globalTargetAngle;
     public static  double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     //Robot CONSTANTS:
@@ -62,6 +62,7 @@ public class WristFSM {
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
         this.elbowFSM = elbowFSM;
+        globalTargetAngle = RELAXED_POS;
 
     }
     @VisibleForTesting
@@ -125,53 +126,57 @@ public class WristFSM {
     }
 
     public boolean isTargetAngleToRelax() {
-        return targetAngle == RELAXED_POS;
+        return globalTargetAngle == RELAXED_POS;
     }
 
     public boolean isTargetAngleToFlex() {
-        return targetAngle == SAMPLE_FLEXED_POS;
+        return globalTargetAngle == SAMPLE_FLEXED_POS;
     }
 
     public boolean isTargetAngleToSampleIntakeReadyFlexedPos() {
-        return targetAngle == SAMPLE_INTAKE_READY_POS;
+        return globalTargetAngle == SAMPLE_INTAKE_READY_POS;
 
     }
 
     public boolean isTargetAngleToSampleIntakeCapturePos() {
-        return targetAngle == SAMPLE_INTAKE_CAPTURE_POS;
+        return globalTargetAngle == SAMPLE_INTAKE_CAPTURE_POS;
     }
 
     public boolean isTargetAngleToSampleIntakeControlPos() {
-        return targetAngle == SAMPLE_INTAKE_CONTROL_POS;
+        return globalTargetAngle == SAMPLE_INTAKE_CONTROL_POS;
     }
 
     public boolean isTargetAngleToSampleIntakeRetractPos() {
 
-        return targetAngle == SAMPLE_INTAKE_RETRACT_POS;
+        return globalTargetAngle == SAMPLE_INTAKE_RETRACT_POS;
     }
 
     public void updatePID() { // This method is used to update position every loop.
 
-        /*if(targetAngle < 40) {
-            targetAngle = 40;
-        }
-        if(targetAngle > 226) {
-            targetAngle = 226;
-        }
-*/
         wristServoWrapper.readPos();
 
-    //    targetAngle = convertRealWorldAngleToEncoder(targetAngle, elbowFSM.getElbowCurrentAngle());
+        double encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowTargetAngle());
+
+        if(encoderTargetAngle < 85) {
+            encoderTargetAngle = 85;
+        }
+        if(encoderTargetAngle > 271) {
+            encoderTargetAngle = 271;
+        }
 
 
-        double angleDelta = angleDelta(convertRealWorldAngleToEncoder(wristServoWrapper.getLastReadPos(), elbowFSM.getElbowTargetAngle()), convertRealWorldAngleToEncoder(targetAngle,elbowFSM.getElbowTargetAngle())); // finds the minimum difference between current angle and target angle
-        double sign = angleDeltaSign(convertRealWorldAngleToEncoder(wristServoWrapper.getLastReadPos(), elbowFSM.getElbowTargetAngle()), convertRealWorldAngleToEncoder(targetAngle, elbowFSM.getElbowTargetAngle())); // sets the direction of servo based on minimum difference
-        logger.log("encoder target angle", convertRealWorldAngleToEncoder(targetAngle, elbowFSM.getElbowTargetAngle()), Logger.LogLevels.PRODUCTION);
-        if(!isActualSignEqualToDesiredSign(sign)) {
+        double angleDelta = angleDelta(wristServoWrapper.getLastReadPos(), encoderTargetAngle); // finds the minimum difference between current angle and target angle
+        double sign = angleDeltaSign(wristServoWrapper.getLastReadPos(), encoderTargetAngle); // sets the direction of servo based on minimum difference
+        double desiredSign = desiredSign(encoderTargetAngle);
+
+        if(!isActualSignEqualToDesiredSign(sign, desiredSign)) {
             sign = -sign;
             angleDelta = negateError(angleDelta);
         }
+
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
+        logger.log("encoder target angle", encoderTargetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("--------------Wrist Current Position-----------",wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
         logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", wristServoWrapper.get(), Logger.LogLevels.PRODUCTION);
         wristServoWrapper.set(power);
@@ -180,11 +185,11 @@ public class WristFSM {
 
 
     public void flex() {
-        targetAngle = SAMPLE_FLEXED_POS;
+        globalTargetAngle = SAMPLE_FLEXED_POS;
     }
 
     public void flexToSampleIntakeReadyPos() {
-        targetAngle = SAMPLE_INTAKE_READY_POS;
+        globalTargetAngle = SAMPLE_INTAKE_READY_POS;
         relaxCalled = false;
         sampleControl = false;
         sampleIntakeReady = true;
@@ -192,7 +197,7 @@ public class WristFSM {
     }
 
     public void flexToSampleIntakeControlPos() {
-        targetAngle = SAMPLE_INTAKE_CONTROL_POS;
+        globalTargetAngle = SAMPLE_INTAKE_CONTROL_POS;
         sampleControl = true;
         relaxCalled = false;
         sampleIntakeReady = true;
@@ -200,7 +205,7 @@ public class WristFSM {
     }
 
     public void flexToSampleIntakeCapturePos() {
-        targetAngle = SAMPLE_INTAKE_CAPTURE_POS;
+        globalTargetAngle = SAMPLE_INTAKE_CAPTURE_POS;
         relaxCalled = false;
         sampleControl = false;
         sampleIntakeReady = false;
@@ -208,7 +213,7 @@ public class WristFSM {
     }
 
     public void flexToSampleIntakeRetractPos() {
-        targetAngle = SAMPLE_INTAKE_RETRACT_POS;
+        globalTargetAngle = SAMPLE_INTAKE_RETRACT_POS;
         relaxCalled = false;
         sampleControl = false;
         sampleIntakeReady = false;
@@ -216,7 +221,7 @@ public class WristFSM {
     }
 
     public void relax() {
-        targetAngle = RELAXED_POS;
+        globalTargetAngle = RELAXED_POS;
         relaxCalled = true;
         sampleControl = false;
         sampleIntakeReady = false;
@@ -240,15 +245,15 @@ public class WristFSM {
         return (angle + 360) % 360;
     }
 
-    private boolean isActualSignEqualToDesiredSign(double actualSign) {
-        return actualSign == desiredSign();
+    private boolean isActualSignEqualToDesiredSign(double actualSign, double desiredSign) {
+        return actualSign == desiredSign;
     }
 
-    private double desiredSign() {
-        if(targetAngle > wristServoWrapper.getLastReadPos()) {
+    private double desiredSign(double encoderTargetAngle) {
+        if(encoderTargetAngle > wristServoWrapper.getLastReadPos()) {
             return 1;
         }
-        else if(targetAngle < wristServoWrapper.getLastReadPos()) {
+        else if(encoderTargetAngle < wristServoWrapper.getLastReadPos()) {
             return -1;
         }
         return 0;
@@ -258,8 +263,8 @@ public class WristFSM {
         return 360 - Math.abs(currentError);
     }
 
-    private double convertRealWorldAngleToEncoder(double wristAngle, double elbowAngle) {
-        return (wristAngle - elbowAngle) + 180;
+    private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowTargetAngle) {
+        return (globalWristAngle - elbowTargetAngle) + 180;
        /* if(elbowAngle > 180) {
             return wristAngle + (360 -elbowAngle);
         }
@@ -309,9 +314,8 @@ public class WristFSM {
 
     public void log() {
         logger.log("Wrist State",state, Logger.LogLevels.PRODUCTION);
-        logger.log("Wrist Current Position",wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
 
-        logger.log("Wrist Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("Wrist Target Pos", globalTargetAngle, Logger.LogLevels.PRODUCTION);
 
         logger.log("Raw Angle", wristServoWrapper.getRawPos(), Logger.LogLevels.PRODUCTION);
     }
