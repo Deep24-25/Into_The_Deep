@@ -80,6 +80,7 @@ public class ElbowFSM {
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
+        targetAngle = RELAXED_POS;
     }
     @VisibleForTesting
     public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
