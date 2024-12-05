@@ -27,7 +27,6 @@ public class HWMap {
     private final Motor frontRightMotor;
     private final MecanumDrive mecanumDrive;
 
-    private HardwareMap hardwareMap;
 
     // Monkey's Limb
     private Motor pivotMotor;
@@ -52,20 +51,26 @@ public class HWMap {
 
     public HWMap(HardwareMap hardwareMap) {
 
-        this.hardwareMap = hardwareMap;
         //colorSensor1 = this.hardwareMap.get(RevColorSensorV3.class, "CS1");
         //colorSensor2 = this.hardwareMap.get(RevColorSensorV3.class, "CS2");
-        frontRightMotor = new Motor(hardwareMap,"RF", Motor.GoBILDA.RPM_312);
-        frontLeftMotor = new Motor(hardwareMap,"LF", Motor.GoBILDA.RPM_312);//CH Port 1. The right odo pod accesses this motor's encoder port
-        backleftMotor = new Motor(hardwareMap,"LB", Motor.GoBILDA.RPM_312); //CH Port 2. The perpendicular odo pod accesses this motor's encoder port
-        backRightMotor = new Motor(hardwareMap,"RB", Motor.GoBILDA.RPM_312);//CH Port 3. The left odo pod accesses this motor's encoder port.
-        mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
-        imu = this.hardwareMap.get(IMU.class, "imu");
+        frontRightMotor = new Motor(hardwareMap,"RF", Motor.GoBILDA.RPM_312);//CH Port 1
+        frontLeftMotor = new Motor(hardwareMap,"LF", Motor.GoBILDA.RPM_312);//CH Port 3. The right odo pod accesses this motor's encoder port
+        backleftMotor = new Motor(hardwareMap,"LB", Motor.GoBILDA.RPM_312); //CH Port 0. The perpendicular odo pod accesses this motor's encoder port
+        backRightMotor = new Motor(hardwareMap,"RB", Motor.GoBILDA.RPM_312);//CH Port 2. The left odo pod accesses this motor's encoder port.
 
-        frontRightMotor.setInverted(true);
-        frontLeftMotor.setInverted(true);
+        mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
+        mecanumDrive.setRightSideInverted(false);
         backleftMotor.setInverted(true);
-        backRightMotor.setInverted(true);
+        frontLeftMotor.setInverted(true);
+
+        imu = hardwareMap.get(IMU.class, "imu");
+
+
+        frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
         initializeIMU();
 
         //Monkey's Limb
@@ -120,7 +125,7 @@ public class HWMap {
     }
 
     public static void initializeIMU() {
-        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD);
+        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
         IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
         imu.initialize(revParameters);
         imu.resetYaw();
