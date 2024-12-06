@@ -42,15 +42,21 @@ public class ElbowFSM {
     private double elbowCurrentAngle;
     //Robot CONSTANTS:
 
-    public static double P = 0.007;
+    public static double P = 0.006;
     public static double I = 0;
     public static double D = 0;
     public static double F = -0.1;
+/*
+    //test bench
+    public static double P = 0.01;
+    public static double I = 0;
+    public static double D = 0;
+    public static double F = 0;*/
 
 
     public static  double RELAXED_POS = 135;
     public static  double SAMPLE_INTAKE_READY_POS = 151.43;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 210;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 159;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 

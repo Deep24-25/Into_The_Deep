@@ -15,14 +15,18 @@ public class ServoTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        deviatorServo = new SimpleServo(hardwareMap,"WDS",0,270, AngleUnit.DEGREES);
+        hwMap = new HWMap(hardwareMap);
+        deviatorServo = hwMap.getFingerServo();
         waitForStart();
         while (opModeIsActive()) {
             if(gamepad1.a) {
-                deviatorServo.turnToAngle(45);
+                deviatorServo.turnToAngle(140);
             }
             if(gamepad1.y) {
-                deviatorServo.turnToAngle(-45);
+                deviatorServo.turnToAngle(-140);
+            }
+            if(gamepad1.x) {
+                deviatorServo.turnToAngle(90);
             }
             telemetry.addData("Angle", deviatorServo.getAngle());
             telemetry.update();

@@ -23,10 +23,10 @@ public class FingerFSM {
     private double fingerCurrentAngle;
 
 
-    public static  double SAMPLE_GRIPPED_POS = 90;
-    public static double SPECIMEN_GRIPPED_POS = 45;
-    public static  double SAMPLE_RELEASED_POS = 0;
-    public static double SPECIMEN_RELEASED_POS = 180;
+    public static  double SAMPLE_GRIPPED_POS = -140;
+    public static double SPECIMEN_GRIPPED_POS = 90;
+    public static  double SAMPLE_RELEASED_POS = 140;
+    public static double SPECIMEN_RELEASED_POS = -145;
 
     private FingerServoWrapper fingerServoWrapper;
 
@@ -64,9 +64,6 @@ public class FingerFSM {
             }
 
         } else if (isTargetAngleToRelease()) {
-            if(!(state == FingerStates.RELEASED)) {
-                state = FingerStates.RELEASING;
-            }
             if(!timer.isTimerOn()) {
                 timer.start();
             }
@@ -74,6 +71,10 @@ public class FingerFSM {
                 timer.pause();
                 state = FingerStates.RELEASED;
             }
+            if(!(state == FingerStates.RELEASED)) {
+                state = FingerStates.RELEASING;
+            }
+
         }
     }
 
