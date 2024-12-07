@@ -41,11 +41,46 @@ public class ElbowFSM {
     public static  double PID_TOLERANCE = 5;
     private double elbowCurrentAngle;
     //Robot CONSTANTS:
-
-    public static double P = 0.006;
+    public static double P = 0.007;
     public static double I = 0;
     public static double D = 0;
-    public static double F = -0.1;
+    public static double F = -0.2;
+
+    //PID Relax constants:
+    public static double Prelax = 0.007;
+    public static double Irelax = 0;
+    public static double Drelax = 0;
+    public static double Frelax = -0.2;
+
+
+    //PID SampleIntakeReady constants:
+    public static double PSampleIntakeReady = 0.006;
+    public static double ISampleIntakeReady = 0;
+    public static double DSampleIntakeReady = 0;
+    public static double FSampleIntakeReady = -0.125;
+
+
+    //PID SampleIntakeCapture constants:
+    public static double PSampleIntakeCapturePos = 0.006;
+    public static double ISampleIntakeCapturePos = 0;
+    public static double DSampleIntakeCapturePos = 0;
+    public static double FSampleIntakeCapturePos = -0.125;
+
+
+
+    //PID SampleIntakeControl constants:
+    public static double PSampleIntakeControlPos = 0.006;
+    public static double ISampleIntakeControlPos = 0;
+    public static double DSampleIntakeControlPos = 0;
+    public static double FSampleIntakeControlPos = -0.125;
+
+
+    //PID SampleIntakeRetract constants:
+    public static double PSampleIntakeRetractPos = 0.006;
+    public static double ISampleIntakeRetractPos = 0;
+    public static double DSampleIntakeRetractPos = 0;
+    public static double FSampleIntakeRetractPos = -0.2;
+
 /*
     //test bench
     public static double P = 0.01;
@@ -54,18 +89,18 @@ public class ElbowFSM {
     public static double F = 0;*/
 
 
-    public static  double RELAXED_POS = 135;
+    public static  double RELAXED_POS = 66;
     public static  double SAMPLE_INTAKE_READY_POS = 151.43;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 159;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
-    public static  double SPECIMEN_INTAKE_FLEXED_POS = 30;
+    public static  double SPECIMEN_INTAKE_FLEXED_POS = 33;
     public static  double SPECIMEN_INTAKE_RELAX_POS = 30;
     public static  double BASKET_DEPOSIT_FLEXED_POS = 180;
-    public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 180;
-    public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 180;
+    public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
+    public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
 
     public static  double BASKET_RELAX_POS = 0;
     public static double CHAMBER_RELAX_POS = 0;
@@ -97,7 +132,6 @@ public class ElbowFSM {
     }
 
     public void updateState() {
-        pidController.setPIDF(P, I, D, F);
         pidController.setSetPoint(0); // PIDs the error to 0
         pidController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
@@ -246,11 +280,11 @@ public class ElbowFSM {
 
     public void updatePID() { // This method is used to update position every loop.
 
-        if(targetAngle > 338) {
-            targetAngle = 338;
+        if(targetAngle > 308) {
+            targetAngle = 308;
         }
-        if(targetAngle < 64) {
-            targetAngle = 64;
+        if(targetAngle < 32) {
+            targetAngle = 32;
         }
 
 
@@ -277,20 +311,28 @@ public class ElbowFSM {
     public void flexToSampleIntakeReadyPos() {
         targetAngle = SAMPLE_INTAKE_READY_POS;
         sampleControl = false;
+        pidController.setPID(PSampleIntakeReady,ISampleIntakeReady,DSampleIntakeReady);
+        F = FSampleIntakeReady;
     }
 
     public void flexToSampleIntakeControlPos() {
         targetAngle = SAMPLE_INTAKE_CONTROL_POS;
         sampleControl = true;
+        pidController.setPID(PSampleIntakeControlPos,ISampleIntakeControlPos,DSampleIntakeControlPos);
+        F = FSampleIntakeControlPos;
     }
 
     public void flexToSampleIntakeCapturePos() {
         targetAngle = SAMPLE_INTAKE_CAPTURE_POS;
+        pidController.setPID(PSampleIntakeCapturePos,ISampleIntakeCapturePos,DSampleIntakeCapturePos);
+        F = FSampleIntakeCapturePos;
     }
 
     public void flexToSampleIntakeRetractPos() {
         targetAngle = SAMPLE_INTAKE_RETRACT_POS;
         relaxCalled = false;
+        pidController.setPID(PSampleIntakeRetractPos,ISampleIntakeRetractPos,DSampleIntakeRetractPos);
+        F = FSampleIntakeRetractPos;
     }
 
 
@@ -325,6 +367,8 @@ public class ElbowFSM {
     public void relax() {
         targetAngle = RELAXED_POS;
         relaxCalled = true;
+        pidController.setPID(Prelax,Irelax,Drelax);
+        F = Frelax;
     }
 
 

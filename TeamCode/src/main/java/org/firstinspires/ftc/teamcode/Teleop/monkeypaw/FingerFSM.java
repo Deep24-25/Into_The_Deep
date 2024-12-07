@@ -99,6 +99,7 @@ public class FingerFSM {
 
 
     public void gripSample() {
+        fingerServoWrapper.setAngle(90);
         targetAngle = SAMPLE_GRIPPED_POS;
         fingerServoWrapper.setAngle(targetAngle);
     }

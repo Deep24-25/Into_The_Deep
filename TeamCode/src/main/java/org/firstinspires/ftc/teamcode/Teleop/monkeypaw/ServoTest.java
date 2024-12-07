@@ -23,6 +23,7 @@ public class ServoTest extends LinearOpMode {
                 deviatorServo.turnToAngle(140);
             }
             if(gamepad1.y) {
+                deviatorServo.turnToAngle(90);
                 deviatorServo.turnToAngle(-140);
             }
             if(gamepad1.x) {

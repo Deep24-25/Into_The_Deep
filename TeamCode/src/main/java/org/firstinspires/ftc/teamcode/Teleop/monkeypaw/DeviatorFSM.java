@@ -28,9 +28,9 @@ public class DeviatorFSM {
     public static  double D = 0;
 
 
-    public static  double RIGHT_DEVIATED_POS = 214;
-    public static  double LEFT_DEVIATED_POS = 114;
-    public static  double RELAXED_POS = 169;
+    public static  double RIGHT_DEVIATED_POS = 259;
+    public static  double LEFT_DEVIATED_POS = 169;
+    public static  double RELAXED_POS = 214;
 
 
     private AxonServoWrapper deviatorServoWrapper;
@@ -45,6 +45,7 @@ public class DeviatorFSM {
 
         this.logger = logger;
         deviatorCurrentAngle = deviatorServoWrapper.getLastReadPos();
+        state = DeviatorStates.RELAXING;
 
     }
     @VisibleForTesting

@@ -18,6 +18,7 @@ public class WristTuner extends LinearOpMode {
     public static double P = 0.0075;
     public static double I = 0.00;
     public static double D = 0;
+    public static double F = -0.05;
     public static double PID_TOLERANCE = 5;
     private Logger logger;
 
@@ -25,7 +26,7 @@ public class WristTuner extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,false, 0);
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,true, 0);
         pidController = new PIDController(P,I,D);
         waitForStart();
         while (opModeIsActive()) {
@@ -41,11 +42,11 @@ public class WristTuner extends LinearOpMode {
 
     public void updatePID() { // This method is used to update position every loop.
 
-        if(targetAngle < 85) {
-            targetAngle = 120;
+        if(targetAngle < 42) {
+            targetAngle = 42;
         }
-        if(targetAngle > 271) {
-            targetAngle = 271;
+        if(targetAngle > 305) {
+            targetAngle = 305;
         }
 
         wristServoWrapper.readPos();
@@ -60,8 +61,7 @@ public class WristTuner extends LinearOpMode {
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", wristServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        wristServoWrapper.set(power);
-
+        wristServoWrapper.set((power + (F*(Math.cos(Math.toRadians(wristServoWrapper.getLastReadPos()))))));
     }
 
 

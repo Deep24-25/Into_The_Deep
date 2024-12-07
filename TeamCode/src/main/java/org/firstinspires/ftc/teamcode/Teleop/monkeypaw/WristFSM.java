@@ -21,8 +21,17 @@ public class WristFSM {
         FLEXING,
         FLEXED,
         RELAXING,
-        RELAXED
-    }
+        RELAXED,
+        FLEXED_TO_SPECIMEN_READY_POS,
+        FLEXING_TO_SPECIMEN__READY_POS,
+        FLEXING_TO_HIGH_CHAMBER_DEPOSIT,
+        FLEXED_TO_HIGH_CHAMBER_DEPOSIT,
+        FLEXING_TO_LOW_CHAMBER_DEPOSIT,
+        FLEXED_TO_LOW_CHAMBER_DEPOSIT,
+        RELAXING_FROM_CHAMBER_DEPOSIT,
+        RELAXED_FROM_CHAMBER_DEPOSIT,
+
+        }
 
     private double globalTargetAngle;
     public static  double PID_TOLERANCE = 5;
@@ -31,6 +40,7 @@ public class WristFSM {
     public static double P = 0.0075;
     public static  double I = 0;
     public static  double D = 0;
+    public static double F = -0.05;
 
 /*
     //test bench
@@ -44,7 +54,10 @@ public class WristFSM {
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_FLEX_POS = 20;
+    public static double SPECIMEN_FLEX_POS = 110.224725;
+
+    public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
+    public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
 
 
     private AxonServoWrapper wristServoWrapper;
@@ -61,16 +74,15 @@ public class WristFSM {
     ElbowFSM elbowFSM;
 
 
-
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),true, false, 0); // check if you need to reverse axons
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),true, true, 0); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
         this.elbowFSM = elbowFSM;
         globalTargetAngle = RELAXED_POS;
-
     }
+
     @VisibleForTesting
     public WristFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
         wristServoWrapper = axonServoWrapper;
@@ -129,6 +141,30 @@ public class WristFSM {
                 state = WristStates.FLEXING;
             }
         }
+        else if(isTargetAngleToSpecimenIntakeFlexPos()) {
+            if(pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_SPECIMEN_READY_POS;
+            }
+            else {
+            state = WristStates.FLEXING_TO_SPECIMEN__READY_POS;
+            }
+        }
+        else if (isTargetAngleToHighChamberDepositFlexedPos()) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_HIGH_CHAMBER_DEPOSIT;
+            } else {
+                state = WristStates.FLEXING_TO_HIGH_CHAMBER_DEPOSIT;
+            }
+        }
+
+        else if (isTargetAngleToLowChamberDepositFlexedPos()) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_LOW_CHAMBER_DEPOSIT;
+            } else {
+                state = WristStates.FLEXING_TO_LOW_CHAMBER_DEPOSIT;
+            }
+        }
+
     }
 
     public boolean isTargetAngleToRelax() {
@@ -157,17 +193,34 @@ public class WristFSM {
         return globalTargetAngle == SAMPLE_INTAKE_RETRACT_POS;
     }
 
+
+    public boolean isTargetAngleToSpecimenIntakeFlexPos() {
+        return globalTargetAngle == SPECIMEN_FLEX_POS;
+    }
+
+
+    public boolean isTargetAngleToHighChamberDepositFlexedPos() {
+        return globalTargetAngle == HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
+    }
+
+    public boolean isTargetAngleToLowChamberDepositFlexedPos() {
+        return globalTargetAngle == LOW_CHAMBER_DEPOSIT_FLEXED_POS;
+    }
+
+
+
+
     public void updatePID() { // This method is used to update position every loop.
 
         wristServoWrapper.readPos();
 
         double encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
 
-        if(encoderTargetAngle < 85) {
-            encoderTargetAngle = 85;
+        if(encoderTargetAngle < 42) {
+            encoderTargetAngle = 42;
         }
-        if(encoderTargetAngle > 271) {
-            encoderTargetAngle = 271;
+        if(encoderTargetAngle > 305) {
+            encoderTargetAngle = 305;
         }
 
 
@@ -185,7 +238,7 @@ public class WristFSM {
         logger.log("--------------Wrist Current Position-----------",wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
         logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", wristServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        wristServoWrapper.set(power);
+        wristServoWrapper.set((power + (F*(Math.cos(Math.toRadians(wristServoWrapper.getLastReadPos()))))));
 
     }
 
@@ -200,6 +253,7 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = true;
         sampleCapture = false;
+
     }
 
     public void flexToSampleIntakeControlPos() {
@@ -208,6 +262,7 @@ public class WristFSM {
         relaxCalled = false;
         sampleIntakeReady = false;
         sampleCapture = false;
+
     }
 
     public void flexToSampleIntakeCapturePos() {
@@ -216,6 +271,7 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = false;
         sampleCapture = true;
+
     }
 
     public void flexToSampleIntakeRetractPos() {
@@ -224,6 +280,7 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = false;
         sampleCapture = false;
+
     }
 
     public void relax() {
@@ -234,6 +291,15 @@ public class WristFSM {
         sampleCapture = false;
     }
 
+
+    public void flexToSpecimenIntakePos() {
+        globalTargetAngle = SPECIMEN_FLEX_POS;
+        sampleControl = false;
+        relaxCalled = false;
+        sampleIntakeReady = false;
+        sampleCapture = false;
+
+    }
 
     // Finds the smallest distance between 2 angles, input and output in degrees
     private double angleDelta(double angle1, double angle2) {
@@ -294,6 +360,11 @@ public class WristFSM {
 
     public boolean RELAXING() {
         return state == WristStates.RELAXING;
+    }
+
+    public boolean FLEXED_TO_SPECIMEN_READY_POS() {
+        return state == WristStates.FLEXED_TO_SPECIMEN_READY_POS;
+
     }
 
 
