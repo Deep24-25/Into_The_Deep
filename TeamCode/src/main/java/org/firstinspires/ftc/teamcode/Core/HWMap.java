@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 
 public class HWMap {
@@ -19,6 +21,7 @@ public class HWMap {
     private RevColorSensorV3 colorSensor1;
     private RevColorSensorV3 colorSensor2;
     private static IMU imu;
+    private static PinpointPod pinpointIMU;
     private static double imuAngle;
 
     private final Motor frontLeftMotor;
@@ -64,6 +67,7 @@ public class HWMap {
         frontLeftMotor.setInverted(true);
 
         imu = hardwareMap.get(IMU.class, "imu");
+        pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
 
 
         frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -71,7 +75,6 @@ public class HWMap {
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        initializeIMU();
 
         //Monkey's Limb
         //pivotMotor = new Motor(hardwareMap,"PM", Motor.GoBILDA.RPM_312);
@@ -118,19 +121,28 @@ public class HWMap {
     public CRServo getWristFlexServo() {
         return wristFlexServo;
     }
+//
+//    public static double readFromIMU() {
+//        imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+//        return imuAngle;
+//    }
+//
+//    public static void initializeIMU() {
+//        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+//        IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
+//        imu.initialize(revParameters);
+//        imu.resetYaw();
+//    }
 
-    public static double readFromIMU() {
-        imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+    public static double readFromIMU(){
+        pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
+        Pose2D pos = pinpointIMU.getPosition();
+        imuAngle = pos.getHeading(AngleUnit.DEGREES);
         return imuAngle;
     }
-
-    public static void initializeIMU() {
-        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
-        IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
-        imu.initialize(revParameters);
-        imu.resetYaw();
+    public static void initializeIMU(){
+        pinpointIMU.resetPosAndIMU();
     }
-
     public CRServo getWristDeviServo() {
         return wristDeviServo;
     }
@@ -191,4 +203,7 @@ public class HWMap {
         return frontRightMotor;
     }
 
+    public static double getImuAngle() {
+        return imuAngle;
+    }
 }
