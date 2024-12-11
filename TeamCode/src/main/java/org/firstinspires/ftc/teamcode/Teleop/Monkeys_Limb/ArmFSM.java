@@ -16,21 +16,21 @@ public class ArmFSM {
     }
 
     //Random Values
-    private static final double SAFE_HEIGHT = 3;
-    private static final double BASKET_LOW = 6;
-    private static final double BASKET_HIGH = 10;
-    private static final double SUBMERSIBLE_LOW = 4;
-    private static final double SUBMERSIBLE_HIGH = 8;
+    private static final double SAFE_HEIGHT = 5;
+    private static final double BASKET_LOW = 65.4;
+    private static final double BASKET_HIGH = 109.2;
+    private static final double SUBMERSIBLE_LOW = 33;
+    private static final double SUBMERSIBLE_HIGH = 66;
     private static final double FULLY_RETRACTED = 0;
-    private static final double MINI_INTAKE = 0;
-    private static final int MAX_HEIGHT = 0;
-    private static final double SPECIMEN_PICKUP = 0;
-    private static final double CHAMBER_LOCK_HEIGHT = 0;
+    private static final double MINI_INTAKE = 7;
+    private static final int MAX_HEIGHT = 80;
+    private static final double SPECIMEN_PICKUP = 30;
+    private double chamberLockHeight = 60;
 
 
-    public static double PHorizontal = 0, IHorizontal = 0, DHorizontal = 0, FHorizontal = 0;
-    public static double PVertical = 0, IVertical = 0, DVertical = 0, FVertical = 0;
-    public static double PAngle = 0, IAngle = 0, DAngle = 0, FAngle = 0;
+    public static double PHorizontal = 0.01, IHorizontal = 0.001, DHorizontal = 0.002, FHorizontal = 0;
+    public static double PVertical = 0.01, IVertical = 0.001, DVertical = 0.002, FVertical = 0;
+    public static double PAngle = 0.01, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
     private final double[] horizontalIndex = {FULLY_RETRACTED, MAX_HEIGHT};
 
     private final ArmMotorsWrapper armMotorsWrapper;
@@ -44,7 +44,7 @@ public class ArmFSM {
     private final double slideMovementCap = 1.0;
 
     private double power = 0;
-    private double tolerance = 1.5;
+    private static final double TOLERANCE = 2.0;
 
     private Logger logger;
 
@@ -53,19 +53,21 @@ public class ArmFSM {
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         currentIndex = 1;
         targetPosition = 0;
-        pidfController.setTolerance(tolerance);
+        pidfController.setTolerance(TOLERANCE);
         this.logger = logger;
     }
 
     @VisibleForTesting
-    public ArmFSM( ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController) {
+    public ArmFSM(ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController) {
         this.armMotorsWrapper = armMotorsWrapper;
         this.pidfController = pidfController;
 
     }
-        public void updateState() {
+
+    public void updateState() {
         updatePIDF();
         pidfController.setSetPoint(0);
+        pidfController.setTolerance(3);
         armMotorsWrapper.readPositionInCM();
         if (pidfController.atSetPoint()) {
             if (isTargetPosAtFullyRetractedHeight())
@@ -74,13 +76,11 @@ public class ArmFSM {
                 currentState = States.AT_BASKET_HEIGHT;
             else if (isTargetPosAtSubmersibleHeight())
                 currentState = States.AT_SUBMERSIBLE_HEIGHT;
-            else if(isTargetPosSpecimenPickUpHeight()) {
+            else if (isTargetPosSpecimenPickUpHeight()) {
                 currentState = States.AT_SPECIMEN_PICKUP;
-            }
-            else if(isTargetPosChamberLockHeight()) {
+            } else if (isTargetPosChamberLockHeight()) {
                 currentState = States.AT_CHAMBER_LOCK_HEIGHT;
-            }
-            else if(isTargetPosMiniIntakeHeight()) {
+            } else if (isTargetPosMiniIntakeHeight()) {
                 currentState = States.AT_MINI_INTAKE;
             }
         } else if (isFullyExtended()) {
@@ -134,6 +134,7 @@ public class ArmFSM {
     public boolean MOVING_BELOW_SAFE_HEIGHT() {
         return currentState == States.MOVING_BELOW_SAFE_HEIGHT;
     }
+
     public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
         return currentState == States.AT_SPECIMEN_PICKUP;
 
@@ -148,9 +149,9 @@ public class ArmFSM {
         return currentState == States.AT_MINI_INTAKE;
 
     }
+
     public void updatePIDF() {
         armMotorsWrapper.readPositionInCM();
-        // TODO: Can use sample and specimen mode instead
         if (targetPosition == BASKET_HIGH || targetPosition == BASKET_LOW)
             pidfController.setPIDF(PVertical, IVertical, DVertical, FVertical);
         else if (targetPosition == SUBMERSIBLE_HIGH || targetPosition == SUBMERSIBLE_LOW)
@@ -160,6 +161,7 @@ public class ArmFSM {
         measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
         power = pidfController.calculate(measuredPosition, targetPosition);
         power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
+        armMotorsWrapper.set(power);
     }
 
     public void moveToSelectedIndexPosition() {
@@ -205,14 +207,14 @@ public class ArmFSM {
     }
 
     public boolean isTargetPosChamberLockHeight() {
-        return targetPosition == CHAMBER_LOCK_HEIGHT;
+        return targetPosition == chamberLockHeight;
     }
 
     public boolean isTargetPosMiniIntakeHeight() {
         return targetPosition == MINI_INTAKE;
     }
 
-    public void moveToMiniIntake(){
+    public void moveToMiniIntake() {
         targetPosition = MINI_INTAKE;
     }
 
@@ -226,7 +228,7 @@ public class ArmFSM {
 
 
     public double getTolerance() {
-        return tolerance;
+        return TOLERANCE;
     }
 
     public boolean targetIsSafeHeight() {
@@ -246,10 +248,12 @@ public class ArmFSM {
     }
 
     public void moveToSubmersibleLowHeight() {
+        chamberLockHeight = 28;
         targetPosition = SUBMERSIBLE_LOW;
     }
 
     public void moveToSubmersibleHighHeight() {
+        chamberLockHeight = 61;
         targetPosition = SUBMERSIBLE_HIGH;
     }
 
@@ -258,7 +262,7 @@ public class ArmFSM {
     }
 
     public void moveToChamberLockHeight() {
-        targetPosition = CHAMBER_LOCK_HEIGHT;
+        targetPosition = chamberLockHeight;
     }
 
     public void moveToBasketHighHeight() {
@@ -278,9 +282,13 @@ public class ArmFSM {
     }
 
     public void log() {
-        logger.log("arm state", currentState, Logger.LogLevels.PRODUCTION);
-        logger.log("current height", armMotorsWrapper.getLastReadPositionInCM(), Logger.LogLevels.PRODUCTION);
-        logger.log("Target height", targetPosition, Logger.LogLevels.PRODUCTION);
+        logger.log("-------------------------ARM LOG---------------------------","-", Logger.LogLevels.PRODUCTION );
+        logger.log("Arm State: ", currentState, Logger.LogLevels.PRODUCTION);
+        logger.log("Arm Current Height: ", armMotorsWrapper.getLastReadPositionInCM(), Logger.LogLevels.PRODUCTION);
+        logger.log("Arm Target Height: ", targetPosition, Logger.LogLevels.PRODUCTION);
+        logger.log("Current Index: ", currentIndex, Logger.LogLevels.PRODUCTION);
+        logger.log("-------------------------ARM LOG---------------------------","-", Logger.LogLevels.PRODUCTION );
+
     }
 
 

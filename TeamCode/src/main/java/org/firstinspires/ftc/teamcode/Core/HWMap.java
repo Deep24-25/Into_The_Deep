@@ -55,8 +55,6 @@ public class HWMap {
     public HWMap(HardwareMap hardwareMap) {
 
         this.hardwareMap = hardwareMap;
-        colorSensor1 = this.hardwareMap.get(RevColorSensorV3.class, "CS1");
-        colorSensor2 = this.hardwareMap.get(RevColorSensorV3.class, "CS2");
         frontRightMotor = new Motor(hardwareMap,"RF", Motor.GoBILDA.RPM_312);
         frontLeftMotor = new Motor(hardwareMap,"LF", Motor.GoBILDA.RPM_312);//CH Port 1. The right odo pod accesses this motor's encoder port
         backleftMotor = new Motor(hardwareMap,"LB", Motor.GoBILDA.RPM_312); //CH Port 2. The perpendicular odo pod accesses this motor's encoder port

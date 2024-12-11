@@ -14,6 +14,7 @@ public class ArmMotorsWrapper {
         armMoterOne = hwMap.getArmMotorOne();
         armMoterTwo = hwMap.getArmMotorTwo();
         armMoterThree = hwMap.getArmMotorThree();
+        armMoterThree.setInverted(true);
         SLIDES_CPR = armMoterOne.getCPR();
     }
     /**
@@ -30,7 +31,7 @@ public class ArmMotorsWrapper {
      * Parameters: None
      */
     public double readPositionInCM(){
-        double currentPositionInTicks = armMoterOne.getCurrentPosition();
+        double currentPositionInTicks = armMoterThree .getCurrentPosition();
         double diameterOfSpool = 0;
         //double ratio = (0 / 0) * (0 / 0);
         lastReadPositionInCM = (currentPositionInTicks / (SLIDES_CPR)) * Math.PI * diameterOfSpool;

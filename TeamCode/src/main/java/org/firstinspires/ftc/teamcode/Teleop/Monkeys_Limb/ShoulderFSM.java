@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
-import android.util.Log;
-
 import androidx.annotation.VisibleForTesting;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
@@ -17,21 +15,20 @@ public class ShoulderFSM {
     }
 
 
-    public static double P = 0;
-    public static double I = 0;
-    public static double D = 0;
+    public static double P = 0.01;
+    public static double I = 0.001;
+    public static double D = 0.002;
     public static double F = 0;
 
 
-
-    private static final double ratio = 24/40;
+    private static final double ratio = 24.0 / 40.0;
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE_LOW = 0;
-    private static final double CHAMBER_ANGLE_HIGH = 0;
-    private static final double BASKET_ANGLE = 0;
-    private static final double SPECIMEN_INTAKE_ANGLE = 0;
+    private static final double CHAMBER_ANGLE_LOW = 90;
+    private static final double CHAMBER_ANGLE_HIGH = 90;
+    private static final double BASKET_ANGLE = 100;
+    private static final double SPECIMEN_INTAKE_ANGLE = 120;
 
     private final ShoulderWrapper shoulderWrapper;
     private final PIDFController pidfController;
@@ -41,14 +38,14 @@ public class ShoulderFSM {
 
     private double lastPIDAngle = 0;
     private double power;
-    private double TOLERANCE = 3;
+    private static final double TOLERANCE = 7.5;
 
     private Logger logger;
 
     public ShoulderFSM(HWMap hwMap, Logger logger) {
-        this.pidfController = new PIDFController(P, I, D,F);
-       shoulderWrapper = new ShoulderWrapper(hwMap);
-       this.logger = logger;
+        this.pidfController = new PIDFController(P, I, D, F);
+        shoulderWrapper = new ShoulderWrapper(hwMap);
+        this.logger = logger;
     }
 
     @VisibleForTesting
@@ -59,42 +56,36 @@ public class ShoulderFSM {
     }
 
     public void updateState() {
-        pidfController.setPIDF(P,I,D,F);
-        pidfController.setSetPoint(0);
+        pidfController.setPIDF(P, I, D, F);
         pidfController.setTolerance(TOLERANCE);
         updatePID();
-        if(isShoulderTargetPosDepositChamberAngle()) {
-            if (pidfController.atSetPoint()){
+
+        if (pidfController.atSetPoint()) {
+            if (isShoulderTargetPosDepositChamberAngle()) {
                 currentState = States.AT_DEPOSIT_CHAMBERS;
-            }
-            else
-                currentState = States.GOING_TO_CHAMBER;
-        }
-        else if (isShoulderTargetPosSampleIntakeAngle()) {
-            if (pidfController.atSetPoint()){
+            } else if (isShoulderTargetPosDepositBasketAngle()) {
+                currentState = States.AT_BASKET_DEPOSIT;
+            } else if (isShoulderTargetPosSpecimenIntakeAngle()) {
+                currentState = States.AT_SPECIMEN_INTAKE;
+            } else if (isShoulderTargetPosSampleIntakeAngle()) {
                 currentState = States.AT_INTAKE;
             }
-            else
-                currentState = States.GOING_TO_INTAKE;
-        }
-        else if (isShoulderTargetPosDepositBasketAngle()){
-            if (pidfController.atSetPoint()){
-                currentState = States.AT_BASKET_DEPOSIT;
-            }
-            else
+        } else {
+            if (isShoulderTargetPosDepositChamberAngle()) {
+                currentState = States.GOING_TO_CHAMBER;
+            } else if (isShoulderTargetPosDepositBasketAngle()) {
                 currentState = States.GOING_TO_BASKET;
-        }
-        else if(isShoulderCurrentPosSpecimenIntakeAngle()) {
-            if(pidfController.atSetPoint()) {
-                currentState = States.AT_SPECIMEN_INTAKE;
-            }
-            else {
+            } else if (isShoulderTargetPosSpecimenIntakeAngle()) {
                 currentState = States.GOING_TO_SPECIMEN_INTAKE;
+            } else if (isShoulderTargetPosSampleIntakeAngle()) {
+                currentState = States.GOING_TO_INTAKE;
             }
+
         }
+
     }
 
-    private boolean isShoulderCurrentPosSpecimenIntakeAngle() {
+    private boolean isShoulderTargetPosSpecimenIntakeAngle() {
         return targetAngle == SPECIMEN_INTAKE_ANGLE;
     }
 
@@ -160,6 +151,7 @@ public class ShoulderFSM {
 
         // We use zero because we already calculate for error
         power = pidfController.calculate(0, error);
+        shoulderWrapper.set(power);
 
     }
 
@@ -201,9 +193,13 @@ public class ShoulderFSM {
     }
 
     public void log() {
-        logger.log("shoulder state", currentState, Logger.LogLevels.PRODUCTION);
-        logger.log("shoulder Current angle", shoulderWrapper.getLastReadAngle(), Logger.LogLevels.PRODUCTION);
-        logger.log("shoulder target angle", targetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("-------------------------SHOULDER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
+        logger.log("Shoulder State:", currentState, Logger.LogLevels.PRODUCTION);
+        logger.log("Shoulder Current Angle: ", shoulderWrapper.getLastReadAngle(), Logger.LogLevels.PRODUCTION);
+        logger.log("Shoulder target Angle: ", targetAngle, Logger.LogLevels.PRODUCTION);
+
+        logger.log("-------------------------SHOULDER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
+
     }
 
 }
