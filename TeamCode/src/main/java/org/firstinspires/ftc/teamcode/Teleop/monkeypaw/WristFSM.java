@@ -49,7 +49,7 @@ public class WristFSM {
     public static double D = 0;*/
 
     public static  double RELAXED_POS = 90;
-    public static  double SAMPLE_FLEXED_POS = 270;
+    public static  double SAMPLE_FLEXED_POS = 255;
     public static  double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
@@ -253,6 +253,8 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = true;
         sampleCapture = false;
+        F = -0.025;
+        PID_TOLERANCE = 5;
 
     }
 
@@ -262,6 +264,8 @@ public class WristFSM {
         relaxCalled = false;
         sampleIntakeReady = false;
         sampleCapture = false;
+        F = -0.025;
+        PID_TOLERANCE = 5;
 
     }
 
@@ -271,15 +275,19 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = false;
         sampleCapture = true;
+        F = -0.025;
+        PID_TOLERANCE = 5;
 
     }
 
     public void flexToSampleIntakeRetractPos() {
-        globalTargetAngle = SAMPLE_INTAKE_RETRACT_POS;
-        relaxCalled = false;
-        sampleControl = false;
-        sampleIntakeReady = false;
-        sampleCapture = false;
+            globalTargetAngle = SAMPLE_INTAKE_RETRACT_POS;
+            relaxCalled = false;
+            sampleControl = false;
+            sampleIntakeReady = false;
+            sampleCapture = false;
+            F = -0.05;
+            PID_TOLERANCE = 8;
 
     }
 
@@ -289,6 +297,8 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = false;
         sampleCapture = false;
+        F = -0.05;
+        PID_TOLERANCE = 8;
     }
 
 

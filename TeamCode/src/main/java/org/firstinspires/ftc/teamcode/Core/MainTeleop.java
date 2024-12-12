@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 @TeleOp
-public class MainTeleOp extends LinearOpMode {
+public class MainTeleop extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;
     private HWMap hwMap;

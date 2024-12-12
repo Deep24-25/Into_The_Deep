@@ -179,8 +179,10 @@ public class MonkeyPawFSM {
                 }
                 break;
             case RETRACTING_INTAKE:
-                elbowFSM.flexToSampleIntakeRetractPos();
                 wristFSM.flexToSampleIntakeRetractPos();
+                if(wristFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS()) {
+                    elbowFSM.flexToSampleIntakeRetractPos();
+                }
                 if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS()) {
                     state = States.RETRACTED_INTAKE;
                 }
