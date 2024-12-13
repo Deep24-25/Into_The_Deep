@@ -54,8 +54,8 @@ public class ElbowFSM {
 
 
     //PID SampleIntakeReady constants:
-    public static double PSampleIntakeReady = 0.007;
-    public static double ISampleIntakeReady = 0;
+    public static double PSampleIntakeReady = 0.003;
+    public static double ISampleIntakeReady = 0.035;
     public static double DSampleIntakeReady = 0;
     public static double FSampleIntakeReady = -0.1;
 
@@ -69,14 +69,14 @@ public class ElbowFSM {
 
 
     //PID SampleIntakeControl constants:
-    public static double PSampleIntakeControlPos = 0.007;
+    public static double PSampleIntakeControlPos = 0.005;
     public static double ISampleIntakeControlPos = 0;
     public static double DSampleIntakeControlPos = 0;
     public static double FSampleIntakeControlPos = -0.1;
 
 
     //PID SampleIntakeRetract constants:
-    public static double PSampleIntakeRetractPos = 0.007;
+    public static double PSampleIntakeRetractPos = 0.001;
     public static double ISampleIntakeRetractPos = 0;
     public static double DSampleIntakeRetractPos = 0;
     public static double FSampleIntakeRetractPos = -0.2;
@@ -135,6 +135,7 @@ public class ElbowFSM {
     public void updateState() {
         pidController.setSetPoint(0); // PIDs the error to 0
         pidController.setTolerance(PID_TOLERANCE); // sets the buffer
+        pidController.setPID(P,I,D);
         updatePID();
 
          if (isTargetAngleToRelax() && relaxCalled) {
@@ -312,28 +313,36 @@ public class ElbowFSM {
     public void flexToSampleIntakeReadyPos() {
         targetAngle = SAMPLE_INTAKE_READY_POS;
         sampleControl = false;
-        pidController.setPID(PSampleIntakeReady,ISampleIntakeReady,DSampleIntakeReady);
+        P = PSampleIntakeReady;
+        I = ISampleIntakeReady;
+        D = DSampleIntakeReady;
         F = FSampleIntakeReady;
     }
 
     public void flexToSampleIntakeControlPos() {
         targetAngle = SAMPLE_INTAKE_CONTROL_POS;
         sampleControl = true;
-        pidController.setPID(PSampleIntakeControlPos,ISampleIntakeControlPos,DSampleIntakeControlPos);
+        P = PSampleIntakeControlPos;
+        I = ISampleIntakeControlPos;
+        D = DSampleIntakeControlPos;
         F = FSampleIntakeControlPos;
     }
 
     public void flexToSampleIntakeCapturePos() {
         targetAngle = SAMPLE_INTAKE_CAPTURE_POS;
-        pidController.setPID(PSampleIntakeCapturePos,ISampleIntakeCapturePos,DSampleIntakeCapturePos);
+        P = PSampleIntakeCapturePos;
+        I = ISampleIntakeCapturePos;
+        D = DSampleIntakeCapturePos;
         F = FSampleIntakeCapturePos;
     }
 
     public void flexToSampleIntakeRetractPos() {
-            targetAngle = SAMPLE_INTAKE_RETRACT_POS;
-            relaxCalled = false;
-            pidController.setPID(PSampleIntakeRetractPos, ISampleIntakeRetractPos, DSampleIntakeRetractPos);
-            F = FSampleIntakeRetractPos;
+        targetAngle = SAMPLE_INTAKE_RETRACT_POS;
+        relaxCalled = false;
+        P = PSampleIntakeRetractPos;
+        I = ISampleIntakeRetractPos;
+        D = DSampleIntakeRetractPos;
+        F = FSampleIntakeRetractPos;
     }
 
 
