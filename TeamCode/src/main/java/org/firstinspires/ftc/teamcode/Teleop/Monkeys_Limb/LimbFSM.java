@@ -56,6 +56,7 @@ public class LimbFSM {
     private States states = States.INTAKED_SPECIMEN;
     private Mode mode = Mode.SPECIMEN_MODE;
     private Logger logger;
+    private boolean notBeenInAnotherState = false;
 
 
     public LimbFSM(HWMap hwMap, Logger logger) {
@@ -65,6 +66,7 @@ public class LimbFSM {
         shoulderFSM = getShoulderFSM();
         monkeyPawFSM = getMonkeyPawFSM();
     }
+
     public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
         this.armFSM = armFSM;
@@ -114,9 +116,9 @@ public class LimbFSM {
 
     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed) {
         if (yPressed && SPECIMEN_MODE()) {
-            if ((PREPARED_TO_INTAKE() || DEPOSITED_SPECIMEN() || SAMPLE_STATES()) && !PREPARING_TO_INTAKE_SPECIMEN()) {
-                states = States.PREPARING_TO_INTAKE_SPECIMEN;
-            } else if (PREPARED_TO_INTAKE_SPECIMEN()) {
+            if ((DEPOSITED_SPECIMEN() || SAMPLE_STATES()) && !PREPARING_TO_INTAKE()) {
+                states = States.PREPARING_TO_INTAKE;
+            } else if (PREPARED_TO_INTAKE()) {
                 states = States.INTAKING_SPECIMEN;
             } else if (INTAKED_SPECIMEN()) {
                 states = States.EXTENDING_SPECIMEN;
@@ -134,7 +136,7 @@ public class LimbFSM {
         }
         if (xPressed) {
             if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()) {
-                states = States.PREPARING_TO_INTAKE_SPECIMEN;
+                states = States.PREPARING_TO_INTAKE;
             } else if (EXTENDING_SPECIMEN() || EXTENDED_SPECIMEN())
                 states = States.INTAKING_SPECIMEN;
             else if (DEPOSITING_SPECIMEN()) {
@@ -142,7 +144,7 @@ public class LimbFSM {
             }
         }
         if (aPressed) {
-            if (!PREPARED_TO_INTAKE_SPECIMEN() || !MOVING_TO_INTAKE_POS() || DEPOSITED_SAMPLE() || DEPOSITED_SPECIMEN()) {
+            if ((!MOVING_TO_INTAKE_POS() || DEPOSITED_SAMPLE() || DEPOSITED_SPECIMEN()) && !PREPARED_TO_INTAKE()) {
                 states = States.PREPARING_TO_INTAKE;
             } else if (PREPARED_TO_INTAKE()) {
                 states = States.MOVING_TO_INTAKE_POS;
@@ -151,7 +153,7 @@ public class LimbFSM {
         if (rightBumperPressed) {
             if (PREPARED_TO_INTAKE()) {
                 states = States.MOVING_TO_MINI_INTAKE;
-            } else if (MOVED_TO_MINI_INTAKE() && monkeyPawFSM.MINI_INTAKED()) {
+            } else if (MOVED_TO_MINI_INTAKE() && /*monkeyPawFSM.MINI_INTAKED()*/ true) {
                 states = States.RETRACTING_FROM_MINI_INTAKE;
             }
         }
@@ -171,8 +173,8 @@ public class LimbFSM {
         switch (states) {
             case PREPARING_TO_INTAKE_SPECIMEN:
                 if (armFSM.FULLY_RETRACTED()) {
-                    shoulderFSM.moveToSpecimenIntakeAngle();
-                    if (shoulderFSM.AT_SPECIMEN_INTAKE() && monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                    shoulderFSM.moveToIntakeAngle();
+                    if (shoulderFSM.AT_INTAKE() /*&& monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()*/) {
                         states = States.PREPARED_TO_INTAKE_SPECIMEN;
                     }
                 } else {
@@ -188,24 +190,27 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_SPECIMEN:
+                armFSM.moveToSubmersibleHeight();
+                shoulderFSM.moveToChamberAngle();
                 if (rightTriggerPressed) {
-                    shoulderFSM.moveToLowChamberAngle();
-                    armFSM.moveToSubmersibleLowHeight();
+                    armFSM.setIndexToSubmersibleLowHeight();
+                    shoulderFSM.indexToLowChamberAngle();
                 } else if (leftTriggerPressed) {
-                    shoulderFSM.moveToHighChamberAngle();
-                    armFSM.moveToSubmersibleHighHeight();
+                    armFSM.setIndexToSubmersibleHighHeight();
+                    shoulderFSM.indexToHighChamberAngle();
                 }
                 if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     states = States.EXTENDED_SPECIMEN;
                 }
                 break;
             case EXTENDED_SPECIMEN:
+                armFSM.moveToSubmersibleHeight();
                 if (rightTriggerPressed) {
-                    shoulderFSM.moveToLowChamberAngle();
-                    armFSM.moveToSubmersibleLowHeight();
+                    shoulderFSM.indexToLowChamberAngle();
+                    armFSM.setIndexToSubmersibleLowHeight();
                 } else if (leftTriggerPressed) {
-                    shoulderFSM.moveToHighChamberAngle();
-                    armFSM.moveToSubmersibleHighHeight();
+                    shoulderFSM.indexToHighChamberAngle();
+                    armFSM.setIndexToSubmersibleHighHeight();
                 }
                 if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     states = States.EXTENDED_SPECIMEN;
@@ -216,7 +221,7 @@ public class LimbFSM {
             case DEPOSITING_SPECIMEN:
                 armFSM.moveToChamberLockHeight();
                 if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
-                    if (monkeyPawFSM.DEPOSITED_SPECIMEN()) {
+                    if (/*monkeyPawFSM.DEPOSITED_SPECIMEN()*/ true) {
                         states = States.DEPOSITED_SPECIMEN;
                     }
                 }
@@ -232,23 +237,22 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                armFSM.moveToBasketHighHeight();
+                armFSM.goToBasketHeight();
                 if (leftTriggerPressed) {
-                    armFSM.moveToBasketHighHeight();
-                }
-                if (rightTriggerPressed) {
-                    armFSM.moveToBasketLowHeight();
+                    armFSM.setIndexToBasketHighHeight();
+                } else if (rightTriggerPressed) {
+                    armFSM.setIndexToBasketLowHeight();
                 }
                 if (armFSM.AT_BASKET_HEIGHT()) {
                     states = States.EXTENDED_TO_BASKET_HEIGHT;
                 }
                 break;
             case EXTENDED_TO_BASKET_HEIGHT:
+                armFSM.goToBasketHeight();
                 if (leftTriggerPressed) {
-                    armFSM.moveToBasketHighHeight();
-                }
-                if (rightTriggerPressed) {
-                    armFSM.moveToBasketLowHeight();
+                    armFSM.setIndexToBasketHighHeight();
+                } else if (rightTriggerPressed) {
+                    armFSM.setIndexToBasketLowHeight();
                 }
                 if (armFSM.AT_BASKET_HEIGHT()) {
                     states = States.EXTENDED_TO_BASKET_HEIGHT;
@@ -257,7 +261,7 @@ public class LimbFSM {
                 }
                 break;
             case DEPOSITING_SAMPLE:
-                if (monkeyPawFSM.RELAXED_AFTER_DEPOSIT()) {
+                if (/*monkeyPawFSM.RELAXED_AFTER_DEPOSIT()*/ true) {
                     states = States.DEPOSITED_SAMPLE;
                 }
                 break;
@@ -265,7 +269,7 @@ public class LimbFSM {
                 if (shoulderFSM.AT_INTAKE()) {
                     if (!armFSM.FULLY_RETRACTED()) {
                         armFSM.moveToSafeHeight();
-                        if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
+                        if (/*monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE()*/ true || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
                             armFSM.retract();
                             if (armFSM.FULLY_RETRACTED()) {
                                 states = States.PREPARED_TO_INTAKE;
@@ -279,7 +283,7 @@ public class LimbFSM {
                     if (armFSM.FULLY_RETRACTED()) {
                         shoulderFSM.moveToIntakeAngle();
                         if (shoulderFSM.AT_INTAKE()) {
-                            if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
+                            if (/*monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE()*/true || monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
                                 states = States.PREPARED_TO_INTAKE;
                             }
                         }
@@ -287,15 +291,14 @@ public class LimbFSM {
                 }
                 break;
             case MOVING_TO_INTAKE_POS:
+                armFSM.moveToSelectedIndexPosition();
                 if (leftTriggerPressed) {
                     armFSM.indexIncrement();
-                    armFSM.moveToSelectedIndexPosition();
 
                 } else if (rightTriggerPressed) {
                     armFSM.indexDecrement();
-                    armFSM.moveToSelectedIndexPosition();
                 }
-                if (aPressed || armFSM.FULLY_EXTENDED()) {
+                if (aPressed) {
                     states = States.MOVED_TO_INTAKE_POS;
                 }
                 break;
@@ -311,7 +314,7 @@ public class LimbFSM {
                 }
                 break;
             case RETRACTING_FROM_MINI_INTAKE:
-                if (monkeyPawFSM.RELAXED_MINI_INTAKE()) {
+                if (/*monkeyPawFSM.RELAXED_MINI_INTAKE()*/ true) {
                     armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()) {
                         states = States.PREPARED_TO_INTAKE;
@@ -323,10 +326,10 @@ public class LimbFSM {
     }
 
     public void log() {
-        logger.log("-------------------------LIMB LOG---------------------------","-", Logger.LogLevels.PRODUCTION );
+        logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Limb State: ", states, Logger.LogLevels.PRODUCTION);
         logger.log("Robot Mode: ", mode, Logger.LogLevels.PRODUCTION);
-        logger.log("-------------------------LIMB LOG---------------------------","-", Logger.LogLevels.PRODUCTION );
+        logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         armFSM.log();
         shoulderFSM.log();
     }

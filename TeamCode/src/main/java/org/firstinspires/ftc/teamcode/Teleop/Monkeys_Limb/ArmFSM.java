@@ -24,14 +24,18 @@ public class ArmFSM {
     private static final double FULLY_RETRACTED = 0;
     private static final double MINI_INTAKE = 7;
     private static final int MAX_HEIGHT = 80;
-    private static final double SPECIMEN_PICKUP = 30;
+    private static final double SPECIMEN_PICKUP = 5;
     private double chamberLockHeight = 60;
+    private double[] submersibleHeights = {SUBMERSIBLE_LOW, SUBMERSIBLE_HIGH};
+    private double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
+    private int submersibleIndex = 1;
+    private int basketIndex = 1;
 
 
-    public static double PHorizontal = 0.01, IHorizontal = 0.001, DHorizontal = 0.002, FHorizontal = 0;
-    public static double PVertical = 0.01, IVertical = 0.001, DVertical = 0.002, FVertical = 0;
-    public static double PAngle = 0.01, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
-    private final double[] horizontalIndex = {FULLY_RETRACTED, MAX_HEIGHT};
+    public static double PHorizontal = 0.2, IHorizontal = 0.001, DHorizontal = 0.002, FHorizontal = 0;
+    public static double PVertical = 0.2, IVertical = 0.001, DVertical = 0.002, FVertical = 0;
+    public static double PAngle = 0.2, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
+    private final double[] intakeIndecies = {FULLY_RETRACTED, 10, 20, 30, 40, 50, 60, 70, MAX_HEIGHT};
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
@@ -66,7 +70,6 @@ public class ArmFSM {
 
     public void updateState() {
         updatePIDF();
-        pidfController.setSetPoint(0);
         pidfController.setTolerance(3);
         armMotorsWrapper.readPositionInCM();
         if (pidfController.atSetPoint()) {
@@ -165,12 +168,12 @@ public class ArmFSM {
     }
 
     public void moveToSelectedIndexPosition() {
-        targetPosition = currentIndex;
+        targetPosition = intakeIndecies[currentIndex];
     }
 
     public void indexIncrement() {
         int tempIndex = currentIndex + 1;
-        if (tempIndex < horizontalIndex.length) {
+        if (tempIndex < intakeIndecies.length) {
             currentIndex++;
         }
     }
@@ -247,14 +250,22 @@ public class ArmFSM {
         return currentIndex;
     }
 
-    public void moveToSubmersibleLowHeight() {
-        chamberLockHeight = 28;
-        targetPosition = SUBMERSIBLE_LOW;
+    public void moveToSubmersibleHeight() {
+        targetPosition = submersibleHeights[submersibleIndex];
     }
 
-    public void moveToSubmersibleHighHeight() {
+    public void moveToBasketHeight() {
+        targetPosition = basketHeights[basketIndex];
+    }
+
+    public void setIndexToSubmersibleLowHeight() {
+        chamberLockHeight = 28;
+        submersibleIndex = 0;
+    }
+
+    public void setIndexToSubmersibleHighHeight() {
         chamberLockHeight = 61;
-        targetPosition = SUBMERSIBLE_HIGH;
+        submersibleIndex = 1;
     }
 
     public void moveToSpecimenPickUpHeight() {
@@ -265,12 +276,16 @@ public class ArmFSM {
         targetPosition = chamberLockHeight;
     }
 
-    public void moveToBasketHighHeight() {
-        targetPosition = BASKET_HIGH;
+    public void setIndexToBasketHighHeight() {
+        basketIndex = 1;
     }
 
-    public void moveToBasketLowHeight() {
-        targetPosition = BASKET_LOW;
+    public void setIndexToBasketLowHeight() {
+        basketIndex = 0;
+    }
+
+    public void goToBasketHeight() {
+        targetPosition = basketHeights[basketIndex];
     }
 
     public void retract() {
@@ -281,13 +296,22 @@ public class ArmFSM {
         targetPosition = SAFE_HEIGHT;
     }
 
+    public boolean isTargetPosHighHeight() {
+        return targetPosition == submersibleHeights[1];
+    }
+
+    public boolean isTargetPosLowHeight() {
+        return targetPosition == submersibleHeights[0];
+    }
+
     public void log() {
-        logger.log("-------------------------ARM LOG---------------------------","-", Logger.LogLevels.PRODUCTION );
+        logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Arm State: ", currentState, Logger.LogLevels.PRODUCTION);
         logger.log("Arm Current Height: ", armMotorsWrapper.getLastReadPositionInCM(), Logger.LogLevels.PRODUCTION);
         logger.log("Arm Target Height: ", targetPosition, Logger.LogLevels.PRODUCTION);
         logger.log("Current Index: ", currentIndex, Logger.LogLevels.PRODUCTION);
-        logger.log("-------------------------ARM LOG---------------------------","-", Logger.LogLevels.PRODUCTION );
+        logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.PRODUCTION);
+        logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
 

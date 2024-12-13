@@ -340,7 +340,7 @@ class LimbFSMTest {
         sut.updateState(false,false,false,false,false,false,false,true);
 
         verify(armFSMMock, never()).retract();
-        verify(shoulderFSMMock).moveToSpecimenIntakeAngle();
+        verify(shoulderFSMMock).indexToSpecimenIntakeAngle();
 
         assertTrue(sut.PREPARED_TO_INTAKE_SPECIMEN());
     }
@@ -400,8 +400,8 @@ class LimbFSMTest {
 
         sut.updateState(false,false,false,false,true,false,false, true);
 
-        verify(shoulderFSMMock).moveToLowChamberAngle();
-        verify(armFSMMock).moveToSubmersibleLowHeight();
+        verify(shoulderFSMMock).indexToLowChamberAngle();
+        verify(armFSMMock).setIndexToSubmersibleLowHeight();
 
         assertFalse(sut.EXTENDED_SPECIMEN());
     }
@@ -415,8 +415,8 @@ class LimbFSMTest {
 
         sut.updateState(false,false,false,false,false,false,true, true);
 
-        verify(shoulderFSMMock).moveToHighChamberAngle();
-        verify(armFSMMock).moveToSubmersibleHighHeight();
+        verify(shoulderFSMMock).indexToHighChamberAngle();
+        verify(armFSMMock).setIndexToSubmersibleHighHeight();
 
         assertTrue(sut.EXTENDED_SPECIMEN());
     }
@@ -431,8 +431,8 @@ class LimbFSMTest {
 
         sut.updateState(false,false,false,false,true,false,false, true);
 
-        verify(shoulderFSMMock).moveToLowChamberAngle();
-        verify(armFSMMock).moveToSubmersibleLowHeight();
+        verify(shoulderFSMMock).indexToLowChamberAngle();
+        verify(armFSMMock).setIndexToSubmersibleLowHeight();
 
         assertFalse(sut.EXTENDED_SPECIMEN());
     }
@@ -446,8 +446,8 @@ class LimbFSMTest {
 
         sut.updateState(false,false,false,false,false,false,true, true);
 
-        verify(shoulderFSMMock).moveToHighChamberAngle();
-        verify(armFSMMock).moveToSubmersibleHighHeight();
+        verify(shoulderFSMMock).indexToHighChamberAngle();
+        verify(armFSMMock).setIndexToSubmersibleHighHeight();
 
         assertTrue(sut.EXTENDED_SPECIMEN());
     }
@@ -517,8 +517,8 @@ class LimbFSMTest {
 
         sut.updateState(false,false,false,false,true,false,false, true);
 
-        verify(armFSMMock).moveToBasketHighHeight();
-        verify(armFSMMock).moveToBasketLowHeight();
+        verify(armFSMMock).setIndexToBasketHighHeight();
+        verify(armFSMMock).setIndexToBasketLowHeight();
         assertTrue(sut.EXTENDED_TO_BASKET_HEIGHT());
 
     }
@@ -531,7 +531,7 @@ class LimbFSMTest {
 
         sut.updateState(false,false,false,false,true,false,false, true);
 
-        verify(armFSMMock).moveToBasketLowHeight();
+        verify(armFSMMock).setIndexToBasketLowHeight();
 
         assertTrue(sut.EXTENDING_TO_BASKET_HEIGHT());
     }

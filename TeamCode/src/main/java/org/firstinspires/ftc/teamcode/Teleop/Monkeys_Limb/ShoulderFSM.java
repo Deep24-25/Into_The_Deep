@@ -25,14 +25,16 @@ public class ShoulderFSM {
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE_LOW = 90;
+    private static final double CHAMBER_ANGLE_LOW = 45;
     private static final double CHAMBER_ANGLE_HIGH = 90;
     private static final double BASKET_ANGLE = 100;
     private static final double SPECIMEN_INTAKE_ANGLE = 120;
 
     private final ShoulderWrapper shoulderWrapper;
     private final PIDFController pidfController;
-    private static double targetAngle;
+    private double targetAngle = SAMPLE_INTAKE_ANGLE;
+    private double[] chamberAngles = {CHAMBER_ANGLE_LOW, CHAMBER_ANGLE_HIGH};
+    private int chamberIndex = 1;
     private double measuredAngle;
     private States currentState;
 
@@ -90,7 +92,7 @@ public class ShoulderFSM {
     }
 
     public boolean isShoulderTargetPosDepositChamberAngle() {
-        return targetAngle == CHAMBER_ANGLE_HIGH || targetAngle == CHAMBER_ANGLE_LOW;
+        return targetAngle == CHAMBER_ANGLE_HIGH | targetAngle == CHAMBER_ANGLE_LOW;
     }
 
     public boolean isShoulderTargetPosSampleIntakeAngle() {
@@ -163,16 +165,20 @@ public class ShoulderFSM {
         targetAngle = BASKET_ANGLE;
     }
 
-    public void moveToLowChamberAngle() {
-        targetAngle = CHAMBER_ANGLE_LOW;
+    public void indexToLowChamberAngle() {
+        chamberIndex = 0;
     }
 
-    public void moveToHighChamberAngle() {
-        targetAngle = CHAMBER_ANGLE_HIGH;
+    public void indexToHighChamberAngle() {
+        chamberIndex = 1;
     }
 
     public void moveToSpecimenIntakeAngle() {
         targetAngle = SPECIMEN_INTAKE_ANGLE;
+    }
+
+    public void moveToChamberAngle() {
+        targetAngle = chamberAngles[chamberIndex];
     }
 
 
@@ -197,6 +203,7 @@ public class ShoulderFSM {
         logger.log("Shoulder State:", currentState, Logger.LogLevels.PRODUCTION);
         logger.log("Shoulder Current Angle: ", shoulderWrapper.getLastReadAngle(), Logger.LogLevels.PRODUCTION);
         logger.log("Shoulder target Angle: ", targetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.PRODUCTION);
 
         logger.log("-------------------------SHOULDER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
