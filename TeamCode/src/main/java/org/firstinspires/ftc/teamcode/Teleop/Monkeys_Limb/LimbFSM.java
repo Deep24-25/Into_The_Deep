@@ -56,8 +56,8 @@ public class LimbFSM {
     private States states = States.INTAKED_SPECIMEN;
     private Mode mode = Mode.SPECIMEN_MODE;
     private Logger logger;
-    private boolean notBeenInAnotherState = false;
 
+    private boolean notBeenInMovingToIntake = true;
 
     public LimbFSM(HWMap hwMap, Logger logger) {
         this.hwMap = hwMap;
@@ -147,7 +147,11 @@ public class LimbFSM {
             if ((!MOVING_TO_INTAKE_POS() || DEPOSITED_SAMPLE() || DEPOSITED_SPECIMEN()) && !PREPARED_TO_INTAKE()) {
                 states = States.PREPARING_TO_INTAKE;
             } else if (PREPARED_TO_INTAKE()) {
+                notBeenInMovingToIntake = true;
                 states = States.MOVING_TO_INTAKE_POS;
+            }
+            else if (MOVING_TO_INTAKE_POS() && !notBeenInMovingToIntake){
+                states = States.MOVED_TO_INTAKE_POS;
             }
         }
         if (rightBumperPressed) {
@@ -183,8 +187,8 @@ public class LimbFSM {
                 break;
             case INTAKING_SPECIMEN:
                 if (/*monkeyPawFSM.INTAKED_SPECIMEN()*/ true) {
-                    armFSM.moveToSpecimenPickUpHeight();
-                    if (armFSM.AT_SPECIMEN_PICKUP_HEIGHT()) {
+                    armFSM.retract();
+                    if (armFSM.FULLY_RETRACTED()) {
                         states = States.INTAKED_SPECIMEN;
                     }
                 }
@@ -292,14 +296,12 @@ public class LimbFSM {
                 break;
             case MOVING_TO_INTAKE_POS:
                 armFSM.moveToSelectedIndexPosition();
+                notBeenInMovingToIntake = false;
                 if (leftTriggerPressed) {
                     armFSM.indexIncrement();
 
                 } else if (rightTriggerPressed) {
                     armFSM.indexDecrement();
-                }
-                if (aPressed) {
-                    states = States.MOVED_TO_INTAKE_POS;
                 }
                 break;
             case MOVED_TO_INTAKE_POS:
