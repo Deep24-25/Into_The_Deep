@@ -22,6 +22,7 @@ public class MainTeleOp extends LinearOpMode {
     private ShoulderFSM shoulderFSM;
     private ArmFSM armFSM;
     private MonkeyPawFSM monkeyPawFSM;
+    private FieldCentricDrive fieldCentricDrive;
     private boolean leftTriggerWasJustPressed;
     private boolean rightTriggerWasJustPressed;
     private double prevLeftTrigger;
@@ -41,6 +42,7 @@ public class MainTeleOp extends LinearOpMode {
     private boolean prevBPressed;
     private boolean prevLeftBumperPressed;
     private boolean prevRightBumperPressed;
+    private final double MULTIPLIER = 0.4;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,30 +56,24 @@ public class MainTeleOp extends LinearOpMode {
             armFSM = new ArmFSM(hwMap, logger);
             limbFSM = new LimbFSM(shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
+            fieldCentricDrive = new FieldCentricDrive(hwMap);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
             telemetry.update();
         }
-/*            while (opModeInInit()) {
-                try {
-                    this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-                    gamePad1 = new GamepadEx(gamepad1);
-                    gamePad2 = new GamepadEx(gamepad2);
-                    hwMap = new HWMap(hardwareMap);
-                    logger = new Logger(telemetry);
-                    monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
-                } catch (Exception exception) {
-                    logger.log("-", exception.getMessage(), Logger.LogLevels.PRODUCTION);
-                    logger.print();
-                }
-            }*/
+        while (opModeInInit()) {
+            HWMap.initializeIMU();
+        }
         waitForStart();
         while (opModeIsActive()) {
             gamePad1.readButtons();
             gamePad2.readButtons();
             triggersWasJustPressed();
+            if(gamePad1.isDown(GamepadKeys.Button.X))
+                HWMap.initializeIMU();
 
 
+            fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), gamePad1.getRightX() * MULTIPLIER, HWMap.readFromIMU());
             limbFSM.updateState(yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, false);
             // monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
 

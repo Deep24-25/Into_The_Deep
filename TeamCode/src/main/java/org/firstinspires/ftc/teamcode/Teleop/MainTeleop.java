@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Core.FieldCentricDrive;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 
-@TeleOp(name = "Main Teleop")
+@TeleOp(name = "Main Teleop Main")
 public class MainTeleop extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;

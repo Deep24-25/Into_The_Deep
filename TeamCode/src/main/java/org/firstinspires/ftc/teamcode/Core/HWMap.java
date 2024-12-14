@@ -120,18 +120,6 @@ public class HWMap {
     public CRServo getWristFlexServo() {
         return wristFlexServo;
     }
-//
-//    public static double readFromIMU() {
-//        imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-//        return imuAngle;
-//    }
-//
-//    public static void initializeIMU() {
-//        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
-//        IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
-//        imu.initialize(revParameters);
-//        imu.resetYaw();
-//    }
 
 
     public static double readFromIMU() {
