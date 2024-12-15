@@ -54,10 +54,10 @@ public class ElbowFSM {
 
 
     //PID SampleIntakeReady constants:
-    public static double PSampleIntakeReady = 0.003;
-    public static double ISampleIntakeReady = 0.035;
+    public static double PSampleIntakeReady = 0.0026;
+    public static double ISampleIntakeReady = 0.02;
     public static double DSampleIntakeReady = 0;
-    public static double FSampleIntakeReady = -0.1;
+    public static double FSampleIntakeReady = -0.13;
 
 
     //PID SampleIntakeCapture constants:
@@ -77,7 +77,7 @@ public class ElbowFSM {
 
     //PID SampleIntakeRetract constants:
     public static double PSampleIntakeRetractPos = 0.001;
-    public static double ISampleIntakeRetractPos = 0;
+    public static double ISampleIntakeRetractPos = 0.03;
     public static double DSampleIntakeRetractPos = 0;
     public static double FSampleIntakeRetractPos = -0.2;
 
@@ -90,8 +90,8 @@ public class ElbowFSM {
 
 
     public static  double RELAXED_POS = 66;
-    public static  double SAMPLE_INTAKE_READY_POS = 149.521675;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 170;
+    public static  double SAMPLE_INTAKE_READY_POS = 170;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 179.9;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
@@ -114,7 +114,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 7.0;
+    public static double ENCODER_OFFSET = 35;
 
 
     public ElbowFSM(HWMap hwMap, Logger logger) {
@@ -304,7 +304,7 @@ public class ElbowFSM {
         logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos()))))), Logger.LogLevels.PRODUCTION);
         logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())), Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos()))))));
+        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())))))*26.0/24.0);
 
     }
 

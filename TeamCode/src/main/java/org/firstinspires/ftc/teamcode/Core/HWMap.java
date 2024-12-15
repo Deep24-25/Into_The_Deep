@@ -16,14 +16,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.List;
-import com.qualcomm.robotcore.hardware.IMU;
-
-import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 
 public class HWMap {
@@ -31,7 +23,6 @@ public class HWMap {
     private RevColorSensorV3 colorSensor1;
     private RevColorSensorV3 colorSensor2;
     private static IMU imu;
-    private static PinpointPod pinpointIMU;
     private static double imuAngle;
 
     private final Motor frontLeftMotor;
@@ -40,6 +31,7 @@ public class HWMap {
     private final Motor frontRightMotor;
     private final MecanumDrive mecanumDrive;
 
+    private HardwareMap hardwareMap;
 
     // Monkey's Limb
     private Motor pivotMotor;
@@ -49,13 +41,13 @@ public class HWMap {
 
     //Monkey's Paw
 
-        // Paw Axon Servos
+    // Paw Axon Servos
     private CRServo elbowServo;
     private CRServo wristFlexServo;
     private CRServo wristDeviServo;
     private ServoEx fingerServo;
 
-        // Paw Axon Encoders
+    // Paw Axon Encoders
     private AnalogInput elbowEncoder;
     private AnalogInput wristFlexEncoder;
     private AnalogInput wristDeviEncoder;
@@ -64,28 +56,16 @@ public class HWMap {
 
     public HWMap(HardwareMap hardwareMap) {
 
-        //colorSensor1 = this.hardwareMap.get(RevColorSensorV3.class, "CS1");
-        //colorSensor2 = this.hardwareMap.get(RevColorSensorV3.class, "CS2");
-        frontRightMotor = new Motor(hardwareMap,"RF", Motor.GoBILDA.RPM_312);//CH Port 1
-        frontLeftMotor = new Motor(hardwareMap,"LF", Motor.GoBILDA.RPM_312);//CH Port 3. The right odo pod accesses this motor's encoder port
-        backleftMotor = new Motor(hardwareMap,"LB", Motor.GoBILDA.RPM_312); //CH Port 0. The perpendicular odo pod accesses this motor's encoder port
-        backRightMotor = new Motor(hardwareMap,"RB", Motor.GoBILDA.RPM_312);//CH Port 2. The left odo pod accesses this motor's encoder port.
-
+        this.hardwareMap = hardwareMap;
+        colorSensor1 = this.hardwareMap.get(RevColorSensorV3.class, "CS1");
+        colorSensor2 = this.hardwareMap.get(RevColorSensorV3.class, "CS2");
+        frontRightMotor = new Motor(hardwareMap,"RF", Motor.GoBILDA.RPM_312);
+        frontLeftMotor = new Motor(hardwareMap,"LF", Motor.GoBILDA.RPM_312);//CH Port 1. The right odo pod accesses this motor's encoder port
+        backleftMotor = new Motor(hardwareMap,"LB", Motor.GoBILDA.RPM_312); //CH Port 2. The perpendicular odo pod accesses this motor's encoder port
+        backRightMotor = new Motor(hardwareMap,"RB", Motor.GoBILDA.RPM_312);//CH Port 3. The left odo pod accesses this motor's encoder port.
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
-        mecanumDrive.setRightSideInverted(false);
-        backleftMotor.setInverted(true);
-        frontLeftMotor.setInverted(true);
-
-        imu = hardwareMap.get(IMU.class, "imu");
+        imu = this.hardwareMap.get(IMU.class, "imu");
         initializeIMU();
-        pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
-
-
-        frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-
 
         //Monkey's Limb
         pivotMotor = new Motor(hardwareMap,"PM", Motor.GoBILDA.RPM_312);
@@ -132,28 +112,19 @@ public class HWMap {
     public CRServo getWristFlexServo() {
         return wristFlexServo;
     }
-//
-//    public static double readFromIMU() {
-//        imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-//        return imuAngle;
-//    }
-//
-//    public static void initializeIMU() {
-//        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
-//        IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
-//        imu.initialize(revParameters);
-//        imu.resetYaw();
-//    }
 
-    public static double readFromIMU(){
-        pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
-        Pose2D pos = pinpointIMU.getPosition();
-        imuAngle = pos.getHeading(AngleUnit.DEGREES);
+    public static double readFromIMU() {
+        imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         return imuAngle;
     }
-    public static void initializeIMU(){
-        pinpointIMU.resetPosAndIMU();
+
+    public static void initializeIMU() {
+        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT);
+        IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
+        imu.initialize(revParameters);
+        imu.resetYaw();
     }
+
     public CRServo getWristDeviServo() {
         return wristDeviServo;
     }
@@ -214,7 +185,4 @@ public class HWMap {
         return frontRightMotor;
     }
 
-    public static double getImuAngle() {
-        return imuAngle;
-    }
 }

@@ -49,7 +49,7 @@ public class MainTeleop extends LinearOpMode {
             telemetry.addData("Front Right Power", hwMap.getFrontRightMotor().get());
             telemetry.addData("Front Left Power", hwMap.getFrontLeftMotor().get());
             telemetry.addData("multiplier", multiplier);
-            telemetry.addData("IMU Angle", HWMap.getImuAngle());
+            //telemetry.addData("IMU Angle", HWMap.getImuAngle());
             telemetry.update();
         }
     }

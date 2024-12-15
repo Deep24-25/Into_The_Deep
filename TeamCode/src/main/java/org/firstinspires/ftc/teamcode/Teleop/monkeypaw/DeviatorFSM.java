@@ -20,17 +20,17 @@ public class DeviatorFSM {
     }
 
     private double targetAngle;
-    public static  double PID_TOLERANCE = 5;
+    public static  double PID_TOLERANCE = 8;
     private double deviatorCurrentAngle;
     //Robot CONSTANTS:
-    public static  double P = 0.003;
+    public static  double P = 0.0045;
     public static  double I = 0;
     public static  double D = 0;
 
 
-    public static  double RIGHT_DEVIATED_POS = 259;
-    public static  double LEFT_DEVIATED_POS = 169;
-    public static  double RELAXED_POS = 214;
+    public static  double RIGHT_DEVIATED_POS = 105;
+    public static  double LEFT_DEVIATED_POS = 195;
+    public static  double RELAXED_POS = 150;
 
 
     private AxonServoWrapper deviatorServoWrapper;

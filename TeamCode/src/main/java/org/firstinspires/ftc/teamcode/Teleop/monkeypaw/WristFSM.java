@@ -40,7 +40,7 @@ public class WristFSM {
     public static double P = 0.0075;
     public static  double I = 0;
     public static  double D = 0;
-    public static double F = -0.05;
+    public static double F = 0.02;
 
 /*
     //test bench
@@ -49,7 +49,7 @@ public class WristFSM {
     public static double D = 0;*/
 
     public static  double RELAXED_POS = 90;
-    public static  double SAMPLE_FLEXED_POS = 255;
+    public static  double SAMPLE_FLEXED_POS = 270;
     public static  double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
@@ -70,6 +70,7 @@ public class WristFSM {
     private boolean sampleControl = false;
     private boolean sampleIntakeReady = false;
     private boolean sampleCapture = false;
+    private boolean sampleRetract = false;
 
     ElbowFSM elbowFSM;
 
@@ -213,8 +214,13 @@ public class WristFSM {
     public void updatePID() { // This method is used to update position every loop.
 
         wristServoWrapper.readPos();
-
-        double encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
+        double encoderTargetAngle;
+        if(sampleRetract) {
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
+        }
+        else {
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
+        }
 
         if(encoderTargetAngle < 42) {
             encoderTargetAngle = 42;
@@ -253,7 +259,8 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = true;
         sampleCapture = false;
-        F = -0.025;
+        sampleRetract = false;
+        F = 0.001;
         PID_TOLERANCE = 5;
 
     }
@@ -264,7 +271,8 @@ public class WristFSM {
         relaxCalled = false;
         sampleIntakeReady = false;
         sampleCapture = false;
-        F = -0.025;
+        sampleRetract = false;
+        F = 0.001;
         PID_TOLERANCE = 5;
 
     }
@@ -275,7 +283,8 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = false;
         sampleCapture = true;
-        F = -0.025;
+        sampleRetract = false;
+        F = 0.001;
         PID_TOLERANCE = 5;
 
     }
@@ -286,7 +295,8 @@ public class WristFSM {
             sampleControl = false;
             sampleIntakeReady = false;
             sampleCapture = false;
-            F = -0.05;
+            sampleRetract = true;
+            F = 0.002;
             PID_TOLERANCE = 8;
 
     }
@@ -297,7 +307,9 @@ public class WristFSM {
         sampleControl = false;
         sampleIntakeReady = false;
         sampleCapture = false;
-        F = -0.05;
+        sampleRetract = false;
+
+        F = 0.002;
         PID_TOLERANCE = 8;
     }
 
@@ -308,6 +320,7 @@ public class WristFSM {
         relaxCalled = false;
         sampleIntakeReady = false;
         sampleCapture = false;
+        sampleRetract = false;
 
     }
 
