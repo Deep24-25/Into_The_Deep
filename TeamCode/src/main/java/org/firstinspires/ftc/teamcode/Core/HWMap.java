@@ -57,14 +57,11 @@ public class HWMap {
     public HWMap(HardwareMap hardwareMap) {
 
         this.hardwareMap = hardwareMap;
-        colorSensor1 = this.hardwareMap.get(RevColorSensorV3.class, "CS1");
-        colorSensor2 = this.hardwareMap.get(RevColorSensorV3.class, "CS2");
         frontRightMotor = new Motor(hardwareMap, "RF", Motor.GoBILDA.RPM_312);
         frontLeftMotor = new Motor(hardwareMap, "LF", Motor.GoBILDA.RPM_312);//CH Port 1. The right odo pod accesses this motor's encoder port
         backleftMotor = new Motor(hardwareMap, "LB", Motor.GoBILDA.RPM_312); //CH Port 2. The perpendicular odo pod accesses this motor's encoder port
         backRightMotor = new Motor(hardwareMap, "RB", Motor.GoBILDA.RPM_312);//CH Port 3. The left odo pod accesses this motor's encoder port.
         pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
-
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
         mecanumDrive.setRightSideInverted(false);
         backleftMotor.setInverted(true);
@@ -87,6 +84,11 @@ public class HWMap {
         wristFlexEncoder = hardwareMap.get(AnalogInput.class, "WFE");
         wristDeviEncoder = hardwareMap.get(AnalogInput.class, "WDE");
         fingerEncoder = hardwareMap.get(AnalogInput.class, "FE");
+
+        frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
     }
 
     // Monkey's Limb Getters

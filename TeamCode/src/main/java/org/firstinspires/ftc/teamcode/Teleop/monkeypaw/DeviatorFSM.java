@@ -28,9 +28,9 @@ public class DeviatorFSM {
     public static  double D = 0;
 
 
-    public static  double RIGHT_DEVIATED_POS = 105;
-    public static  double LEFT_DEVIATED_POS = 195;
-    public static  double RELAXED_POS = 150;
+    public static  double RIGHT_DEVIATED_POS = 95;
+    public static  double LEFT_DEVIATED_POS = 5;
+    public static  double RELAXED_POS = 50;
 
 
     private AxonServoWrapper deviatorServoWrapper;

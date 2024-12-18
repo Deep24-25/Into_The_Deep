@@ -296,7 +296,7 @@ public class WristFSM {
             sampleIntakeReady = false;
             sampleCapture = false;
             sampleRetract = true;
-            F = 0.002;
+            F = 0.005;
             PID_TOLERANCE = 8;
 
     }
@@ -309,7 +309,7 @@ public class WristFSM {
         sampleCapture = false;
         sampleRetract = false;
 
-        F = 0.002;
+        F = 0.005;
         PID_TOLERANCE = 8;
     }
 
@@ -359,7 +359,7 @@ public class WristFSM {
     }
 
     private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowCurrentAngle) {
-        return (globalWristAngle - elbowCurrentAngle) + 180;
+        return (globalWristAngle - elbowCurrentAngle) + 190;
        /* if(elbowAngle > 180) {
             return wristAngle + (360 -elbowAngle);
         }
