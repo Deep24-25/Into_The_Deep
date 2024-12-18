@@ -8,25 +8,36 @@ public class AxonServoWrapper {
     private AnalogInput encoder;
     private double lastReadPosition;
     private double sign = 1;
-    private double encoderOffset = 0.0;
-    public AxonServoWrapper(CRServo axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder) {
+    private double encoderOffset;
+    private double inverseEncoderOffset;
+    public AxonServoWrapper(CRServo axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder, double encoderOffset) {
         this.axon = axon;
         this.encoder = encoder;
         if (inversePower) {
             sign = -1;
         }
         if (inverseEncoder) {
-            encoderOffset = 360;
+            inverseEncoderOffset = 360;
         }
+
+        this.encoderOffset = encoderOffset;
     }
 
     public void set(double power){
         axon.set(power * sign);
     }
 
+    public double get() {
+        return axon.get()*sign;
+    }
+
     public double readPos() {
-        lastReadPosition = Math.abs(encoderOffset - (encoder.getVoltage() / 3.3 * 360));
+        lastReadPosition = Math.abs(inverseEncoderOffset - (encoderOffset + (encoder.getVoltage() / 3.3 * 360)));
         return lastReadPosition;
+    }
+
+    public double getRawPos() {
+        return (encoder.getVoltage() / 3.3 * 360);
     }
     public double getLastReadPos() {
         return lastReadPosition;

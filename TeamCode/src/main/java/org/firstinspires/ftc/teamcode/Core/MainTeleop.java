@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 @TeleOp
-public class MainTeleOp extends LinearOpMode {
+public class MainTeleop extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;
     private HWMap hwMap;
@@ -42,7 +42,7 @@ public class MainTeleOp extends LinearOpMode {
     private boolean prevBPressed;
     private boolean prevLeftBumperPressed;
     private boolean prevRightBumperPressed;
-    private final double MULTIPLIER = 0.4;
+    private static final double MULTIPLIER = 0.6;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -69,16 +69,17 @@ public class MainTeleOp extends LinearOpMode {
             gamePad1.readButtons();
             gamePad2.readButtons();
             triggersWasJustPressed();
-            if(gamePad1.isDown(GamepadKeys.Button.X))
+            if (gamePad1.isDown(GamepadKeys.Button.X))
                 HWMap.initializeIMU();
 
 
             fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), gamePad1.getRightX() * MULTIPLIER, HWMap.readFromIMU());
+            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), gamePad2.wasJustPressed(GamepadKeys.Button.X), gamePad2.wasJustPressed(GamepadKeys.Button.B), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.A));
             limbFSM.updateState(yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, false);
-            // monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER),gamePad2.wasJustPressed(GamepadKeys.Button.X),gamePad2.wasJustPressed(GamepadKeys.Button.B));
+
 
             updatePID();
-            // monkeyPawFSM.updatePID();
+            monkeyPawFSM.updatePID();
             log();
             logger.print();
 
@@ -86,7 +87,7 @@ public class MainTeleOp extends LinearOpMode {
     }
 
     private void log() {
-        //monkeyPawFSM.log();
+        monkeyPawFSM.log();
         limbFSM.log();
     }
 

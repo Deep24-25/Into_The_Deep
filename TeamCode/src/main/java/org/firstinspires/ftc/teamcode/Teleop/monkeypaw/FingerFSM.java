@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.util.Timing;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+
+import java.util.concurrent.TimeUnit;
+
 @Config
 public class FingerFSM {
     private enum FingerStates {
@@ -17,85 +20,101 @@ public class FingerFSM {
     }
 
     private double targetAngle;
-    public static  double PID_TOLERANCE = 2;
     private double fingerCurrentAngle;
-    //Robot CONSTANTS:
-    public static  double P = 0.003;
-    public static  double I = 0;
-    public static  double D = 0;
 
 
-    public static  double GRIPPED_POS = 0;
-    public static  double RELEASED_POS = 50;
+    public static  double SAMPLE_GRIPPED_POS = 0;
+    public static double SPECIMEN_GRIPPED_POS = 90;
+    public static  double SAMPLE_RELEASED_POS = 300;
+    public static double SPECIMEN_RELEASED_POS = -145;
 
-    private AxonServoWrapper fingerServoWrapper;
-    private PIDController pidController;
+    private FingerServoWrapper fingerServoWrapper;
 
     private FingerStates state;
     private Logger logger;
+    private Timing.Timer timer;
 
     public FingerFSM(HWMap hwMap, Logger logger) {
-        fingerServoWrapper = new AxonServoWrapper(hwMap.getFingerServo(),hwMap.getFingerEncoder(),false, false); // check if you need to reverse axons
-        pidController = new PIDController(P, I, D);
+        fingerServoWrapper = new FingerServoWrapper(hwMap);
         this.logger = logger;
-        fingerCurrentAngle = fingerServoWrapper.getLastReadPos();
-
+        fingerCurrentAngle = fingerServoWrapper.readAngle();
+        timer =  new Timing.Timer(1000, TimeUnit.MILLISECONDS);
+        state = FingerStates.RELEASING;
     }
     @VisibleForTesting
-    public FingerFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
-        fingerServoWrapper = axonServoWrapper;
-        this.pidController = pidController;
+    public FingerFSM(FingerServoWrapper fingerServoWrapper, Logger logger) {
+        this.fingerServoWrapper = fingerServoWrapper;
         this.logger = logger;
-        fingerCurrentAngle = fingerServoWrapper.getLastReadPos();
+        fingerCurrentAngle = fingerServoWrapper.readAngle();
     }
 
     public void updateState() {
-        pidController.setPID(P, I, D);
-        pidController.setSetPoint(0); // PIDs the error to 0
-        pidController.setTolerance(PID_TOLERANCE); // sets the buffer
-        updatePID();
-
+        fingerServoWrapper.readAngle();
+        fingerServoWrapper.setAngle(targetAngle);
         if (isTargetAngleToGrip()) {
-            if (fingerServoWrapper.getLastReadPos() > (targetAngle)) {
-                state = FingerStates.GRIPPED;
-            } else {
+            if(!(state == FingerStates.GRIPPED)) {
                 state = FingerStates.GRIPPING;
             }
+            if(!timer.isTimerOn()) {
+                timer.start();
+            }
+            if(timer.done()) {
+                timer.pause();
+                state = FingerStates.GRIPPED;
+            }
+
         } else if (isTargetAngleToRelease()) {
-            if (pidController.atSetPoint()) {
+            if(!timer.isTimerOn()) {
+                timer.start();
+            }
+            if(timer.done()) {
+                timer.pause();
                 state = FingerStates.RELEASED;
-            } else {
+            }
+            if(!(state == FingerStates.RELEASED)) {
                 state = FingerStates.RELEASING;
             }
+
         }
     }
 
     public boolean isTargetAngleToRelease() {
-        return targetAngle == RELEASED_POS;
+        return targetAngle == SAMPLE_RELEASED_POS || targetAngle == SPECIMEN_RELEASED_POS;
     }
 
     public boolean isTargetAngleToGrip() {
-        return targetAngle == GRIPPED_POS;
+        return targetAngle == SAMPLE_GRIPPED_POS || targetAngle == SPECIMEN_GRIPPED_POS;
     }
 
-    public void updatePID() { // This method is used to update position every loop.
-        fingerServoWrapper.readPos();
+   // public void updatePID() { // This method is used to update position every loop.
+       /* fingerServoWrapper.readAngle();
         double angleDelta = angleDelta(fingerServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(fingerServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-        logger.log("Finger Power",power, Logger.LogLevels.DEBUG);
-        fingerServoWrapper.set(power);
+        logger.log("Finger Power",power, Logger.LogLevels.PRODUCTION);
+        fingerServoWrapper.set(power);*/
 
+    //}
+
+
+
+    public void gripSample() {
+        fingerServoWrapper.setAngle(90);
+        targetAngle = SAMPLE_GRIPPED_POS;
+        fingerServoWrapper.setAngle(targetAngle);
+    }
+    public void gripSpecimen() {
+        targetAngle = SPECIMEN_GRIPPED_POS;
+        fingerServoWrapper.setAngle(targetAngle);
     }
 
-
-
-    public void grip() {
-        targetAngle = GRIPPED_POS;
+    public void releaseSample() {
+        targetAngle = SAMPLE_RELEASED_POS;
+        fingerServoWrapper.setAngle(targetAngle);
     }
-
-    public void release() {
-        targetAngle = RELEASED_POS;
+    public void releaseSpecimen() {
+        targetAngle = SPECIMEN_RELEASED_POS;
+        fingerServoWrapper.setAngle(targetAngle);
     }
 
 
@@ -140,18 +159,22 @@ public class FingerFSM {
     }
 
     public double getGrippedPos() {
-        return GRIPPED_POS;
+        return SAMPLE_GRIPPED_POS;
     }
     public double getReleasedPos() {
-        return RELEASED_POS;
+        return SAMPLE_RELEASED_POS;
     }
 
 
 
     public void log() {
         logger.log("Finger State",state, Logger.LogLevels.PRODUCTION);
-        logger.log("Finger Current Position",fingerServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Current Position",fingerServoWrapper.getPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Current Angle",fingerServoWrapper.readAngle(), Logger.LogLevels.PRODUCTION);
         logger.log("Finger Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("At Target Pos", fingerServoWrapper.readAngle() == targetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Servo Timer", timer.elapsedTime(), Logger.LogLevels.PRODUCTION);
 
     }
+
 }

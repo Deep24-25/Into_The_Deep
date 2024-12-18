@@ -48,6 +48,7 @@ class LimbFSMTest {
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
+
     @Test
     public void preparingToIntakeSpecimenStateWithDepositedSpecimen() {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
@@ -180,6 +181,7 @@ class LimbFSMTest {
         assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
 
     }
+
     @Test
     public void preparingToDepositStateAndNotDepositedSample() {
         when(sut.DEPOSITED_SAMPLE()).thenReturn(true);
@@ -313,8 +315,9 @@ class LimbFSMTest {
 
         assertTrue(sut.RETRACTING_FROM_MINI_INTAKE());
     }
+
     @Test
-    public void sampleMode(){
+    public void sampleMode() {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
 
         sut.findTargetState(false, false, false, false, false, true, false);
@@ -333,11 +336,15 @@ class LimbFSMTest {
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
         when(shoulderFSMMock.AT_SPECIMEN_INTAKE()).thenReturn(true);
         when(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
+    }
+
+    @Test
+    public void whenArmIsFullyRetracted() {
         sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
-        sut.updateState(false,false,false,false,false,false,false,true);
+        sut.updateState(false, false, false, false, false, false, false, true);
 
         verify(armFSMMock, never()).retract();
         verify(shoulderFSMMock).indexToSpecimenIntakeAngle();
@@ -398,7 +405,7 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(false);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false,false,false,false,true,false,false, true);
+        sut.updateState(false, false, false, false, true, false, false, true);
 
         verify(shoulderFSMMock).indexToLowChamberAngle();
         verify(armFSMMock).setIndexToSubmersibleLowHeight();
@@ -413,7 +420,7 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(true);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false,false,false,false,false,false,true, true);
+        sut.updateState(false, false, false, false, false, false, true, true);
 
         verify(shoulderFSMMock).indexToHighChamberAngle();
         verify(armFSMMock).setIndexToSubmersibleHighHeight();
@@ -429,7 +436,7 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(false);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false,false,false,false,true,false,false, true);
+        sut.updateState(false, false, false, false, true, false, false, true);
 
         verify(shoulderFSMMock).indexToLowChamberAngle();
         verify(armFSMMock).setIndexToSubmersibleLowHeight();
@@ -444,13 +451,14 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(true);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false,false,false,false,false,false,true, true);
+        sut.updateState(false, false, false, false, false, false, true, true);
 
         verify(shoulderFSMMock).indexToHighChamberAngle();
         verify(armFSMMock).setIndexToSubmersibleHighHeight();
 
         assertTrue(sut.EXTENDED_SPECIMEN());
     }
+
     //Specimen: Depositing Specimen
     @Test
     public void depositingSpecimenAndArmNotAtTargetPos() {
@@ -459,7 +467,7 @@ class LimbFSMTest {
         when(armFSMMock.AT_CHAMBER_LOCK_HEIGHT()).thenReturn(false);
         when(pawFSMMock.DEPOSITED_SPECIMEN()).thenReturn(false);
 
-        sut.updateState(false,false,false,false,false,false,false, true);
+        sut.updateState(false, false, false, false, false, false, false, true);
 
         verify(armFSMMock).moveToChamberLockHeight();
 
@@ -472,7 +480,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
         when(armFSMMock.AT_CHAMBER_LOCK_HEIGHT()).thenReturn(true);
         when(pawFSMMock.DEPOSITED_SPECIMEN()).thenReturn(true);
-        sut.updateState(false,false,false,false,false,false,false, true);
+        sut.updateState(false, false, false, false, false, false, false, true);
 
         verify(armFSMMock).moveToChamberLockHeight();
 
@@ -487,7 +495,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SAMPLE_MODE);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(false);
 
-        sut.updateState(false,false,false,false,false,false,false, true);
+        sut.updateState(false, false, false, false, false, false, false, true);
 
         verify(armFSMMock).retract();
         verify(shoulderFSMMock, never()).indexToLowChamber();
@@ -501,7 +509,7 @@ class LimbFSMTest {
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
         when(shoulderFSMMock.AT_BASKET_DEPOSIT()).thenReturn(true);
 
-        sut.updateState(false,false,false,false,false,false,false, true);
+        sut.updateState(false, false, false, false, false, false, false, true);
 
         verify(armFSMMock, never()).retract();
         verify(shoulderFSMMock).indexToLowChamber();
@@ -515,7 +523,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SAMPLE_MODE);
         when(armFSMMock.AT_BASKET_HEIGHT()).thenReturn(true);
 
-        sut.updateState(false,false,false,false,true,false,false, true);
+        sut.updateState(false, false, false, false, true, false, false, true);
 
         verify(armFSMMock).setIndexToBasketHighHeight();
         verify(armFSMMock).setIndexToBasketLowHeight();
@@ -529,7 +537,7 @@ class LimbFSMTest {
         when(armFSMMock.AT_BASKET_HEIGHT()).thenReturn(false);
         sut.setCurrentMode(LimbFSM.Mode.SAMPLE_MODE);
 
-        sut.updateState(false,false,false,false,true,false,false, true);
+        sut.updateState(false, false, false, false, true, false, false, true);
 
         verify(armFSMMock).setIndexToBasketLowHeight();
 
@@ -575,6 +583,7 @@ class LimbFSMTest {
 
 
     }
+
 
     @Test
     public void preparingToIntakeAndShoulderNotAtIntakePosAndPawPreparedToIntake() {
@@ -624,7 +633,8 @@ class LimbFSMTest {
     }
 
     @Test
-    public void preparingToIntakeAndShoulderAtIntakePosAndArmNotRetractedAndPawPreparedToIntake() {
+    public void preparingToIntakeAndShoulderAtIntakePosAndArmNotRetractedAndPawPreparedToIntake
+            () {
         sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE);
         when(shoulderFSMMock.AT_INTAKE()).thenReturn(true);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(false).thenReturn(true);
@@ -682,8 +692,6 @@ class LimbFSMTest {
         verify(armFSMMock, never()).retract();
         assertTrue(sut.RETRACTING_FROM_MINI_INTAKE());
     }
-
-
 
 
 }

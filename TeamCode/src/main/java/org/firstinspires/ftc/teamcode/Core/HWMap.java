@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Core;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -12,6 +14,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.List;
 
@@ -36,7 +39,6 @@ public class HWMap {
 
     private static PinpointPod pinpointIMU;
     private static double imuAngle;
-
     private final Motor frontLeftMotor;
     private final Motor backleftMotor;
     private final Motor backRightMotor;
@@ -55,7 +57,7 @@ public class HWMap {
     private CRServo elbowServo;
     private CRServo wristFlexServo;
     private CRServo wristDeviServo;
-    private CRServo fingerServo;
+    private ServoEx fingerServo;
 
     // Paw Axon Encoders
     private AnalogInput elbowEncoder;
@@ -72,6 +74,7 @@ public class HWMap {
         backRightMotor = new Motor(hardwareMap, "RB", Motor.GoBILDA.RPM_312);//CH Port 3. The left odo pod accesses this motor's encoder port.
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
         pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
+
         mecanumDrive.setRightSideInverted(false);
         backleftMotor.setInverted(true);
         frontLeftMotor.setInverted(true);
@@ -86,8 +89,12 @@ public class HWMap {
         elbowServo = new CRServo(hardwareMap, "ES");
         wristFlexServo = new CRServo(hardwareMap, "WFS");
         wristDeviServo = new CRServo(hardwareMap, "WDS");
-        fingerServo = new CRServo(hardwareMap, "FS");
+        fingerServo = new SimpleServo(hardwareMap, "FS", 0, 300);
 
+        elbowEncoder = hardwareMap.get(AnalogInput.class, "EE");
+        wristFlexEncoder = hardwareMap.get(AnalogInput.class, "WFE");
+        wristDeviEncoder = hardwareMap.get(AnalogInput.class, "WDE");
+        fingerEncoder = hardwareMap.get(AnalogInput.class, "FE");
 
         frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -139,12 +146,12 @@ public class HWMap {
         return wristDeviServo;
     }
 
-    public CRServo getFingerServo() {
+    public ServoEx getFingerServo() {
         return fingerServo;
     }
 
-    public IMU getImu() {
-        return imu;
+    public PinpointPod getImu() {
+        return pinpointIMU;
     }
 
 

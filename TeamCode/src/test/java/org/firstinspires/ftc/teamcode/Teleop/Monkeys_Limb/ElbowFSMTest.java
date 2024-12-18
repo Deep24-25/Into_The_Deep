@@ -47,21 +47,21 @@ public class ElbowFSMTest {
 
     @Test
     public void isElbowAtSampleIntakeFlex() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(true);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(true);
         when(pidfControllerMock.atSetPoint()).thenReturn(true);
         sut.updateState();
         assertTrue(sut.FLEXED_TO_SAMPLE_INTAKE());
     }
     @Test
     public void isElbowFlexingToSampleIntakePos() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(true);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(true);
         when(pidfControllerMock.atSetPoint()).thenReturn(false);
         sut.updateState();
         assertTrue(sut.FLEXING_TO_SAMPLE_INTAKE());
     }
     @Test
     public void isElbowFlexedToSpecimenIntakePos() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(false);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToSpecimenFlexedPos()).thenReturn(true);
         when(pidfControllerMock.atSetPoint()).thenReturn(true);
         sut.updateState();
@@ -69,7 +69,7 @@ public class ElbowFSMTest {
     }
     @Test
     public void isElbowFlexingToSpecimenIntakePos() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(false);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToSpecimenFlexedPos()).thenReturn(true);
         when(pidfControllerMock.atSetPoint()).thenReturn(false);
         sut.updateState();
@@ -77,7 +77,7 @@ public class ElbowFSMTest {
     }
     @Test
     public void isElbowFlexedToDepositPos() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(false);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToSpecimenFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToDepositFlexedPos()).thenReturn(true);
         when(pidfControllerMock.atSetPoint()).thenReturn(true);
@@ -87,7 +87,7 @@ public class ElbowFSMTest {
 
     @Test
     public void isElbowFlexingToDepositPos() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(false);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToSpecimenFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToDepositFlexedPos()).thenReturn(true);
         when(pidfControllerMock.atSetPoint()).thenReturn(false);
@@ -97,7 +97,7 @@ public class ElbowFSMTest {
 
     @Test
     public void isElbowFlexedToRelaxPos() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(false);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToSpecimenFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToDepositFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToRelax()).thenReturn(true);
@@ -108,7 +108,7 @@ public class ElbowFSMTest {
 
     @Test
     public void isElbowFlexingToRelaxPos() {
-        when(sut.isTargetAngleToSampleFlexedPos()).thenReturn(false);
+        when(sut.isTargetAngleToSampleIntakeReadyFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToSpecimenFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToDepositFlexedPos()).thenReturn(false);
         when(sut.isTargetAngleToRelax()).thenReturn(true);
