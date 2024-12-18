@@ -268,21 +268,20 @@ public class ArmFSM {
         submersibleIndex = 1;
     }
 
-    public void moveToSpecimenPickUpHeight() {
-        targetPosition = SPECIMEN_PICKUP;
-    }
-
-    public void moveToChamberLockHeight() {
-        targetPosition = chamberLockHeight;
+    public void setIndexToBasketLowHeight() {
+        basketIndex = 0;
     }
 
     public void setIndexToBasketHighHeight() {
         basketIndex = 1;
     }
 
-    public void setIndexToBasketLowHeight() {
-        basketIndex = 0;
+
+
+    public void moveToChamberLockHeight() {
+        targetPosition = chamberLockHeight;
     }
+
 
     public void goToBasketHeight() {
         targetPosition = basketHeights[basketIndex];

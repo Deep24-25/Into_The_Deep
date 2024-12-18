@@ -149,8 +149,7 @@ public class LimbFSM {
             } else if (PREPARED_TO_INTAKE()) {
                 notBeenInMovingToIntake = true;
                 states = States.MOVING_TO_INTAKE_POS;
-            }
-            else if (MOVING_TO_INTAKE_POS() && !notBeenInMovingToIntake){
+            } else if (MOVING_TO_INTAKE_POS() && !notBeenInMovingToIntake) {
                 states = States.MOVED_TO_INTAKE_POS;
             }
         }
@@ -194,27 +193,38 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_SPECIMEN:
-                armFSM.moveToSubmersibleHeight();
-                shoulderFSM.moveToChamberAngle();
-                if (rightTriggerPressed) {
-                    armFSM.setIndexToSubmersibleLowHeight();
-                    shoulderFSM.indexToLowChamberAngle();
-                } else if (leftTriggerPressed) {
-                    armFSM.setIndexToSubmersibleHighHeight();
+                shoulderFSM.setChamberTargetAngle();
+                if (leftTriggerPressed) {
                     shoulderFSM.indexToHighChamberAngle();
+                } else if (rightTriggerPressed) {
+                    shoulderFSM.indexToLowChamberAngle();
+                }
+                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                    armFSM.moveToSubmersibleHeight();
+                    if (shoulderFSM.isChamberAngleLow()) {
+                        armFSM.setIndexToSubmersibleLowHeight();
+                    } else if (shoulderFSM.isChamberAngleHigh()) {
+                        armFSM.setIndexToSubmersibleHighHeight();
+                    }
                 }
                 if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     states = States.EXTENDED_SPECIMEN;
                 }
                 break;
             case EXTENDED_SPECIMEN:
-                armFSM.moveToSubmersibleHeight();
-                if (rightTriggerPressed) {
-                    shoulderFSM.indexToLowChamberAngle();
-                    armFSM.setIndexToSubmersibleLowHeight();
-                } else if (leftTriggerPressed) {
+                shoulderFSM.setChamberTargetAngle();
+                if (leftTriggerPressed) {
                     shoulderFSM.indexToHighChamberAngle();
-                    armFSM.setIndexToSubmersibleHighHeight();
+                } else if (rightTriggerPressed) {
+                    shoulderFSM.indexToLowChamberAngle();
+                }
+                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                    armFSM.moveToSubmersibleHeight();
+                    if (shoulderFSM.isChamberAngleLow()) {
+                        armFSM.setIndexToSubmersibleLowHeight();
+                    } else if (shoulderFSM.isChamberAngleHigh()) {
+                        armFSM.setIndexToSubmersibleHighHeight();
+                    }
                 }
                 if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     states = States.EXTENDED_SPECIMEN;
@@ -232,7 +242,7 @@ public class LimbFSM {
                 break;
             case PREPARING_TO_DEPOSIT_SAMPLE:
                 if (armFSM.FULLY_RETRACTED()) {
-                    shoulderFSM.moveToBasketAngle();
+                    shoulderFSM.setBasketTargetAngle();
                     if (shoulderFSM.AT_BASKET_DEPOSIT()) {
                         states = States.PREPARED_TO_DEPOSIT_SAMPLE;
                     }
@@ -241,22 +251,38 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                armFSM.goToBasketHeight();
+                shoulderFSM.setBasketTargetAngle();
                 if (leftTriggerPressed) {
-                    armFSM.setIndexToBasketHighHeight();
+                    shoulderFSM.indexToHighChamber();
                 } else if (rightTriggerPressed) {
-                    armFSM.setIndexToBasketLowHeight();
+                    shoulderFSM.indexToLowChamber();
                 }
-                if (armFSM.AT_BASKET_HEIGHT()) {
+                if (shoulderFSM.AT_BASKET_DEPOSIT()) {
+                    armFSM.goToBasketHeight();
+                    if (shoulderFSM.isBasketAngleLow()) {
+                        armFSM.setIndexToBasketLowHeight();
+                    } else if (shoulderFSM.isBasketAngleHigh()) {
+                        armFSM.setIndexToBasketHighHeight();
+                    }
+                }
+                if (armFSM.AT_BASKET_HEIGHT() || shoulderFSM.AT_BASKET_DEPOSIT()) {
                     states = States.EXTENDED_TO_BASKET_HEIGHT;
                 }
                 break;
             case EXTENDED_TO_BASKET_HEIGHT:
-                armFSM.goToBasketHeight();
+                shoulderFSM.setBasketTargetAngle();
                 if (leftTriggerPressed) {
-                    armFSM.setIndexToBasketHighHeight();
+                    shoulderFSM.indexToHighChamber();
                 } else if (rightTriggerPressed) {
-                    armFSM.setIndexToBasketLowHeight();
+                    shoulderFSM.indexToLowChamber();
+                }
+                if (shoulderFSM.AT_BASKET_DEPOSIT()) {
+                    armFSM.goToBasketHeight();
+                    if (shoulderFSM.isBasketAngleLow()) {
+                        armFSM.setIndexToBasketLowHeight();
+                    } else if (shoulderFSM.isBasketAngleHigh()) {
+                        armFSM.setIndexToBasketHighHeight();
+                    }
                 }
                 if (armFSM.AT_BASKET_HEIGHT()) {
                     states = States.EXTENDED_TO_BASKET_HEIGHT;

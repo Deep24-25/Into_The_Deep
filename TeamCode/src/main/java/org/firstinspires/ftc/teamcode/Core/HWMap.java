@@ -72,10 +72,12 @@ public class HWMap {
         backRightMotor = new Motor(hardwareMap, "RB", Motor.GoBILDA.RPM_312);//CH Port 3. The left odo pod accesses this motor's encoder port.
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
         pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
-
+        mecanumDrive.setRightSideInverted(false);
+        backleftMotor.setInverted(true);
+        frontLeftMotor.setInverted(true);
 
         //Monkey's Limb
-        pivotMotor = new Motor(hardwareMap, "PM", Motor.GoBILDA.RPM_312);
+        pivotMotor = new Motor(hardwareMap, "PM", Motor.GoBILDA.RPM_60);
         armMotorOne = new Motor(hardwareMap, "AM1", Motor.GoBILDA.RPM_312);
         armMotorTwo = new Motor(hardwareMap, "AM2", Motor.GoBILDA.RPM_312);
         armMotorThree = new Motor(hardwareMap, "AM3", Motor.GoBILDA.RPM_312);

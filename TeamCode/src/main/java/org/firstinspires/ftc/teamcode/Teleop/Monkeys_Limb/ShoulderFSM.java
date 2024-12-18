@@ -15,26 +15,28 @@ public class ShoulderFSM {
     }
 
 
-    public static double P = 0.01;
-    public static double I = 0.001;
-    public static double D = 0.002;
-    public static double F = 0;
-
-
-    private static final double ratio = 24.0 / 40.0;
+    public static double P = 0.6;
+    public static double I = 0;
+    public static double D = 0;
+    public static double F = -0.0007;
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE_LOW = 45;
-    private static final double CHAMBER_ANGLE_HIGH = 90;
-    private static final double BASKET_ANGLE = 100;
-    private static final double SPECIMEN_INTAKE_ANGLE = 120;
+    private static final double CHAMBER_ANGLE_LOW = 15;
+    private static final double CHAMBER_ANGLE_HIGH = 43;
+    private static final double BASKET_ANGLE_LOW = 40;
+    private static final double BASKET_ANGLE_HIGH = 70;
+
+    private static final double SPECIMEN_INTAKE_ANGLE = 0;
 
     private final ShoulderWrapper shoulderWrapper;
     private final PIDFController pidfController;
     private double targetAngle = SAMPLE_INTAKE_ANGLE;
     private double[] chamberAngles = {CHAMBER_ANGLE_LOW, CHAMBER_ANGLE_HIGH};
+    private double[] basketAngles = {BASKET_ANGLE_LOW, BASKET_ANGLE_HIGH};
+
     private int chamberIndex = 1;
+    private int basketIndex = 1;
     private double measuredAngle;
     private States currentState;
 
@@ -91,17 +93,59 @@ public class ShoulderFSM {
         return targetAngle == SPECIMEN_INTAKE_ANGLE;
     }
 
-    public boolean isShoulderTargetPosDepositChamberAngle() {
-        return targetAngle == CHAMBER_ANGLE_HIGH | targetAngle == CHAMBER_ANGLE_LOW;
+    public boolean isShoulderTargetPosDepositChamberAngle(){
+        return targetAngle == chamberAngles[0] || targetAngle == chamberAngles[1];
+    }
+
+    public boolean isChamberAngleLow() {
+        return targetAngle == chamberAngles[0];
+    }
+
+    public boolean isChamberAngleHigh() {
+        return targetAngle == chamberAngles[1];
+    }
+
+    public void indexToLowChamberAngle() {
+        chamberIndex = 0;
+    }
+
+    public void indexToHighChamberAngle() {
+        chamberIndex = 1;
+    }
+
+    public void setChamberTargetAngle() {
+        targetAngle = chamberAngles[chamberIndex];
+    }
+
+    //Basket methods
+    public boolean isShoulderTargetPosDepositBasketAngle() {
+        return targetAngle == basketAngles[0] || targetAngle == basketAngles[1];
+    }
+
+    public boolean isBasketAngleLow() {
+        return targetAngle == basketAngles[0];
+    }
+
+    public boolean isBasketAngleHigh() {
+        return targetAngle == basketAngles[1];
+    }
+
+    public void indexToLowChamber() {
+        basketIndex = 0;
+    }
+
+    public void indexToHighChamber() {
+        basketIndex = 1;
+    }
+
+    public void setBasketTargetAngle() {
+        targetAngle = basketAngles[basketIndex];
     }
 
     public boolean isShoulderTargetPosSampleIntakeAngle() {
         return targetAngle == SAMPLE_INTAKE_ANGLE;
     }
 
-    public boolean isShoulderTargetPosDepositBasketAngle() {
-        return targetAngle == BASKET_ANGLE;
-    }
 
     public boolean GOING_TO_CHAMBER() {
         return currentState == States.GOING_TO_CHAMBER;
@@ -138,6 +182,9 @@ public class ShoulderFSM {
     public void updatePID() { // This method is used to update position every loop.
         shoulderWrapper.readAngle();
 
+        if (targetAngle >= 100)
+            targetAngle = 100;
+
         if (lastPIDAngle != targetAngle) {
             pidfController.reset();
         }
@@ -161,25 +208,11 @@ public class ShoulderFSM {
         targetAngle = SAMPLE_INTAKE_ANGLE;
     }
 
-    public void moveToBasketAngle() {
-        targetAngle = BASKET_ANGLE;
-    }
-
-    public void indexToLowChamberAngle() {
-        chamberIndex = 0;
-    }
-
-    public void indexToHighChamberAngle() {
-        chamberIndex = 1;
-    }
 
     public void moveToSpecimenIntakeAngle() {
         targetAngle = SPECIMEN_INTAKE_ANGLE;
     }
 
-    public void moveToChamberAngle() {
-        targetAngle = chamberAngles[chamberIndex];
-    }
 
 
     protected double angleDelta(double measuredAngle, double targetAngle) {

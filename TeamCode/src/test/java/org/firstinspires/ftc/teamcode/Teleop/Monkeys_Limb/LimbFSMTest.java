@@ -490,7 +490,7 @@ class LimbFSMTest {
         sut.updateState(false,false,false,false,false,false,false, true);
 
         verify(armFSMMock).retract();
-        verify(shoulderFSMMock, never()).moveToBasketAngle();
+        verify(shoulderFSMMock, never()).indexToLowChamber();
         assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
     }
 
@@ -504,7 +504,7 @@ class LimbFSMTest {
         sut.updateState(false,false,false,false,false,false,false, true);
 
         verify(armFSMMock, never()).retract();
-        verify(shoulderFSMMock).moveToBasketAngle();
+        verify(shoulderFSMMock).indexToLowChamber();
         assertTrue(sut.PREPARED_TO_DEPOSIT_SAMPLE());
     }
 
