@@ -35,11 +35,9 @@ public class MainTeleop extends LinearOpMode {
         } catch (Exception e) {
             telemetry.addData("_", e.getMessage());
             telemetry.update();
-           /* logger.log("-", e.getMessage(), Logger.LogLevels.PRODUCTION);
-            logger.print();*/
         }
         while (opModeInInit()) {
-            //HWMap.initializeIMU();
+            HWMap.initializeIMU();
         }
         waitForStart();
         while (opModeIsActive()) {

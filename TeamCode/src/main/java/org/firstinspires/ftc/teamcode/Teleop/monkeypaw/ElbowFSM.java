@@ -54,14 +54,14 @@ public class ElbowFSM {
 
 
     //PID SampleIntakeReady constants:
-    public static double PSampleIntakeReady = 0.0022;
-    public static double ISampleIntakeReady = 0.02;
-    public static double DSampleIntakeReady = 0;
+    public static double PSampleIntakeReady = 0.0024;
+    public static double ISampleIntakeReady = 0.032;
+    public static double DSampleIntakeReady = 0.0001;
     public static double FSampleIntakeReady = -0.13;
 
 
     //PID SampleIntakeCapture constants:
-    public static double PSampleIntakeCapturePos = 0.007;
+    public static double PSampleIntakeCapturePos = 0.003;
     public static double ISampleIntakeCapturePos = 0;
     public static double DSampleIntakeCapturePos = 0;
     public static double FSampleIntakeCapturePos = -0.1;
@@ -69,7 +69,7 @@ public class ElbowFSM {
 
 
     //PID SampleIntakeControl constants:
-    public static double PSampleIntakeControlPos = 0.005;
+    public static double PSampleIntakeControlPos = 0.003;
     public static double ISampleIntakeControlPos = 0;
     public static double DSampleIntakeControlPos = 0;
     public static double FSampleIntakeControlPos = -0.1;
@@ -90,7 +90,7 @@ public class ElbowFSM {
 
 
     public static  double RELAXED_POS = 66;
-    public static  double SAMPLE_INTAKE_READY_POS = 149;
+    public static  double SAMPLE_INTAKE_READY_POS = 140;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 163;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
