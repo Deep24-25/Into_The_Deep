@@ -56,7 +56,6 @@ public class MonkeyPawFSM {
     private LimbFSM limbFSM;
     private Logger logger;
     private States state;
-    private boolean keepRelaxed;
     private Timing.Timer timer;
 
 
@@ -176,7 +175,6 @@ public class MonkeyPawFSM {
 
                 break;
             case RELAXING_WITH_SAMPLE:
-                keepRelaxed = false;
                 elbowFSM.flexToSampleIntakeControlPos();
                 wristFSM.flexToSampleIntakeControlPos();
                 deviatorFSM.relax();
