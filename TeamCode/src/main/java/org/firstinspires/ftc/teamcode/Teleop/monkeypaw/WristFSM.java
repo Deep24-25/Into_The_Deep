@@ -48,7 +48,7 @@ public class WristFSM {
     public static double I = 0;
     public static double D = 0;*/
 
-    public static  double RELAXED_POS = 160;
+    public static  double RELAXED_POS = 180;
     public static  double SAMPLE_FLEXED_POS = 270;
     public static  double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
@@ -74,9 +74,11 @@ public class WristFSM {
 
     ElbowFSM elbowFSM;
 
+    double ENCODER_OFFSET = 15;
+
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),true, true, 0); // check if you need to reverse axons
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),true, true, ENCODER_OFFSET); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
@@ -218,15 +220,18 @@ public class WristFSM {
         if(sampleRetract) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
         }
+        else if (sampleCapture) {
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle()) - 0;
+        }
         else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
         }
 
-        if(encoderTargetAngle < 42) {
-            encoderTargetAngle = 42;
+        if(encoderTargetAngle < 62) {
+            encoderTargetAngle = 62;
         }
-        if(encoderTargetAngle > 305) {
-            encoderTargetAngle = 305;
+        if(encoderTargetAngle > 320) {
+            encoderTargetAngle = 320;
         }
 
 
@@ -285,7 +290,7 @@ public class WristFSM {
         sampleCapture = true;
         sampleRetract = false;
         F = 0.001;
-        PID_TOLERANCE = 5;
+        PID_TOLERANCE = 9;
 
     }
 
@@ -359,7 +364,7 @@ public class WristFSM {
     }
 
     private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowCurrentAngle) {
-        return (globalWristAngle - elbowCurrentAngle) + 190;
+        return (globalWristAngle - elbowCurrentAngle) + 180;
        /* if(elbowAngle > 180) {
             return wristAngle + (360 -elbowAngle);
         }
