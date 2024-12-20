@@ -51,7 +51,7 @@ public class LimbFSM {
     private HWMap hwMap;
     private ArmFSM armFSM;
     private ShoulderFSM shoulderFSM;
-    private MonkeyPawFSM monkeyPawFSM;
+    private volatile MonkeyPawFSM monkeyPawFSM;
 
     private States states = States.INTAKED_SPECIMEN;
     private Mode mode = Mode.SPECIMEN_MODE;
@@ -59,41 +59,11 @@ public class LimbFSM {
 
     private boolean notBeenInMovingToIntake = true;
 
-    public LimbFSM(HWMap hwMap, Logger logger) {
-        this.hwMap = hwMap;
-        this.logger = logger;
-        armFSM = getArmFSM();
-        shoulderFSM = getShoulderFSM();
-        monkeyPawFSM = getMonkeyPawFSM();
-    }
-
-    public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
+    public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM,MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
         this.armFSM = armFSM;
         this.shoulderFSM = shoulderFSM;
         this.monkeyPawFSM = monkeyPawFSM;
-    }
-
-    public ArmFSM getArmFSM() {
-        if (armFSM == null) {
-            synchronized (this) {
-                if (armFSM == null) {
-                    armFSM = new ArmFSM(hwMap, logger);
-                }
-            }
-        }
-        return armFSM;
-    }
-
-    public ShoulderFSM getShoulderFSM() {
-        if (shoulderFSM == null) {
-            synchronized (this) {
-                if (shoulderFSM == null) {
-                    shoulderFSM = new ShoulderFSM(hwMap, logger);
-                }
-            }
-        }
-        return shoulderFSM;
     }
 
     public MonkeyPawFSM getMonkeyPawFSM() {
@@ -490,6 +460,10 @@ public class LimbFSM {
     @VisibleForTesting
     public void setCurrentMode(Mode mode) {
         this.mode = mode;
+    }
+
+    public void setMonkeyPawFSM(MonkeyPawFSM monkeyPawFSM){
+        this.monkeyPawFSM = monkeyPawFSM;
     }
 
 }

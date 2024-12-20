@@ -56,6 +56,7 @@ public class MainTeleop extends LinearOpMode {
             armFSM = new ArmFSM(hwMap, logger);
             limbFSM = new LimbFSM(shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
+            limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             fieldCentricDrive = new FieldCentricDrive(hwMap);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
@@ -69,7 +70,7 @@ public class MainTeleop extends LinearOpMode {
             gamePad1.readButtons();
             gamePad2.readButtons();
             triggersWasJustPressed();
-            if (gamePad1.isDown(GamepadKeys.Button.X))
+            if (gamePad1.isDown(GamepadKeys.Button.DPAD_DOWN))
                 HWMap.initializeIMU();
 
 

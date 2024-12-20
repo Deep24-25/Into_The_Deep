@@ -15,7 +15,7 @@ public class ShoulderFSM {
     }
 
 
-    public static double P = 0.6;
+    public static double P = 0.4;
     public static double I = 0;
     public static double D = 0;
     public static double F = -0.0007;
@@ -27,7 +27,7 @@ public class ShoulderFSM {
     private static final double BASKET_ANGLE_LOW = 40;
     private static final double BASKET_ANGLE_HIGH = 70;
 
-    private static final double SPECIMEN_INTAKE_ANGLE = 0;
+    private static final double SPECIMEN_INTAKE_ANGLE = 50;
 
     private final ShoulderWrapper shoulderWrapper;
     private final PIDFController pidfController;
