@@ -23,14 +23,14 @@ public class DeviatorFSM {
     public static  double PID_TOLERANCE = 8;
     private double deviatorCurrentAngle;
     //Robot CONSTANTS:
-    public static  double P = 0.0045;
+    public static  double P = 0.01;
     public static  double I = 0;
     public static  double D = 0;
 
 
-    public static  double RIGHT_DEVIATED_POS = 95;
-    public static  double LEFT_DEVIATED_POS = 5;
-    public static  double RELAXED_POS = 50;
+    public static  double RIGHT_DEVIATED_POS = 18;
+    public static  double LEFT_DEVIATED_POS = 290;
+    public static  double RELAXED_POS = 343;
 
 
     private AxonServoWrapper deviatorServoWrapper;

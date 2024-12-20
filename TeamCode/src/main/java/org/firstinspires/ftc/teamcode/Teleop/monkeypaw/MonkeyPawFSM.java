@@ -137,7 +137,9 @@ public class MonkeyPawFSM {
 
                 } else {
                     elbowFSM.flexToSampleIntakeReadyPos();
-                    wristFSM.flexToSampleIntakeReadyPos();
+                    if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS()) {
+                        wristFSM.flexToSampleIntakeReadyPos();
+                    }
                 }
                 break;
             case PREPARED_TO_INTAKE_SAMPLE:
@@ -174,6 +176,7 @@ public class MonkeyPawFSM {
 
                 break;
             case RELAXING_WITH_SAMPLE:
+                keepRelaxed = false;
                 elbowFSM.flexToSampleIntakeControlPos();
                 wristFSM.flexToSampleIntakeControlPos();
                 deviatorFSM.relax();

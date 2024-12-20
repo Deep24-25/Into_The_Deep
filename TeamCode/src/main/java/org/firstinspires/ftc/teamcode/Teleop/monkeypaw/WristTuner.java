@@ -26,7 +26,7 @@ public class WristTuner extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,true, 0);
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,true, 11);
         pidController = new PIDController(P,I,D);
         waitForStart();
         while (opModeIsActive()) {
@@ -36,6 +36,7 @@ public class WristTuner extends LinearOpMode {
             updatePID();
             logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
             logger.log("Target Angle", targetAngle, Logger.LogLevels.PRODUCTION);
+            logger.log("Raw Angle", wristServoWrapper.getRawPos(), Logger.LogLevels.PRODUCTION);
             logger.print();
         }
     }

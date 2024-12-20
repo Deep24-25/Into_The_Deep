@@ -50,18 +50,18 @@ public class ElbowFSM {
     public static double Prelax = 0.007;
     public static double Irelax = 0;
     public static double Drelax = 0;
-    public static double Frelax = -0.2;
+    public static double Frelax = -0.15;
 
 
     //PID SampleIntakeReady constants:
-    public static double PSampleIntakeReady = 0.0022;
-    public static double ISampleIntakeReady = 0.02;
-    public static double DSampleIntakeReady = 0;
+    public static double PSampleIntakeReady = 0.0024;
+    public static double ISampleIntakeReady = 0.03;
+    public static double DSampleIntakeReady = 0.0001;
     public static double FSampleIntakeReady = -0.13;
 
 
     //PID SampleIntakeCapture constants:
-    public static double PSampleIntakeCapturePos = 0.007;
+    public static double PSampleIntakeCapturePos = 0.003;
     public static double ISampleIntakeCapturePos = 0;
     public static double DSampleIntakeCapturePos = 0;
     public static double FSampleIntakeCapturePos = -0.1;
@@ -69,7 +69,7 @@ public class ElbowFSM {
 
 
     //PID SampleIntakeControl constants:
-    public static double PSampleIntakeControlPos = 0.005;
+    public static double PSampleIntakeControlPos = 0.003;
     public static double ISampleIntakeControlPos = 0;
     public static double DSampleIntakeControlPos = 0;
     public static double FSampleIntakeControlPos = -0.1;
@@ -79,7 +79,7 @@ public class ElbowFSM {
     public static double PSampleIntakeRetractPos = 0.001;
     public static double ISampleIntakeRetractPos = 0.03;
     public static double DSampleIntakeRetractPos = 0;
-    public static double FSampleIntakeRetractPos = -0.2;
+    public static double FSampleIntakeRetractPos = -0.15;
 
 /*
     //test bench
@@ -90,7 +90,7 @@ public class ElbowFSM {
 
 
     public static  double RELAXED_POS = 66;
-    public static  double SAMPLE_INTAKE_READY_POS = 149;
+    public static  double SAMPLE_INTAKE_READY_POS = 140;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 163;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
@@ -114,7 +114,9 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 49;
+    public static double ENCODER_OFFSET = -13;
+
+    public static double CAPTURE_OFFSET = 20;
 
 
     public ElbowFSM(HWMap hwMap, Logger logger) {
@@ -154,7 +156,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToSampleIntakeCapturePos()) {
-            if (elbowServoWrapper.getLastReadPos() >= (targetAngle-15)) {
+            if (elbowServoWrapper.getLastReadPos() >= (targetAngle-CAPTURE_OFFSET)) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_CAPTURE_POS;
@@ -504,6 +506,10 @@ public class ElbowFSM {
 
     public double getTargetAngle() {
         return targetAngle;
+    }
+
+    public double getCaptureOffset() {
+        return CAPTURE_OFFSET;
     }
 
 

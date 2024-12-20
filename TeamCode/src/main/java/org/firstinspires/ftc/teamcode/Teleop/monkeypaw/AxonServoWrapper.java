@@ -32,8 +32,12 @@ public class AxonServoWrapper {
     }
 
     public double readPos() {
-        lastReadPosition = Math.abs(inverseEncoderOffset - (encoderOffset + (encoder.getVoltage() / 3.3 * 360)));
+        lastReadPosition = Math.abs((inverseEncoderOffset - ((encoder.getVoltage() / 3.3 * 360))) + encoderOffset);
         return lastReadPosition;
+    }
+
+    public double readRawPos() {
+        return (encoder.getVoltage() / 3.3 * 360);
     }
 
     public double getRawPos() {
