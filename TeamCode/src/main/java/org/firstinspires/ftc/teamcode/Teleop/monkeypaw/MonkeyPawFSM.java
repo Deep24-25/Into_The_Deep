@@ -136,10 +136,8 @@ public class MonkeyPawFSM {
 
                 } else {
                     elbowFSM.flexToSampleIntakeReadyPos();
-                    if(elbowFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS()) {
-                        wristFSM.flexToSampleIntakeReadyPos();
-                    }
-                }
+                    wristFSM.flexToSampleIntakeReadyPos();
+               }
                 break;
             case PREPARED_TO_INTAKE_SAMPLE:
                 if (xPressed2) {
