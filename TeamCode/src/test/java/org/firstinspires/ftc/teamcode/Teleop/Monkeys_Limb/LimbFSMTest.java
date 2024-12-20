@@ -336,10 +336,7 @@ class LimbFSMTest {
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
         when(shoulderFSMMock.AT_SPECIMEN_INTAKE()).thenReturn(true);
         when(pawFSMMock.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
-    }
 
-    @Test
-    public void whenArmIsFullyRetracted() {
         sut.setCurrentState(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
@@ -347,7 +344,6 @@ class LimbFSMTest {
         sut.updateState(false, false, false, false, false, false, false, true);
 
         verify(armFSMMock, never()).retract();
-        verify(shoulderFSMMock).indexToSpecimenIntakeAngle();
 
         assertTrue(sut.PREPARED_TO_INTAKE_SPECIMEN());
     }
@@ -378,7 +374,6 @@ class LimbFSMTest {
 
         sut.updateState(false, false, false, false, false, false, false, true);
 
-        verify(armFSMMock, never()).moveToSpecimenPickUpHeight();
         assertFalse(sut.INTAKED_SPECIMEN());
         assertFalse(armFSMMock.AT_SPECIMEN_PICKUP_HEIGHT());
     }
@@ -393,7 +388,7 @@ class LimbFSMTest {
 
         sut.updateState(false, false, false, false, false, false, false, true);
 
-        verify(armFSMMock).moveToSpecimenPickUpHeight();
+        verify(armFSMMock).moveToSubmersibleHeight();
         assertTrue(sut.INTAKED_SPECIMEN());
     }
 

@@ -25,9 +25,13 @@ public class ArmMotorsWrapper {
      * Parameters: power (-1:1)
      */
     public void set(double power) {
-        armMoterOne.set(power);
-        armMoterTwo.set(power);
-        armMoterThree.set(power);
+//        armMoterOne.set(power);
+//        armMoterTwo.set(power);
+//        armMoterThree.set(power);
+        armMoterOne.set(0);
+        armMoterTwo.set(0);
+        armMoterThree.set(0);
+
     }
 
     /**
