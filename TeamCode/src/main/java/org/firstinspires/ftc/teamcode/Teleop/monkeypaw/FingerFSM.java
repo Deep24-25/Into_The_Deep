@@ -24,8 +24,8 @@ public class FingerFSM {
 
 
     public static  double SAMPLE_GRIPPED_POS = 300;
-    public static double SPECIMEN_GRIPPED_POS = 0;
-    public static  double SAMPLE_RELEASED_POS = 0;
+    public static double SPECIMEN_GRIPPED_POS = 50;
+    public static  double SAMPLE_RELEASED_POS = -140;
     public static double SPECIMEN_RELEASED_POS = 140;
 
     private FingerServoWrapper fingerServoWrapper;
@@ -99,7 +99,6 @@ public class FingerFSM {
 
 
     public void gripSample() {
-        fingerServoWrapper.setAngle(90);
         targetAngle = SAMPLE_GRIPPED_POS;
         fingerServoWrapper.setAngle(targetAngle);
     }
@@ -109,6 +108,7 @@ public class FingerFSM {
     }
 
     public void releaseSample() {
+        fingerServoWrapper.setAngle(90);
         targetAngle = SAMPLE_RELEASED_POS;
         fingerServoWrapper.setAngle(targetAngle);
     }

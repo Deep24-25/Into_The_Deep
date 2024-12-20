@@ -220,9 +220,6 @@ public class WristFSM {
         if(sampleRetract) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
         }
-        else if (sampleCapture) {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle()) - 0;
-        }
         else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
         }
@@ -266,7 +263,7 @@ public class WristFSM {
         sampleCapture = false;
         sampleRetract = false;
         F = 0.001;
-        PID_TOLERANCE = 5;
+        PID_TOLERANCE = 8;
 
     }
 
@@ -278,7 +275,7 @@ public class WristFSM {
         sampleCapture = false;
         sampleRetract = false;
         F = 0.001;
-        PID_TOLERANCE = 5;
+        PID_TOLERANCE = 8;
 
     }
 
@@ -302,7 +299,7 @@ public class WristFSM {
             sampleCapture = false;
             sampleRetract = true;
             F = 0.005;
-            PID_TOLERANCE = 8;
+            PID_TOLERANCE = 12;
 
     }
 
@@ -315,7 +312,7 @@ public class WristFSM {
         sampleRetract = false;
 
         F = 0.005;
-        PID_TOLERANCE = 8;
+        PID_TOLERANCE = 12;
     }
 
 
