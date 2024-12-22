@@ -17,16 +17,16 @@ public class ShoulderFSM {
     }
 
 
-    public static double P_E = 0.03325;
-    public static double I_E = 0;
-    public static double D_E = 0;
-    public static double F_E = -0.0007;
+    public static double P_E = 0.05;
+    public static double I_E = 0.04;
+    public static double D_E = 0.07;
+    public static double F_E = -0.0005;
 
 
-    public static double P_R = 0.005;
-    public static double I_R = 0;
-    public static double D_R = 0;
-    public static double F_R = -0.002;
+    public static double P_R = 0.05;
+    public static double I_R = 0.04 ;
+    public static double D_R = 0.07;
+    public static double F_R = -0.0005;
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 

@@ -49,6 +49,7 @@ public class DeviatorFSM {
 
         this.logger = logger;
         deviatorCurrentAngle = deviatorServoWrapper.getLastReadPos();
+        relax(); // Need this so target angle is set to the relax position setting state would do nothing as that itself does not change target angle
         state = DeviatorStates.RELAXING;
 
     }

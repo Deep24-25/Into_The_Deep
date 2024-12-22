@@ -95,7 +95,8 @@ public class LimbFSM {
             } else if (EXTENDED_SPECIMEN()) {
                 states = States.DEPOSITING_SPECIMEN;
             }
-        } else*/ if (yPressed && SAMPLE_MODE()) {
+        } else*/
+        if (yPressed && SAMPLE_MODE()) {
             if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() && !EXTENDED_TO_BASKET_HEIGHT() && !EXTENDING_TO_BASKET_HEIGHT()) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
                 states = States.PREPARING_TO_DEPOSIT_SAMPLE;
             } else if (PREPARED_TO_DEPOSIT_SAMPLE()) {
@@ -113,7 +114,8 @@ public class LimbFSM {
                 states = States.EXTENDING_SPECIMEN;
             }
         }
-        */if (aPressed) {
+        */
+        if (aPressed) {
             if ((!MOVING_TO_INTAKE_POS() || DEPOSITED_SAMPLE() || DEPOSITED_SPECIMEN() || RETRACTED_INTAKE()) && !PREPARED_TO_INTAKE() && !MOVED_TO_INTAKE_POS()) {
                 states = States.PREPARING_TO_INTAKE;
             } else if (PREPARED_TO_INTAKE() || RETRACTED_INTAKE()) {
@@ -242,24 +244,14 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDED_TO_BASKET_HEIGHT:
-                shoulderFSM.setBasketTargetAngle();
-                if (leftTriggerPressed) {
-                    shoulderFSM.indexToHighChamber();
-                } else if (rightTriggerPressed) {
-                    shoulderFSM.indexToLowChamber();
+                armFSM.goToBasketHeight();
+                if (rightTriggerPressed) {
+                    armFSM.setIndexToBasketLowHeight();
+                } else if (leftTriggerPressed) {
+                    armFSM.setIndexToBasketHighHeight();
                 }
-                if (shoulderFSM.AT_BASKET_DEPOSIT()) {
-                    armFSM.goToBasketHeight();
-                    if (shoulderFSM.isBasketAngleLow()) {
-                        armFSM.setIndexToBasketLowHeight();
-                    } else if (shoulderFSM.isBasketAngleHigh()) {
-                        armFSM.setIndexToBasketHighHeight();
-                    }
-                }
-                if (armFSM.AT_BASKET_HEIGHT()) {
-                    states = States.EXTENDED_TO_BASKET_HEIGHT;
-                } else {
-                    states = States.EXTENDING_TO_BASKET_HEIGHT;
+                if(!armFSM.AT_BASKET_HEIGHT()){
+                    states = States.EXTENDING_SPECIMEN;
                 }
                 break;
             case DEPOSITING_SAMPLE:

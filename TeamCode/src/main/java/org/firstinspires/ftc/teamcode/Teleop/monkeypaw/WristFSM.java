@@ -95,7 +95,9 @@ public class WristFSM {
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
         this.elbowFSM = elbowFSM;
+
         globalTargetAngle = RELAXED_POS;
+        state = WristStates.RELAXING;
     }
 
     @VisibleForTesting

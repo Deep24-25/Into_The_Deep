@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 
+@Config
 public class ArmFSM {
 
 
@@ -22,9 +24,11 @@ public class ArmFSM {
     private static final double SUBMERSIBLE_LOW = 33;
     private static final double SUBMERSIBLE_HIGH = 66;*/
 
+    //WHEN PIVOTING THE ARM OFFSETS BY 3 cm
+
     private static final double SAFE_HEIGHT = 1;
-    private static final double BASKET_LOW = 42.86;
-    private static final double BASKET_HIGH = 45;
+    private static final double BASKET_LOW = 40;
+    private static final double BASKET_HIGH = 80;
     private static final double SUBMERSIBLE_LOW = 17;
     private static final double SUBMERSIBLE_HIGH = 18;
 
@@ -39,8 +43,8 @@ public class ArmFSM {
     private int basketIndex = 1;
 
 
-    public static double PHorizontal = 0.01, IHorizontal = 0.095, DHorizontal = 0, FHorizontal = 0;
-    public static double PVertical = 0.03, IVertical = 0.3, DVertical = 0, FVertical = -0.005;
+    public static double PHorizontal = 0.1, IHorizontal = 0.4, DHorizontal = 0, FHorizontal = 0;
+    public static double PVertical = 0.066, IVertical = 0.1, DVertical = 0, FVertical = 0;
     public static double PAngle = 0.2, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
     private final double[] intakeIndecies = {FULLY_RETRACTED, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60};
 
