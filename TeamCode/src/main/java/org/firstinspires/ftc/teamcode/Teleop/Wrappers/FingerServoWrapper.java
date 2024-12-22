@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
+package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;

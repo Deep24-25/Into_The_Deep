@@ -7,6 +7,8 @@ import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
+
 @Config
 public class WristFSM {
     private enum WristStates {
@@ -84,7 +86,7 @@ public class WristFSM {
 
     ElbowFSM elbowFSM;
 
-    double ENCODER_OFFSET = 15;
+    double ENCODER_OFFSET = -15;
 
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {

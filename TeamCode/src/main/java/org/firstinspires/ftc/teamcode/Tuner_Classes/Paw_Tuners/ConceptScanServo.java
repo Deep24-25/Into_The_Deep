@@ -3,7 +3,7 @@
 
 
 
-package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
+package org.firstinspires.ftc.teamcode.Tuner_Classes.Paw_Tuners;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;

@@ -1,12 +1,9 @@
-package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
+package org.firstinspires.ftc.teamcode.Tuner_Classes.Paw_Tuners;
 
 import com.arcrobotics.ftclib.hardware.ServoEx;
-import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 @TeleOp
 public class ServoTest extends LinearOpMode {

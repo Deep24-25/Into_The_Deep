@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.Logger;
-import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.AxonServoWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.FingerFSM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Tuner;
+package org.firstinspires.ftc.teamcode.Tuner_Classes.Limb_Tuners;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -8,23 +8,23 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
-import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 
 @Config
-@TeleOp()
-public class ArmTuner extends LinearOpMode {
-    private ArmMotorsWrapper armMotorsWrapper;
+@TeleOp(name = "Shoulder Tuner")
+public class ShoulderTuner extends LinearOpMode {
+    private ShoulderWrapper shoulderWrapper;
     public static double P = 0, I = 0, D = 0, A = 0;
     private PIDFController pidfController;
 
-    public static double targetPos = 0;
+    public static double targetAngle = 0;
 
     @Override
     public void runOpMode() {
         try {
             HWMap hwMap = new HWMap(hardwareMap);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-            armMotorsWrapper = new ArmMotorsWrapper(hwMap);
+            shoulderWrapper = new ShoulderWrapper(hwMap);
             pidfController = new PIDFController(P, I, D, A);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
@@ -34,15 +34,15 @@ public class ArmTuner extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             pidfController.setPIDF(P, I, D, A);
-            double currentAngle = armMotorsWrapper.readPositionInCM();
-            double error = targetPos - currentAngle;
+            double currentAngle = shoulderWrapper.readAngle();
+            double error = targetAngle - currentAngle;
 
 
             double power = pidfController.calculate(0, error);
-            armMotorsWrapper.set(power);
+            shoulderWrapper.set(power);
 
-            telemetry.addData("target pos: ", targetPos);
-            telemetry.addData("current pos: ", armMotorsWrapper.getLastReadPositionInCM());
+            telemetry.addData("target angle: ", targetAngle);
+            telemetry.addData("current angle: ", shoulderWrapper.getLastReadAngle());
             telemetry.update();
 
         }
