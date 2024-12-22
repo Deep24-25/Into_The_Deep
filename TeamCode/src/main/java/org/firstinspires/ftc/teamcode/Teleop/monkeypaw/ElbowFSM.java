@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 
 @Config
 public class ElbowFSM {
@@ -81,6 +82,13 @@ public class ElbowFSM {
     public static double DSampleIntakeRetractPos = 0;
     public static double FSampleIntakeRetractPos = -0.15;
 
+
+    // PID basket Deposit
+    public static double PBasketPos = 0.004;
+    public static double IBasketPos = 0.01;
+    public static double DBasketPos = 0;
+    public static double  FBasketPos = -0.13;
+
 /*
     //test bench
     public static double P = 0.01;
@@ -98,11 +106,11 @@ public class ElbowFSM {
 
     public static  double SPECIMEN_INTAKE_FLEXED_POS = 33;
     public static  double SPECIMEN_INTAKE_RELAX_POS = 30;
-    public static  double BASKET_DEPOSIT_FLEXED_POS = 180;
+    public static  double BASKET_DEPOSIT_FLEXED_POS = 266;
     public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
     public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
 
-    public static  double BASKET_RELAX_POS = 0;
+    public static  double BASKET_RELAX_POS = 180;
     public static double CHAMBER_RELAX_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
@@ -114,17 +122,19 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -13;
+    public static double ENCODER_OFFSET = -60;
 
     public static double CAPTURE_OFFSET = 20;
 
+    public ShoulderFSM shoulderFSM;
 
-    public ElbowFSM(HWMap hwMap, Logger logger) {
+    public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),false, false, ENCODER_OFFSET); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
         targetAngle = RELAXED_POS;
+        this.shoulderFSM = shoulderFSM;
     }
     @VisibleForTesting
     public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
@@ -306,7 +316,7 @@ public class ElbowFSM {
         logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos()))))), Logger.LogLevels.PRODUCTION);
         logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())), Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())))))*26.0/24.0);
+        elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - shoulderFSM.getShoulderCurrentAngle())))))*26.0/24.0);
 
     }
 
@@ -359,10 +369,18 @@ public class ElbowFSM {
 
     public void flexToBasketDepositFlexedPos() {
         targetAngle = BASKET_DEPOSIT_FLEXED_POS;
+        P = PBasketPos;
+        I = IBasketPos;
+        D = DBasketPos;
+        F = FBasketPos;
     }
 
     public void relaxToBasketDepositRelaxedPos() {
         targetAngle = BASKET_RELAX_POS;
+        P = PBasketPos;
+        I = IBasketPos;
+        D = DBasketPos;
+        F = FBasketPos;
     }
 
     public void flexToHighChamberDepositFlexedPos() {

@@ -17,6 +17,9 @@ public class ArmMotorsWrapper {
         armMoterOne = hwMap.getArmMotorOne();
         armMoterTwo = hwMap.getArmMotorTwo();
         armMoterThree = hwMap.getArmMotorThree();
+        armMoterOne.resetEncoder();
+        armMoterTwo.resetEncoder();
+        armMoterThree.resetEncoder();
         SLIDES_CPR = armMoterOne.getCPR();
     }
 
@@ -28,9 +31,9 @@ public class ArmMotorsWrapper {
 //        armMoterOne.set(power);
 //        armMoterTwo.set(power);
 //        armMoterThree.set(power);
-        armMoterOne.set(0);
-        armMoterTwo.set(0);
-        armMoterThree.set(0);
+        armMoterOne.set(power);
+        armMoterTwo.set(power);
+        armMoterThree.set(power);
 
     }
 
@@ -41,7 +44,7 @@ public class ArmMotorsWrapper {
     public double readPositionInCM() {
         double currentPositionInTicks = armMoterOne.getCurrentPosition();
         double diameterOfSpool = 4.7; //1.85 inches
-        double ratio = 24.0 / 36.0;
+        double ratio = (24.0 / 37.0) * (30.0/90.0);
         lastReadPositionInCM = ((currentPositionInTicks * ratio) / (SLIDES_CPR)) * Math.PI * diameterOfSpool;
         return lastReadPositionInCM;
     }

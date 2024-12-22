@@ -16,21 +16,24 @@ public class DeviatorFSM {
         RELAXED,
         RIGHT_DEVIATING,
         LEFT_DEVIATING,
-        RELAXING
+        RELAXING,
+        VERTICALING,
+        VERTICALED
     }
 
     private double targetAngle;
     public static  double PID_TOLERANCE = 8;
     private double deviatorCurrentAngle;
     //Robot CONSTANTS:
-    public static  double P = 0.01;
+    public static  double P = 0.005;
     public static  double I = 0;
     public static  double D = 0;
 
 
-    public static  double RIGHT_DEVIATED_POS = 18;
-    public static  double LEFT_DEVIATED_POS = 290;
-    public static  double RELAXED_POS = 343;
+    public static  double RIGHT_DEVIATED_POS = 269;
+    public static  double LEFT_DEVIATED_POS = 179;
+    public static  double RELAXED_POS = 224;
+    public static double VERTICAL_POS = 314;
 
 
     private AxonServoWrapper deviatorServoWrapper;
@@ -80,12 +83,22 @@ public class DeviatorFSM {
             } else {
                 state = DeviatorStates.RELAXING;
             }
+        } else if (isTargetAngleToVertical()) {
+            if (pidController.atSetPoint()) {
+                state = DeviatorStates.VERTICALED;
+            } else {
+                state = DeviatorStates.VERTICALING;
+            }
         }
     }
 
 
     public boolean isTargetAngleToRelax() {
         return targetAngle == RELAXED_POS;
+    }
+
+    public boolean isTargetAngleToVertical() {
+        return targetAngle == VERTICAL_POS;
     }
 
     public boolean isTargetAngleToDeviateRight() {
@@ -153,6 +166,10 @@ public class DeviatorFSM {
     }
     public void relax() {
         targetAngle = RELAXED_POS;
+    }
+
+    public void vertical() {
+        targetAngle = VERTICAL_POS;
     }
 
 

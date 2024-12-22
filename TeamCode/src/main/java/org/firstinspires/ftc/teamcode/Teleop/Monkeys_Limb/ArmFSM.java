@@ -16,15 +16,22 @@ public class ArmFSM {
     }
 
     //Random Values
-    private static final double SAFE_HEIGHT = 5;
+   /* private static final double SAFE_HEIGHT = 0;
     private static final double BASKET_LOW = 65.4;
     private static final double BASKET_HIGH = 109.2;
     private static final double SUBMERSIBLE_LOW = 33;
-    private static final double SUBMERSIBLE_HIGH = 66;
-    private static final double FULLY_RETRACTED = 0;
+    private static final double SUBMERSIBLE_HIGH = 66;*/
+
+    private static final double SAFE_HEIGHT = 1;
+    private static final double BASKET_LOW = 42.86;
+    private static final double BASKET_HIGH = 45;
+    private static final double SUBMERSIBLE_LOW = 17;
+    private static final double SUBMERSIBLE_HIGH = 18;
+
+    private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final int MAX_HEIGHT = 80;//102 cm is physical max
-    private static final double SPECIMEN_PICKUP = 0;
+    private static final int MAX_HEIGHT = 40;//102 cm is physical max
+    private static final double SPECIMEN_PICKUP = 2;
     private double chamberLockHeight = 60;
     private double[] submersibleHeights = {SUBMERSIBLE_LOW, SUBMERSIBLE_HIGH};
     private double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -32,13 +39,14 @@ public class ArmFSM {
     private int basketIndex = 1;
 
 
-    public static double PHorizontal = 0.2, IHorizontal = 0.001, DHorizontal = 0.002, FHorizontal = 0;
-    public static double PVertical = 0.2, IVertical = 0.001, DVertical = 0.002, FVertical = 0;
+    public static double PHorizontal = 0.01, IHorizontal = 0.095, DHorizontal = 0, FHorizontal = 0;
+    public static double PVertical = 0.03, IVertical = 0.3, DVertical = 0, FVertical = -0.005;
     public static double PAngle = 0.2, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
-    private final double[] intakeIndecies = {FULLY_RETRACTED, 10, 20, 30, 40, 50, 60, 70, MAX_HEIGHT};
+    private final double[] intakeIndecies = {FULLY_RETRACTED, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60};
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
+    private final ShoulderFSM shoulderFSM;
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
@@ -52,19 +60,21 @@ public class ArmFSM {
 
     private Logger logger;
 
-    public ArmFSM(HWMap hwMap, Logger logger) {
+    public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         currentIndex = 1;
-        targetPosition = 0;
+        targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);
         this.logger = logger;
+        this.shoulderFSM = shoulderFSM;
     }
 
     @VisibleForTesting
-    public ArmFSM(ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController) {
+    public ArmFSM(ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController, ShoulderFSM shoulderFSM) {
         this.armMotorsWrapper = armMotorsWrapper;
         this.pidfController = pidfController;
+        this.shoulderFSM = shoulderFSM;
 
     }
 
@@ -72,6 +82,11 @@ public class ArmFSM {
         updatePIDF();
         pidfController.setTolerance(3);
         armMotorsWrapper.readPositionInCM();
+        if(shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS()|| shoulderFSM.GOING_TO_BASKET()|| shoulderFSM.GOING_TO_CHAMBER()){
+            setVerticalPID();
+        }else if(shoulderFSM.AT_INTAKE() || shoulderFSM.GOING_TO_INTAKE()){
+            setHorizontalPID();
+        }
         if (pidfController.atSetPoint()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
@@ -155,12 +170,6 @@ public class ArmFSM {
 
     public void updatePIDF() {
         armMotorsWrapper.readPositionInCM();
-        if (targetPosition == BASKET_HIGH || targetPosition == BASKET_LOW)
-            pidfController.setPIDF(PVertical, IVertical, DVertical, FVertical);
-        else if (targetPosition == SUBMERSIBLE_HIGH || targetPosition == SUBMERSIBLE_LOW)
-            pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
-        else
-            pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
         power = pidfController.calculate(measuredPosition, targetPosition);
         power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
@@ -275,7 +284,6 @@ public class ArmFSM {
     public void setIndexToBasketHighHeight() {
         basketIndex = 1;
     }
-
 
 
     public void moveToChamberLockHeight() {

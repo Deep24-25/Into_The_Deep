@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 public class LimbFSM {
     public enum States {
-        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE
+        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE, RETRACTING_INTAKE, RETRACTED_INTAKE
     }
 
     public enum Mode {
@@ -59,7 +59,7 @@ public class LimbFSM {
 
     private boolean notBeenInMovingToIntake = true;
 
-    public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM,MonkeyPawFSM monkeyPawFSM, Logger logger) {
+    public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
         this.armFSM = armFSM;
         this.shoulderFSM = shoulderFSM;
@@ -85,7 +85,7 @@ public class LimbFSM {
     }
 
     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed) {
-        if (yPressed && SPECIMEN_MODE()) {
+       /* if (yPressed && SPECIMEN_MODE()) {
             if ((DEPOSITED_SPECIMEN() || SAMPLE_STATES()) && !PREPARING_TO_INTAKE()) {
                 states = States.PREPARING_TO_INTAKE;
             } else if (PREPARED_TO_INTAKE()) {
@@ -95,8 +95,8 @@ public class LimbFSM {
             } else if (EXTENDED_SPECIMEN()) {
                 states = States.DEPOSITING_SPECIMEN;
             }
-        } else if (yPressed && SAMPLE_MODE()) {
-            if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE()) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
+        } else*/ if (yPressed && SAMPLE_MODE()) {
+            if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() && !EXTENDED_TO_BASKET_HEIGHT() && !EXTENDING_TO_BASKET_HEIGHT()) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
                 states = States.PREPARING_TO_DEPOSIT_SAMPLE;
             } else if (PREPARED_TO_DEPOSIT_SAMPLE()) {
                 states = States.EXTENDING_TO_BASKET_HEIGHT;
@@ -104,7 +104,7 @@ public class LimbFSM {
                 states = States.DEPOSITING_SAMPLE;
             }
         }
-        if (xPressed) {
+        /*if (xPressed && SPECIMEN_MODE()) {
             if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()) {
                 states = States.PREPARING_TO_INTAKE;
             } else if (EXTENDING_SPECIMEN() || EXTENDED_SPECIMEN())
@@ -113,14 +113,16 @@ public class LimbFSM {
                 states = States.EXTENDING_SPECIMEN;
             }
         }
-        if (aPressed) {
-            if ((!MOVING_TO_INTAKE_POS() || DEPOSITED_SAMPLE() || DEPOSITED_SPECIMEN()) && !PREPARED_TO_INTAKE()) {
+        */if (aPressed) {
+            if ((!MOVING_TO_INTAKE_POS() || DEPOSITED_SAMPLE() || DEPOSITED_SPECIMEN() || RETRACTED_INTAKE()) && !PREPARED_TO_INTAKE() && !MOVED_TO_INTAKE_POS()) {
                 states = States.PREPARING_TO_INTAKE;
-            } else if (PREPARED_TO_INTAKE()) {
+            } else if (PREPARED_TO_INTAKE() || RETRACTED_INTAKE()) {
                 notBeenInMovingToIntake = true;
                 states = States.MOVING_TO_INTAKE_POS;
             } else if (MOVING_TO_INTAKE_POS() && !notBeenInMovingToIntake) {
                 states = States.MOVED_TO_INTAKE_POS;
+            } else if (MOVED_TO_INTAKE_POS()) {
+                states = States.RETRACTING_INTAKE;
             }
         }
         if (rightBumperPressed) {
@@ -305,6 +307,22 @@ public class LimbFSM {
                     states = States.MOVING_TO_INTAKE_POS;
                 }
                 break;
+            case RETRACTING_INTAKE:
+                if (!armFSM.FULLY_RETRACTED()) {
+                    armFSM.moveToSafeHeight();
+                    if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE()) {
+                        armFSM.retract();
+                        if (armFSM.FULLY_RETRACTED()) {
+                            states = States.RETRACTED_INTAKE;
+                        }
+                    }
+                } else {
+                    if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE()) {
+                        states = States.RETRACTED_INTAKE;
+
+                    }
+                }
+                break;
             case MOVING_TO_MINI_INTAKE:
                 armFSM.moveToMiniIntake();
                 if (armFSM.AT_MINI_INTAKE()) {
@@ -431,6 +449,14 @@ public class LimbFSM {
         return states == States.RETRACTED_FROM_MINI_INTAKE;
     }
 
+    public boolean RETRACTED_INTAKE() {
+        return states == States.RETRACTED_INTAKE;
+    }
+
+    public boolean RETRACTING_INTAKE() {
+        return states == States.RETRACTING_INTAKE;
+    }
+
     public boolean SAMPLE_MODE() {
         return mode == Mode.SAMPLE_MODE;
     }
@@ -462,8 +488,12 @@ public class LimbFSM {
         this.mode = mode;
     }
 
-    public void setMonkeyPawFSM(MonkeyPawFSM monkeyPawFSM){
+    public void setMonkeyPawFSM(MonkeyPawFSM monkeyPawFSM) {
         this.monkeyPawFSM = monkeyPawFSM;
+    }
+
+    public ShoulderFSM getShoulderFSM() {
+        return shoulderFSM;
     }
 
 }

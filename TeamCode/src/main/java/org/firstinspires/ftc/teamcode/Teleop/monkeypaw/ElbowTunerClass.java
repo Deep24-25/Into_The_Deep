@@ -26,7 +26,7 @@ public class ElbowTunerClass extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false,false, -13);
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false,false, -60);
         pidController = new PIDController(P,I,D);
         waitForStart();
         while (opModeIsActive()) {
@@ -65,7 +65,7 @@ public class ElbowTunerClass extends LinearOpMode {
         logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos()))))), Logger.LogLevels.PRODUCTION);
         logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())), Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        elbowServoWrapper.set((power + ((F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())))))*26.0/24.0));
+        elbowServoWrapper.set((power + ((F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - 90)))))*26.0/24.0));
 
     }
 

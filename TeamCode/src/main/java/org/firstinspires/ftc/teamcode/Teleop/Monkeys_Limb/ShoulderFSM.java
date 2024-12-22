@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
 
+@Config
 public class ShoulderFSM {
 
     public enum States {
@@ -15,17 +17,23 @@ public class ShoulderFSM {
     }
 
 
-    public static double P = 0.4;
-    public static double I = 0;
-    public static double D = 0;
-    public static double F = -0.0007;
+    public static double P_E = 0.03325;
+    public static double I_E = 0;
+    public static double D_E = 0;
+    public static double F_E = -0.0007;
+
+
+    public static double P_R = 0.005;
+    public static double I_R = 0;
+    public static double D_R = 0;
+    public static double F_R = -0.002;
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
     private static final double CHAMBER_ANGLE_LOW = 15;
     private static final double CHAMBER_ANGLE_HIGH = 43;
-    private static final double BASKET_ANGLE_LOW = 40;
-    private static final double BASKET_ANGLE_HIGH = 70;
+    private static final double BASKET_ANGLE_LOW = 90;
+    private static final double BASKET_ANGLE_HIGH = 90;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 50;
 
@@ -47,7 +55,7 @@ public class ShoulderFSM {
     private Logger logger;
 
     public ShoulderFSM(HWMap hwMap, Logger logger) {
-        this.pidfController = new PIDFController(P, I, D, F);
+        this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
         shoulderWrapper = new ShoulderWrapper(hwMap);
         this.logger = logger;
     }
@@ -60,7 +68,6 @@ public class ShoulderFSM {
     }
 
     public void updateState() {
-        pidfController.setPIDF(P, I, D, F);
         pidfController.setTolerance(TOLERANCE);
         updatePID();
 
@@ -139,7 +146,11 @@ public class ShoulderFSM {
     }
 
     public void setBasketTargetAngle() {
+        setExtendPIDF();
         targetAngle = basketAngles[basketIndex];
+    }
+    public void moveToIntakeAngle() {
+        targetAngle = SAMPLE_INTAKE_ANGLE;
     }
 
     public boolean isShoulderTargetPosSampleIntakeAngle() {
@@ -204,9 +215,7 @@ public class ShoulderFSM {
 
     }
 
-    public void moveToIntakeAngle() {
-        targetAngle = SAMPLE_INTAKE_ANGLE;
-    }
+
 
 
     public void moveToSpecimenIntakeAngle() {
@@ -229,6 +238,18 @@ public class ShoulderFSM {
 
     public double getTolerance() {
         return TOLERANCE;
+    }
+
+    public void setExtendPIDF(){
+        pidfController.setPIDF(P_E,I_E,D_E,F_E);
+    }
+
+    public void setRetractPIDF(){
+        pidfController.setPIDF(P_R,I_R,D_R,F_R);
+    }
+
+    public  double getShoulderCurrentAngle() {
+        return shoulderWrapper.getLastReadAngle();
     }
 
     public void log() {

@@ -21,7 +21,7 @@ public class ShoulderWrapper {
     }
 
     public void set(double power) {
-        shoulderMotor.set(0);
+        shoulderMotor.set(power);
     }
 
     public double readAngle() {

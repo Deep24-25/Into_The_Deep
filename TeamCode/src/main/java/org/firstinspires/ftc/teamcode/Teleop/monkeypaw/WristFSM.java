@@ -30,7 +30,12 @@ public class WristFSM {
         FLEXED_TO_LOW_CHAMBER_DEPOSIT,
         RELAXING_FROM_CHAMBER_DEPOSIT,
         RELAXED_FROM_CHAMBER_DEPOSIT,
-
+        FLEXING_TO_HIGH_BASKET_DEPOSIT,
+        FLEXED_TO_HIGH_BASKET_DEPOSIT,
+        FLEXING_TO_LOW_BASKET_DEPOSIT,
+        FLEXED_TO_LOW_BASKET_DEPOSIT,
+        RELAXING_FROM_BASKET_DEPOSIT,
+        RELAXED_FROM_BASKET_DEPOSIT,
         }
 
     private double globalTargetAngle;
@@ -58,6 +63,11 @@ public class WristFSM {
 
     public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
     public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
+
+    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 273;
+    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 273;
+
+    public static double BASKET_RELAXED_POS = 180;
 
 
     private AxonServoWrapper wristServoWrapper;
@@ -130,7 +140,7 @@ public class WristFSM {
             }
         }
 
-        else if (isTargetAngleToSampleIntakeRetractPos()) {
+        else if (isTargetAngleToSampleIntakeRetractPos() && sampleRetract) {
             if (pidController.atSetPoint()) {
                 state = WristStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
             } else {
@@ -168,6 +178,41 @@ public class WristFSM {
             }
         }
 
+        else if (isTargetAngleToHighBasketDepositFlexedPos()) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_HIGH_BASKET_DEPOSIT;
+            } else {
+                state = WristStates.FLEXING_TO_HIGH_BASKET_DEPOSIT;
+            }
+        }
+
+        else if (isTargetAngleToLowBasketDepositFlexedPos()) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.FLEXED_TO_LOW_BASKET_DEPOSIT;
+            } else {
+                state = WristStates.FLEXING_TO_LOW_BASKET_DEPOSIT;
+            }
+        }
+        else if(isTargetAngleToBasketRelax()) {
+            if (pidController.atSetPoint()) {
+                state = WristStates.RELAXED_FROM_BASKET_DEPOSIT;
+            } else {
+                state = WristStates.RELAXING_FROM_BASKET_DEPOSIT;
+            }
+        }
+
+    }
+
+    public boolean isTargetAngleToBasketRelax() {
+        return globalTargetAngle == BASKET_RELAXED_POS;
+    }
+
+    public boolean isTargetAngleToHighBasketDepositFlexedPos() {
+        return globalTargetAngle == HIGH_BASKET_DEPOSIT_FLEXED_POS;
+    }
+
+    public boolean isTargetAngleToLowBasketDepositFlexedPos() {
+        return globalTargetAngle == LOW_BASKET_DEPOSIT_FLEXED_POS;
     }
 
     public boolean isTargetAngleToRelax() {
@@ -180,7 +225,6 @@ public class WristFSM {
 
     public boolean isTargetAngleToSampleIntakeReadyFlexedPos() {
         return globalTargetAngle == SAMPLE_INTAKE_READY_POS;
-
     }
 
     public boolean isTargetAngleToSampleIntakeCapturePos() {
@@ -227,8 +271,8 @@ public class WristFSM {
         if(encoderTargetAngle < 62) {
             encoderTargetAngle = 62;
         }
-        if(encoderTargetAngle > 320) {
-            encoderTargetAngle = 320;
+        if(encoderTargetAngle > 310) {
+            encoderTargetAngle = 310;
         }
 
 
@@ -326,6 +370,26 @@ public class WristFSM {
 
     }
 
+    public void flexToHighBasketPos() {
+        globalTargetAngle = HIGH_BASKET_DEPOSIT_FLEXED_POS;
+        sampleControl = false;
+        relaxCalled = false;
+        sampleIntakeReady = false;
+        sampleCapture = false;
+        sampleRetract = false;
+
+    }
+
+    public void flexToLowBasketPos() {
+        globalTargetAngle = LOW_BASKET_DEPOSIT_FLEXED_POS;
+        sampleControl = false;
+        relaxCalled = false;
+        sampleIntakeReady = false;
+        sampleCapture = false;
+        sampleRetract = false;
+
+    }
+
     // Finds the smallest distance between 2 angles, input and output in degrees
     private double angleDelta(double angle1, double angle2) {
         return Math.min(normalizeDegrees(angle1 - angle2), 360 - normalizeDegrees(angle1 - angle2));
@@ -412,6 +476,16 @@ public class WristFSM {
     public boolean FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() {
         return state == WristStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
     }
+
+    public boolean FLEXED_TO_HIGH_BASKET_DEPOSIT() {
+        return state == WristStates.FLEXED_TO_HIGH_BASKET_DEPOSIT;
+    }
+
+
+    public boolean RELAXED_FROM_BASKET_DEPOSIT() {
+        return state == WristStates.RELAXED_FROM_BASKET_DEPOSIT;
+    }
+
 
 
     public void log() {

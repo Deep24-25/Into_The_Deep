@@ -81,9 +81,13 @@ public class HWMap {
 
         //Monkey's Limb
         pivotMotor = new Motor(hardwareMap, "PM", Motor.GoBILDA.RPM_60);
-        armMotorOne = new Motor(hardwareMap, "AM1", Motor.GoBILDA.RPM_312);
-        armMotorTwo = new Motor(hardwareMap, "AM2", Motor.GoBILDA.RPM_312);
-        armMotorThree = new Motor(hardwareMap, "AM3", Motor.GoBILDA.RPM_312);
+        armMotorOne = new Motor(hardwareMap, "AM1", Motor.GoBILDA.BARE);
+        armMotorTwo = new Motor(hardwareMap, "AM2", Motor.GoBILDA.BARE);
+        armMotorThree = new Motor(hardwareMap, "AM3", Motor.GoBILDA.BARE);
+
+        armMotorOne.setInverted(true);
+        armMotorTwo.setInverted(true);
+        armMotorThree.setInverted(true);
 
         //Monkey's Paw
         elbowServo = new CRServo(hardwareMap, "ES");
