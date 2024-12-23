@@ -32,10 +32,10 @@ public class DeviatorFSM {
     public static  double D = 0;
 
 
-    public static  double RIGHT_DEVIATED_POS = 269;
-    public static  double LEFT_DEVIATED_POS = 179;
-    public static  double RELAXED_POS = 224;
-    public static double VERTICAL_POS = 314;
+    public static  double RIGHT_DEVIATED_POS = 254.55;
+    public static  double LEFT_DEVIATED_POS = 164.45;
+    public static  double RELAXED_POS = 209.45;
+    public static double VERTICAL_POS = 299.45;
 
 
     private AxonServoWrapper deviatorServoWrapper;

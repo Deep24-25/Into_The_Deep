@@ -66,8 +66,8 @@ public class WristFSM {
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
     public static double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
 
-    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 273;
-    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 273;
+    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 270.1;
+    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 270.1;
 
     public static double BASKET_RELAXED_POS = 180;
 
@@ -87,16 +87,15 @@ public class WristFSM {
 
     ElbowFSM elbowFSM;
 
-    public static double ENCODER_OFFSET = 0;
-    private static final double TOLERANCE = 5;
+    public static double ENCODER_OFFSET = 15;
+    private static final double TOLERANCE = 10;
 
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false, false, ENCODER_OFFSET); // check if you need to reverse axons
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true, true, ENCODER_OFFSET); // check if you need to reverse axons
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
         this.elbowFSM = elbowFSM;
-
         globalTargetAngle = RELAXED_POS;
         state = WristStates.RELAXING;
     }
@@ -265,8 +264,8 @@ public class WristFSM {
 //        double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
-        logger.log("Target Angle", globalTargetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("encoder target angle", encoderTargetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("Real Target angle", encoderTargetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("Global Target Angle", globalTargetAngle, Logger.LogLevels.PRODUCTION);
         logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
 
         //       wristServoWrapper.set((power + (F*(Math.cos(Math.toRadians(wristServoWrapper.getLastReadPos()))))));
