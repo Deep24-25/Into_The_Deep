@@ -50,22 +50,22 @@ public class ElbowTunerClass extends LinearOpMode {
             } else if (pivotShoulder == 1) {
                 shoulderFSM.setBasketTargetAngle();
             }
-            updatePID();
+            //updatePID();
             shoulderFSM.updatePID();
             logger.log("Current Angle", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
             logger.log("Target Angle", targetAngle, Logger.LogLevels.PRODUCTION);
             logger.print();
         }
     }
-
-    public void updatePID() { // This method is used to update position every loop.
 /*
+    public void updatePID() { // This method is used to update position every loop.
+*//*
         if(targetAngle < 22) {
             targetAngle = 22;
         }
         if(targetAngle > 296) {
             targetAngle = 296;
-        }*/
+        }*//*
 
         elbowServoWrapper.readPos();
         double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
@@ -84,7 +84,7 @@ public class ElbowTunerClass extends LinearOpMode {
         logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
         elbowServoWrapper.set((power + ((F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - shoulderWrapper.readAngle())))))*26.0/24.0));
 
-    }
+    }*/
 
 
     // Finds the smallest distance between 2 angles, input and output in degrees
