@@ -56,7 +56,7 @@ public class HWMap {
 
     // Paw Axon Servos
     private Servo elbowServo;
-    private CRServo wristFlexServo;
+    private Servo wristFlexServo;
     private CRServo wristDeviServo;
     private ServoEx fingerServo;
 
@@ -92,7 +92,7 @@ public class HWMap {
 
         //Monkey's Paw
         elbowServo = hardwareMap.get(Servo.class, "ES");
-        wristFlexServo = new CRServo(hardwareMap, "WFS");
+        wristFlexServo = hardwareMap.get(Servo.class, "WFS");
         wristDeviServo = new CRServo(hardwareMap, "WDS");
         fingerServo = new SimpleServo(hardwareMap, "FS", 0, 300);
 
@@ -131,7 +131,7 @@ public class HWMap {
     }
 
 
-    public CRServo getWristFlexServo() {
+    public Servo getWristFlexServo() {
         return wristFlexServo;
     }
 

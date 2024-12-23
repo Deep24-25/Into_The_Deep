@@ -1,8 +1,6 @@
 
 
 
-
-
 package org.firstinspires.ftc.teamcode.Tuner_Classes.Paw_Tuners;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -30,7 +28,7 @@ public class ConceptScanServo extends LinearOpMode {
 
     // Define class members
     CRServo WDS;
-    CRServo WFS;
+    Servo WFS;
     Servo ES;
     AnalogInput DeviatorEncoder;
     AnalogInput WristEncoder;
@@ -59,7 +57,7 @@ public class ConceptScanServo extends LinearOpMode {
             WristEncoder = hwMap.getWristFlexEncoder();
             ElbowEncoder = hwMap.getElbowEncoder();
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-            pidController = new PIDController(P,I,D);
+            pidController = new PIDController(P, I, D);
         } catch (Exception exception) {
             telemetry.addData("Message", exception.getMessage());
         }
@@ -75,29 +73,28 @@ public class ConceptScanServo extends LinearOpMode {
         while (opModeIsActive()) {
             //hwMap.clearCache();
 
-            pidController.setPID(P,I,D);
+            pidController.setPID(P, I, D);
             pidController.setSetPoint(0); // PIDs the error to 0
-            double currentAngle = WristEncoder.getVoltage()/3.3 * 360; // converts voltage into degrees
-            double angleDelta = angleDelta(currentAngle,setTargetAngle); // finds the minimum difference between current angle and target angle
-            double sign = angleDeltaSign(currentAngle,setTargetAngle); // sets the direction of servo based on minimum difference
-            wristPower = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
+            double currentAngle = WristEncoder.getVoltage() / 3.3 * 360; // converts voltage into degrees
+            double angleDelta = angleDelta(currentAngle, setTargetAngle); // finds the minimum difference between current angle and target angle
+            double sign = angleDeltaSign(currentAngle, setTargetAngle); // sets the direction of servo based on minimum difference
+            wristPower = pidController.calculate(angleDelta * sign); // calculates the remaining error(PID)
             pidController.setTolerance(pidTolerance); // sets the buffer
 
 
+            WFS.setPosition(0.1);
+            WDS.set(deviatorPower);
 
-            WFS.set(wristPower);
-           WDS.set(deviatorPower);
 
-
-            telemetry.addData("at target position",pidController.atSetPoint());
-            telemetry.addData("target voltage",pidController.getSetPoint());
+            telemetry.addData("at target position", pidController.atSetPoint());
+            telemetry.addData("target voltage", pidController.getSetPoint());
             telemetry.addData("left power", deviatorPower);
             telemetry.addData("right power", wristPower);
             telemetry.addData("Deviator Voltage", "%5.2f", DeviatorEncoder.getVoltage());
             telemetry.addData("Wrist Voltage", "%5.2f", WristEncoder.getVoltage());
-            telemetry.addData("Deviator Angle", "%5.2f", ((DeviatorEncoder.getVoltage()/3.3) * 360));
-            telemetry.addData("Wrist Angle", "%5.2f", ((WristEncoder.getVoltage()/3.3)*360));
-            telemetry.addData("Elbow Angle", "%5.2f", ((ElbowEncoder.getVoltage()/3.3)*360));
+            telemetry.addData("Deviator Angle", "%5.2f", ((DeviatorEncoder.getVoltage() / 3.3) * 360));
+            telemetry.addData("Wrist Angle", "%5.2f", ((WristEncoder.getVoltage() / 3.3) * 360));
+            telemetry.addData("Elbow Angle", "%5.2f", ((ElbowEncoder.getVoltage() / 3.3) * 360));
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 

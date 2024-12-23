@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.Tuner_Classes.Paw_Tuners;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -29,7 +30,7 @@ public class WristTuner extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        wristServoWrapper = new AxonCRServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,true, WristFSM.ENCODER_OFFSET);
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,true, WristFSM.ENCODER_OFFSET);
 
         pidController = new PIDController(P,I,D);
         waitForStart();
@@ -108,3 +109,4 @@ public class WristTuner extends LinearOpMode {
 
 
 }
+*/
