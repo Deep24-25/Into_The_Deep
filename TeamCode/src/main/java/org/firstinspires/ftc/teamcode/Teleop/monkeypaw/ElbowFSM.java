@@ -99,7 +99,7 @@ public class ElbowFSM {
 
 
     public static  double RELAXED_POS = 80;
-    public static  double SAMPLE_INTAKE_READY_POS = 150;
+    public static  double SAMPLE_INTAKE_READY_POS = 140;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 163;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
@@ -123,7 +123,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 11;
+    public static double ENCODER_OFFSET = 0;
 
     public static double CAPTURE_OFFSET = 27;
 

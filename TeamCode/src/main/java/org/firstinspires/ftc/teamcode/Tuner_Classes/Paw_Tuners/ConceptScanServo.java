@@ -85,7 +85,6 @@ public class ConceptScanServo extends LinearOpMode {
             WFS.setPosition(0.5);
             WDS.setPosition(0.5);
 
-
             telemetry.addData("at target position", pidController.atSetPoint());
             telemetry.addData("target voltage", pidController.getSetPoint());
             telemetry.addData("left power", deviatorPower);
