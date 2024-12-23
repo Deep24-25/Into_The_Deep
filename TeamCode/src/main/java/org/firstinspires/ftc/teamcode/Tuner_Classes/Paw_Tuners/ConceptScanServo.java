@@ -27,7 +27,7 @@ public class ConceptScanServo extends LinearOpMode {
     static final double MIN_POS = 0.0;     // Minimum rotational position
 
     // Define class members
-    CRServo WDS;
+    Servo WDS;
     Servo WFS;
     Servo ES;
     AnalogInput DeviatorEncoder;
@@ -82,8 +82,8 @@ public class ConceptScanServo extends LinearOpMode {
             pidController.setTolerance(pidTolerance); // sets the buffer
 
 
-            WFS.setPosition(0.1);
-            WDS.set(deviatorPower);
+            WFS.setPosition(0.5);
+            WDS.setPosition(0.5);
 
 
             telemetry.addData("at target position", pidController.atSetPoint());

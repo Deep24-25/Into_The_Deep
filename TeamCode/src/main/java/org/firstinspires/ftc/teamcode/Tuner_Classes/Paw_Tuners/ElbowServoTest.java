@@ -19,7 +19,7 @@ public class ElbowServoTest extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             elbowServo.setPosition(targetAngle);
-            telemetry.addData("Current angle", elbowServo.getPosition() * 360);
+            telemetry.addData("Current angle", elbowServo.getPosition() * 355);
             telemetry.update();
         }
     }

@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonCRServoWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 
 @Config
 public class DeviatorFSM {
@@ -37,14 +38,14 @@ public class DeviatorFSM {
     public static double VERTICAL_POS = 314;
 
 
-    private AxonCRServoWrapper deviatorServoWrapper;
+    private AxonServoWrapper deviatorServoWrapper;
    /* private PIDController pidController;
 */
     private DeviatorStates state;
     private Logger logger;
 
     public DeviatorFSM(HWMap hwMap, Logger logger) {
-        deviatorServoWrapper = new AxonCRServoWrapper(hwMap.getWristDeviServo(),hwMap.getWristDeviEncoder(),false, false, 0); // check if you need to reverse axons
+        deviatorServoWrapper = new AxonServoWrapper(hwMap.getWristDeviServo(),hwMap.getWristDeviEncoder(),false, false, 0); // check if you need to reverse axons
         /*pidController = new PIDController(P, I, D);
 */
         this.logger = logger;
@@ -54,7 +55,7 @@ public class DeviatorFSM {
 
     }
     @VisibleForTesting
-    public DeviatorFSM(AxonCRServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
+    public DeviatorFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
         this.deviatorServoWrapper = axonServoWrapper;
         /*this.pidController = pidController;
         */this.logger = logger;
@@ -67,6 +68,8 @@ public class DeviatorFSM {
         updatePID();
 
         */
+
+        updatePos();
         if (isTargetAngleToDeviateRight()) {
             if (atSetPoint()) {
                 state = DeviatorStates.RIGHT_DEVIATED;

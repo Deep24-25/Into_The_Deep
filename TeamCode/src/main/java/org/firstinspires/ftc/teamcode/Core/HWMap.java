@@ -57,7 +57,7 @@ public class HWMap {
     // Paw Axon Servos
     private Servo elbowServo;
     private Servo wristFlexServo;
-    private CRServo wristDeviServo;
+    private Servo wristDeviServo;
     private ServoEx fingerServo;
 
     // Paw Axon Encoders
@@ -93,7 +93,7 @@ public class HWMap {
         //Monkey's Paw
         elbowServo = hardwareMap.get(Servo.class, "ES");
         wristFlexServo = hardwareMap.get(Servo.class, "WFS");
-        wristDeviServo = new CRServo(hardwareMap, "WDS");
+        wristDeviServo = hardwareMap.get(Servo.class, "WDS");
         fingerServo = new SimpleServo(hardwareMap, "FS", 0, 300);
 
         elbowEncoder = hardwareMap.get(AnalogInput.class, "EE");
@@ -147,7 +147,7 @@ public class HWMap {
         pinpointIMU.resetPosAndIMU();
     }
 
-    public CRServo getWristDeviServo() {
+    public Servo getWristDeviServo() {
         return wristDeviServo;
     }
 
