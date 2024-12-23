@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonCRServoWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 
 @Config
@@ -72,7 +73,7 @@ public class WristFSM {
     public static double BASKET_RELAXED_POS = 180;
 
 
-    private AxonServoWrapper wristServoWrapper;
+    private AxonCRServoWrapper wristServoWrapper;
     private PIDController pidController;
 
     private WristStates state;
@@ -90,7 +91,7 @@ public class WristFSM {
 
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),true, true, ENCODER_OFFSET); // check if you need to reverse axons
+        wristServoWrapper = new AxonCRServoWrapper(hwMap.getWristFlexServo(),hwMap.getWristFlexEncoder(),true, true, ENCODER_OFFSET); // check if you need to reverse axons
         pidController = new PIDController(P, I, D);
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
@@ -101,7 +102,7 @@ public class WristFSM {
     }
 
     @VisibleForTesting
-    public WristFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
+    public WristFSM(AxonCRServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
         wristServoWrapper = axonServoWrapper;
         this.pidController = pidController;
         this.logger = logger;

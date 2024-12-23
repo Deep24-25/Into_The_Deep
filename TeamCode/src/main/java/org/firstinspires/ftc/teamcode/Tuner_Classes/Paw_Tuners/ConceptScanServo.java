@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
@@ -30,7 +31,7 @@ public class ConceptScanServo extends LinearOpMode {
     // Define class members
     CRServo WDS;
     CRServo WFS;
-    CRServo ES;
+    Servo ES;
     AnalogInput DeviatorEncoder;
     AnalogInput WristEncoder;
     AnalogInput ElbowEncoder;

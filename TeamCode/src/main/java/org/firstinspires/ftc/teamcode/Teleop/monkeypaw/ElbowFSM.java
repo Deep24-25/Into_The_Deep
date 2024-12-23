@@ -40,7 +40,7 @@ public class ElbowFSM {
         RELAXED_FROM_BASKET_DEPOSIT
     }
     private double targetAngle;
-    public static  double PID_TOLERANCE = 5;
+    public static  double TOLERANCE = 5;
     private double elbowCurrentAngle;
     //Robot CONSTANTS:
     public static double P = 0.007;
@@ -98,8 +98,8 @@ public class ElbowFSM {
     public static double F = 0;*/
 
 
-    public static  double RELAXED_POS = 55;
-    public static  double SAMPLE_INTAKE_READY_POS = 125;
+    public static  double RELAXED_POS = 80;
+    public static  double SAMPLE_INTAKE_READY_POS = 140;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 163;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
@@ -107,23 +107,23 @@ public class ElbowFSM {
 
     public static  double SPECIMEN_INTAKE_FLEXED_POS = 33;
     public static  double SPECIMEN_INTAKE_RELAX_POS = 30;
-    public static  double BASKET_DEPOSIT_FLEXED_POS = 260;
+    public static  double BASKET_DEPOSIT_FLEXED_POS = 270;
     public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
     public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
 
-    public static  double BASKET_RELAX_POS = 85;
+    public static  double BASKET_RELAX_POS = 90;
     public static double CHAMBER_RELAX_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
-    private PIDController pidController;
-
+    /*private PIDController pidController;
+*/
     private ElbowStates state;
     private Logger logger;
 
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 27;
+    public static double ENCODER_OFFSET = -15;
 
     public static double CAPTURE_OFFSET = 27;
 
@@ -131,7 +131,7 @@ public class ElbowFSM {
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(),hwMap.getElbowEncoder(),false, false, ENCODER_OFFSET); // check if you need to reverse axons
-        pidController = new PIDController(P, I, D);
+   //     pidController = new PIDController(P, I, D);
         this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
         targetAngle = RELAXED_POS;
@@ -140,26 +140,27 @@ public class ElbowFSM {
     @VisibleForTesting
     public ElbowFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
         elbowServoWrapper = axonServoWrapper;
-        this.pidController = pidController;
-        this.logger = logger;
+     /*   this.pidController = pidController;
+  */      this.logger = logger;
         elbowCurrentAngle = elbowServoWrapper.getLastReadPos();
     }
 
     public void updateState() {
-        pidController.setSetPoint(0); // PIDs the error to 0
+        /*pidController.setSetPoint(0); // PIDs the error to 0
         pidController.setTolerance(PID_TOLERANCE); // sets the buffer
         pidController.setPID(P,I,D);
         updatePID();
-
+*/
+        updatePos();
          if (isTargetAngleToRelax() && relaxCalled) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.RELAXED;
             } else {
                 state = ElbowStates.RELAXING;
             }
         }
         else if (isTargetAngleToSampleIntakeReadyFlexedPos() && !sampleControl) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_READY_POS;
@@ -175,7 +176,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToSampleIntakeControlPos() && sampleControl) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_CONTROL_POS;
@@ -183,35 +184,35 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToSampleIntakeRetractPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS;
             } else {
                 state = ElbowStates.FLEXING_TO_SAMPLE_INTAKE_RETRACT_POS;
             }
         }
         else if (isTargetAngleToSpecimenFlexedPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_SPECIMEN_INTAKE;
             } else {
                 state = ElbowStates.FLEXING_TO_SPECIMEN_INTAKE;
             }
         }
         else if (isTargetAngleToSpecimenIntakeRelaxedPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.RELAXED_TO_SPECIMEN_INTAKE_RELAX_POS;
             } else {
                 state = ElbowStates.RELAXING_TO_SPECIMEN_INTAKE_RELAX_POS;
             }
         }
         else if (isTargetAngleToBasketDepositFlexedPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_BASKET_DEPOSIT;
             } else {
                 state = ElbowStates.FLEXING_TO_BASKET_DEPOSIT;
             }
         }
         else if (isTargetAngleToHighChamberDepositFlexedPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_HIGH_CHAMBER_DEPOSIT;
             } else {
                 state = ElbowStates.FLEXING_TO_HIGH_CHAMBER_DEPOSIT;
@@ -219,7 +220,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToLowChamberDepositFlexedPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.FLEXED_TO_LOW_CHAMBER_DEPOSIT;
             } else {
                 state = ElbowStates.FLEXING_TO_LOW_CHAMBER_DEPOSIT;
@@ -227,7 +228,7 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToChamberRelaxPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.RELAXED_FROM_CHAMBER_DEPOSIT;
             } else {
                 state = ElbowStates.RELAXING_FROM_CHAMBER_DEPOSIT;
@@ -235,13 +236,17 @@ public class ElbowFSM {
         }
 
         else if (isTargetAngleToBasketRelaxPos()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = ElbowStates.RELAXED_FROM_BASKET_DEPOSIT;
             } else {
                 state = ElbowStates.RELAXING_FROM_BASKET_DEPOSIT;
             }
         }
 
+    }
+
+    public boolean atSetPoint() {
+        return (elbowServoWrapper.getLastReadPos() <= targetAngle + TOLERANCE) || (elbowServoWrapper.getLastReadPos() >= targetAngle - TOLERANCE);
     }
 
     public boolean isTargetAngleToRelax() {
@@ -292,8 +297,14 @@ public class ElbowFSM {
         return targetAngle == CHAMBER_RELAX_POS;
     }
 
+    public void updatePos() {
+        elbowServoWrapper.readPos();
+        elbowServoWrapper.set(targetAngle);
+        logger.log("Current angle", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+    }
 
-    public void updatePID() { // This method is used to update position every loop.
+
+    /*public void updatePID() { // This method is used to update position every loop.
 
         if(targetAngle > 308) {
             targetAngle = 308;
@@ -320,7 +331,7 @@ public class ElbowFSM {
         elbowServoWrapper.set((power + (F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - shoulderFSM.getShoulderCurrentAngle())))))*26.0/24.0);
 
     }
-
+*/
 
 
     public void flexToSampleIntakeReadyPos() {
@@ -398,7 +409,7 @@ public class ElbowFSM {
     public void relax() {
         targetAngle = RELAXED_POS;
         relaxCalled = true;
-        pidController.setPID(Prelax,Irelax,Drelax);
+        //pidController.setPID(Prelax,Irelax,Drelax);
         F = Frelax;
     }
 
