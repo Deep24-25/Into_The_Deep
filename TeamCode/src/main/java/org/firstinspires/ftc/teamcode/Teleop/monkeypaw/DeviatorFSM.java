@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonCRServoWrapper;
-import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 
 @Config
 public class DeviatorFSM {
@@ -24,7 +23,7 @@ public class DeviatorFSM {
     }
 
     private double targetAngle;
-    public static  double PID_TOLERANCE = 8;
+    public static  double TOLERANCE = 5;
     private double deviatorCurrentAngle;
     //Robot CONSTANTS:
     public static  double P = 0.005;
@@ -39,15 +38,15 @@ public class DeviatorFSM {
 
 
     private AxonCRServoWrapper deviatorServoWrapper;
-    private PIDController pidController;
-
+   /* private PIDController pidController;
+*/
     private DeviatorStates state;
     private Logger logger;
 
     public DeviatorFSM(HWMap hwMap, Logger logger) {
         deviatorServoWrapper = new AxonCRServoWrapper(hwMap.getWristDeviServo(),hwMap.getWristDeviEncoder(),false, false, 0); // check if you need to reverse axons
-        pidController = new PIDController(P, I, D);
-
+        /*pidController = new PIDController(P, I, D);
+*/
         this.logger = logger;
         deviatorCurrentAngle = deviatorServoWrapper.getLastReadPos();
         relax(); // Need this so target angle is set to the relax position setting state would do nothing as that itself does not change target angle
@@ -57,37 +56,39 @@ public class DeviatorFSM {
     @VisibleForTesting
     public DeviatorFSM(AxonCRServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
         this.deviatorServoWrapper = axonServoWrapper;
-        this.pidController = pidController;
-        this.logger = logger;
+        /*this.pidController = pidController;
+        */this.logger = logger;
     }
 
     public void updateState() {
-        pidController.setPID(P, I, D);
+        /*pidController.setPID(P, I, D);
         pidController.setSetPoint(0); // PIDs the error to 0
         pidController.setTolerance(PID_TOLERANCE); // sets the buffer
         updatePID();
+
+        */
         if (isTargetAngleToDeviateRight()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = DeviatorStates.RIGHT_DEVIATED;
             } else {
                 state = DeviatorStates.RIGHT_DEVIATING;
             }
         }
         else if (isTargetAngleToDeviateLeft()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = DeviatorStates.LEFT_DEVIATED;
             } else {
                 state = DeviatorStates.LEFT_DEVIATING;
             }
         }
         else if (isTargetAngleToRelax()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = DeviatorStates.RELAXED;
             } else {
                 state = DeviatorStates.RELAXING;
             }
         } else if (isTargetAngleToVertical()) {
-            if (pidController.atSetPoint()) {
+            if (atSetPoint()) {
                 state = DeviatorStates.VERTICALED;
             } else {
                 state = DeviatorStates.VERTICALING;
@@ -111,7 +112,18 @@ public class DeviatorFSM {
     public boolean isTargetAngleToDeviateLeft() {
         return targetAngle == LEFT_DEVIATED_POS;
     }
+    public boolean atSetPoint() {
+        return (deviatorServoWrapper.getLastReadPos() <= targetAngle + TOLERANCE) || (deviatorServoWrapper.getLastReadPos() >= targetAngle - TOLERANCE);
+    }
 
+    public void updatePos() {
+        deviatorServoWrapper.readPos();
+        deviatorServoWrapper.set(targetAngle);
+        logger.log("Current angle", deviatorServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+    }
+
+
+/*
     public void updatePID() { // This method is used to update position every loop.
         deviatorServoWrapper.readPos();
         double angleDelta = angleDelta(deviatorServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
@@ -119,7 +131,7 @@ public class DeviatorFSM {
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("Deviator Power",power, Logger.LogLevels.DEBUG);
         deviatorServoWrapper.set(power);
-    }
+    }*/
 
     // Finds the smallest distance between 2 angles, input and output in degrees
     private double angleDelta(double angle1, double angle2) {
