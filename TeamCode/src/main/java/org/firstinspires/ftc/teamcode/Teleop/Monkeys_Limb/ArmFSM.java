@@ -28,7 +28,7 @@ public class ArmFSM {
 
     private static final double SAFE_HEIGHT = 1;
     private static final double BASKET_LOW = 40;
-    private static final double BASKET_HIGH = 80;
+    private static final double BASKET_HIGH = 74;
     private static final double SUBMERSIBLE_LOW = 17;
     private static final double SUBMERSIBLE_HIGH = 18;
 
@@ -67,7 +67,7 @@ public class ArmFSM {
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
-        currentIndex = 1;
+            currentIndex = 1;
         targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);
         this.logger = logger;
@@ -86,9 +86,9 @@ public class ArmFSM {
         updatePIDF();
         pidfController.setTolerance(3);
         armMotorsWrapper.readPositionInCM();
-        if(shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS()|| shoulderFSM.GOING_TO_BASKET()|| shoulderFSM.GOING_TO_CHAMBER()){
+        if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
-        }else if(shoulderFSM.AT_INTAKE() || shoulderFSM.GOING_TO_INTAKE()){
+        } else if (shoulderFSM.AT_INTAKE() || shoulderFSM.GOING_TO_INTAKE()) {
             setHorizontalPID();
         }
         if (pidfController.atSetPoint()) {
@@ -186,7 +186,7 @@ public class ArmFSM {
 
     public void indexIncrement() {
         int tempIndex = currentIndex + 1;
-        if (tempIndex < intakeIndecies.length) {
+        if (tempIndex < intakeIndecies.length - 1) {
             currentIndex++;
         }
     }
