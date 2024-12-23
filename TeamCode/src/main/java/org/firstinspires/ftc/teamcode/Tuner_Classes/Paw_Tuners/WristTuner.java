@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 
 @TeleOp
 @Config
@@ -27,7 +28,8 @@ public class WristTuner extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,true, 11);
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true,true, WristFSM.ENCODER_OFFSET);
+
         pidController = new PIDController(P,I,D);
         waitForStart();
         while (opModeIsActive()) {

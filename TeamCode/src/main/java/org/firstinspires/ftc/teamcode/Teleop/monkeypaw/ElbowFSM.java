@@ -57,8 +57,8 @@ public class ElbowFSM {
 
     //PID SampleIntakeReady constants:
     public static double PSampleIntakeReady = 0.00268;
-    public static double ISampleIntakeReady = 0.031;
-    public static double DSampleIntakeReady = 0.0001;
+    public static double ISampleIntakeReady = 0.013;
+    public static double DSampleIntakeReady = 0.00005;
     public static double FSampleIntakeReady = -0.13;
 
 
@@ -78,7 +78,7 @@ public class ElbowFSM {
 
 
     //PID SampleIntakeRetract constants:
-    public static double PSampleIntakeRetractPos = 0.001;
+    public static double PSampleIntakeRetractPos = 0.004;
     public static double ISampleIntakeRetractPos = 0.03;
     public static double DSampleIntakeRetractPos = 0;
     public static double FSampleIntakeRetractPos = -0.15;
@@ -86,9 +86,9 @@ public class ElbowFSM {
 
     // PID basket Deposit
     public static double PBasketPos = 0.004;
-    public static double IBasketPos = 0.01;
+    public static double IBasketPos = 0.003;
     public static double DBasketPos = 0;
-    public static double  FBasketPos = -0.13;
+    public static double  FBasketPos = -0.08;
 
 /*
     //test bench
@@ -98,8 +98,8 @@ public class ElbowFSM {
     public static double F = 0;*/
 
 
-    public static  double RELAXED_POS = 66;
-    public static  double SAMPLE_INTAKE_READY_POS = 148;
+    public static  double RELAXED_POS = 55;
+    public static  double SAMPLE_INTAKE_READY_POS = 125;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 163;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
@@ -107,11 +107,11 @@ public class ElbowFSM {
 
     public static  double SPECIMEN_INTAKE_FLEXED_POS = 33;
     public static  double SPECIMEN_INTAKE_RELAX_POS = 30;
-    public static  double BASKET_DEPOSIT_FLEXED_POS = 266;
+    public static  double BASKET_DEPOSIT_FLEXED_POS = 260;
     public static  double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
     public static  double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
 
-    public static  double BASKET_RELAX_POS = 180;
+    public static  double BASKET_RELAX_POS = 85;
     public static double CHAMBER_RELAX_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
@@ -123,9 +123,9 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 60;
+    public static double ENCODER_OFFSET = 27;
 
-    public static double CAPTURE_OFFSET = 20;
+    public static double CAPTURE_OFFSET = 27;
 
     public ShoulderFSM shoulderFSM;
 
@@ -484,7 +484,7 @@ public class ElbowFSM {
         return state == ElbowStates.FLEXING_TO_BASKET_DEPOSIT;
     }
     public boolean FLEXED_TO_BASKET_DEPOSIT(){
-        return state == ElbowStates.FLEXING_TO_BASKET_DEPOSIT;
+        return state == ElbowStates.FLEXED_TO_BASKET_DEPOSIT;
     }
 
     public boolean FLEXING_TO_HIGH_CHAMBER_DEPOSIT(){

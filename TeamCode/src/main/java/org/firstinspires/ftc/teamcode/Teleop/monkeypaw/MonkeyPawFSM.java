@@ -216,7 +216,6 @@ public class MonkeyPawFSM {
                     state = States.RELAXED_AFTER_DEPOSIT;
                 }
                 break;
-
             //SPECIMEN DEPOSIT STATES
             case PREPARING_TO_INTAKE_SPECIMEN:
                 elbowFSM.flexToSpecimenIntakePos();
@@ -293,7 +292,7 @@ public class MonkeyPawFSM {
         } else if (rbPressed2 && !INTAKING_SAMPLE() && !RELAXING_MINI_INTAKE()) {
             state = States.DEPOSITING_SAMPLE_TO_HP;
         }
-        else if(limbFSM.DEPOSITING_SAMPLE()) {
+        else if(limbFSM.DEPOSITING_SAMPLE() && !RELAXING_AFTER_DEPOSIT() && !RELAXED_AFTER_DEPOSIT()) {
     //    else if (dpadUpPressed) {
             state = States.DEPOSITING_SAMPLE;
     //    }

@@ -251,7 +251,7 @@ public class LimbFSM {
                     armFSM.setIndexToBasketHighHeight();
                 }
                 if(!armFSM.AT_BASKET_HEIGHT()){
-                    states = States.EXTENDING_SPECIMEN;
+                    states = States.EXTENDING_TO_BASKET_HEIGHT;
                 }
                 break;
             case DEPOSITING_SAMPLE:

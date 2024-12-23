@@ -17,23 +17,23 @@ public class ShoulderFSM {
     }
 
 
-    public static double P_E = 0.05;
+    public static double P_E = 0.07;
     public static double I_E = 0.04;
     public static double D_E = 0.07;
-    public static double F_E = -0.0005;
+    public static double F_E = 0.02;
 
 
-    public static double P_R = 0.05;
+    public static double P_R = 0.07;
     public static double I_R = 0.04 ;
     public static double D_R = 0.07;
-    public static double F_R = -0.0005;
+    public static double F_R = 0.02;
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
     private static final double CHAMBER_ANGLE_LOW = 15;
     private static final double CHAMBER_ANGLE_HIGH = 43;
-    private static final double BASKET_ANGLE_LOW = 90;
-    private static final double BASKET_ANGLE_HIGH = 90;
+    private static final double BASKET_ANGLE_LOW = 100;
+    private static final double BASKET_ANGLE_HIGH = 100;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 50;
 

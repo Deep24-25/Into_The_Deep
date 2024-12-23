@@ -7,7 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 
 @TeleOp
 @Config
@@ -19,22 +22,36 @@ public class ElbowTunerClass extends LinearOpMode {
     public static double P = 0.007;
     public static double I = 0;
     public static double D = 0;
-    public static double F = -0.1;
+    public static double F = -0.12;
     public static double PID_TOLERANCE = 5;
     private Logger logger;
+
+    private ShoulderWrapper shoulderWrapper;
+    private ShoulderFSM shoulderFSM;
+    public static double pivotShoulder = 0;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
         logger = new Logger(telemetry);
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false,false, -60);
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false,false, ElbowFSM.ENCODER_OFFSET);
+        shoulderWrapper = new ShoulderWrapper(hwMap);
         pidController = new PIDController(P,I,D);
+        shoulderFSM = new ShoulderFSM(hwMap, logger);
         waitForStart();
         while (opModeIsActive()) {
             pidController.setPID(P, I, D);
             pidController.setSetPoint(0); // PIDs the error to 0
             pidController.setTolerance(PID_TOLERANCE); // sets the buffer
+
+            if (pivotShoulder == 0) {
+                shoulderFSM.moveToIntakeAngle();
+            } else if (pivotShoulder == 1) {
+                shoulderFSM.setBasketTargetAngle();
+            }
             updatePID();
+            shoulderFSM.updatePID();
             logger.log("Current Angle", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
             logger.log("Target Angle", targetAngle, Logger.LogLevels.PRODUCTION);
             logger.print();
@@ -42,15 +59,13 @@ public class ElbowTunerClass extends LinearOpMode {
     }
 
     public void updatePID() { // This method is used to update position every loop.
-
+/*
         if(targetAngle < 22) {
             targetAngle = 22;
         }
         if(targetAngle > 296) {
             targetAngle = 296;
-        }
-
-//        targetAngle = convertGroundAngleToEncoder(targetAngle);
+        }*/
 
         elbowServoWrapper.readPos();
         double angleDelta = angleDelta(elbowServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
@@ -61,12 +76,13 @@ public class ElbowTunerClass extends LinearOpMode {
             sign = -sign;
             angleDelta = negateError(angleDelta);
         }
+
         double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
         logger.log("PID Power", power, Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Power",(power + (F*(Math.toRadians(Math.cos(elbowServoWrapper.getLastReadPos()))))), Logger.LogLevels.PRODUCTION);
-        logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos())), Logger.LogLevels.PRODUCTION);
+        logger.log("Cosine", Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - shoulderWrapper.readAngle())), Logger.LogLevels.PRODUCTION);
         logger.log("Actual Servo Power", elbowServoWrapper.get(), Logger.LogLevels.PRODUCTION);
-        elbowServoWrapper.set((power + ((F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - 90)))))*26.0/24.0));
+        elbowServoWrapper.set((power + ((F*(Math.cos(Math.toRadians(elbowServoWrapper.getLastReadPos() - shoulderWrapper.readAngle())))))*26.0/24.0));
 
     }
 

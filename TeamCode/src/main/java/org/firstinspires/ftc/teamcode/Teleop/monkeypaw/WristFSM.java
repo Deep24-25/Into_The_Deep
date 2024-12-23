@@ -86,7 +86,7 @@ public class WristFSM {
 
     ElbowFSM elbowFSM;
 
-    double ENCODER_OFFSET = -15;
+    public static double ENCODER_OFFSET = 3;
 
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
