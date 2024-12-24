@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.util.Timing;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 import org.opencv.core.Mat;
 
 import java.util.concurrent.TimeUnit;
@@ -41,7 +42,7 @@ public class ArmFSM {
     private static final int MAX_HEIGHT = 40;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
 
-    private static final double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 2.1734; //cm
+    private double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 0; // 2.1734 cm
     private double chamberLockHeight = 60;
     private double[] submersibleHeights = {SUBMERSIBLE_LOW, SUBMERSIBLE_HIGH};
     private double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -76,6 +77,9 @@ public class ArmFSM {
     private Timing.Timer timer;
     private double rightY = 0;
     private double currentFeedrate = 0;
+
+    private double elbowCurrentAngle;
+    private double elbowIntakeReadyPos;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
@@ -321,6 +325,7 @@ public class ArmFSM {
 
     public void linearizeIntakePos() {
         prevPosition = targetPosition;
+        SAMPLE_PICKUP_LINEARIZATION_OFFSET = ((15.5*Math.cos(Math.toRadians(180 - elbowCurrentAngle)))) - ((15.5*Math.cos(Math.toRadians(180 - elbowIntakeReadyPos))));
         targetPosition -= SAMPLE_PICKUP_LINEARIZATION_OFFSET;
     }
 
@@ -371,9 +376,17 @@ public class ArmFSM {
         logger.log("Feed Pos:", feedPos, Logger.LogLevels.PRODUCTION);
         logger.log("Timer: ", timer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         logger.log("Current feedrate: ", currentFeedrate, Logger.LogLevels.PRODUCTION);
+        logger.log("Linearization offset", SAMPLE_PICKUP_LINEARIZATION_OFFSET, Logger.LogLevels.PRODUCTION);
 
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
+    }
+
+    public void setElbowCurrentAngle(double elbowCurrentAngle) {
+        this.elbowCurrentAngle = elbowCurrentAngle;
+    }
+    public void setElbowIntakeReadyPos(double elbowIntakeReadyPos) {
+        this.elbowIntakeReadyPos = elbowIntakeReadyPos;
     }
 
 

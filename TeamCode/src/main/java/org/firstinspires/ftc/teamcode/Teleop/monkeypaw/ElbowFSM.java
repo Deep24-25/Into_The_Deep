@@ -542,6 +542,10 @@ public class ElbowFSM {
         return CAPTURE_OFFSET;
     }
 
+    public double getIntakeReadyAngle() {
+        return SAMPLE_INTAKE_READY_POS;
+    }
+
 
     public void log() {
         logger.log("Elbow State",state, Logger.LogLevels.PRODUCTION);

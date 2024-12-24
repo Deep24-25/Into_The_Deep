@@ -134,6 +134,8 @@ public class LimbFSM {
     }
 
     public void updateState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test) {
+        armFSM.setElbowCurrentAngle(monkeyPawFSM.getElbowCurrentAngle());
+        armFSM.setElbowIntakeReadyPos(monkeyPawFSM.getElbowReadyPosAngle());
         updateLowLevelFSMStates();
         this.rightY = rightY;
         if (!test)

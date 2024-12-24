@@ -423,4 +423,12 @@ public class MonkeyPawFSM {
         wristFSM.updatePID();
     }
 
+    public double getElbowCurrentAngle() {
+        return elbowFSM.getElbowCurrentAngle();
+    }
+
+    public double getElbowReadyPosAngle() {
+        return getElbowReadyPosAngle();
+    }
+
 }

@@ -43,7 +43,7 @@ public class MainTeleop extends LinearOpMode {
     private boolean prevLeftBumperPressed;
     private boolean prevRightBumperPressed;
     private static final double MULTIPLIER = 0.6;
-
+    private int counter = 0;
     private double rightX;
 
     @Override
@@ -84,8 +84,12 @@ public class MainTeleop extends LinearOpMode {
             }
             fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
             monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), gamePad2.wasJustPressed(GamepadKeys.Button.X), gamePad2.wasJustPressed(GamepadKeys.Button.B), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.A), gamePad1.wasJustPressed(GamepadKeys.Button.Y));
+
             limbFSM.updateState(yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 
+            counter++;
+            logger.log("number of loops",counter, Logger.LogLevels.PRODUCTION);
+            logger.print();
 
             updatePID();
             monkeyPawFSM.updatePID();

@@ -241,7 +241,7 @@ public class WristFSM {
     public void updatePID() { // This method is used to update position every loop.
 
         wristServoWrapper.readPos();
-        if (sampleCapture) {
+        if (false) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
         } else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
