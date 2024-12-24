@@ -66,10 +66,10 @@ public class WristFSM {
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
     public static double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
 
-    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 270.1;
-    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 270.1;
+    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 120;
+    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 120;
 
-    public static double BASKET_RELAXED_POS = 180;
+    public static double BASKET_RELAXED_POS = 90;
 
 
     private AxonServoWrapper wristServoWrapper;
@@ -87,8 +87,8 @@ public class WristFSM {
 
     ElbowFSM elbowFSM;
 
-    public static double ENCODER_OFFSET = 15;
-    private static final double TOLERANCE = 10;
+    public static double ENCODER_OFFSET = -15;
+    private static final double TOLERANCE = 15;
 
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
@@ -241,7 +241,12 @@ public class WristFSM {
     public void updatePID() { // This method is used to update position every loop.
 
         wristServoWrapper.readPos();
-        encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
+        if (sampleCapture) {
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
+        } else {
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
+
+        }
         wristServoWrapper.set(encoderTargetAngle);
 //
 //        if(encoderTargetAngle < 62) {
@@ -262,11 +267,7 @@ public class WristFSM {
 //        }
 
 //        double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-        logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
-        logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
-        logger.log("Real Target angle", encoderTargetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("Global Target Angle", globalTargetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
+
 
         //       wristServoWrapper.set((power + (F*(Math.cos(Math.toRadians(wristServoWrapper.getLastReadPos()))))));
 
@@ -412,7 +413,7 @@ public class WristFSM {
     }
 
     public boolean atPos(double tolerance) {
-        return (wristCurrentAngle + tolerance <= encoderTargetAngle) || (wristCurrentAngle - tolerance >= encoderTargetAngle);
+        return (encoderTargetAngle + tolerance >= wristCurrentAngle) || (encoderTargetAngle - tolerance <= wristCurrentAngle);
     }
 
 
@@ -467,13 +468,17 @@ public class WristFSM {
         return state == WristStates.RELAXED_FROM_BASKET_DEPOSIT;
     }
 
+    public void setSampleCapture(boolean sampleCapture) {
+        this.sampleCapture = sampleCapture;
+    }
 
     public void log() {
+        logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Wrist State", state, Logger.LogLevels.PRODUCTION);
-
-        logger.log("Wrist Target Pos", globalTargetAngle, Logger.LogLevels.PRODUCTION);
-
-        logger.log("Raw Angle", wristServoWrapper.getRawPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
+        logger.log("Real Target angle", encoderTargetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("Global Target Angle", globalTargetAngle, Logger.LogLevels.PRODUCTION);
+        logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
     }
 
 }

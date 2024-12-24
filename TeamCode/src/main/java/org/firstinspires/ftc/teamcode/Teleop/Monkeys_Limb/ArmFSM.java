@@ -4,17 +4,21 @@ import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.util.Timing;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
+import org.opencv.core.Mat;
+
+import java.util.concurrent.TimeUnit;
 
 @Config
 public class ArmFSM {
 
 
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, LINEARIZED
     }
 
     //Random Values
@@ -28,7 +32,7 @@ public class ArmFSM {
 
     private static final double SAFE_HEIGHT = 1;
     private static final double BASKET_LOW = 40;
-    private static final double BASKET_HIGH = 74;
+    private static final double BASKET_HIGH = 78;
     private static final double SUBMERSIBLE_LOW = 17;
     private static final double SUBMERSIBLE_HIGH = 18;
 
@@ -36,16 +40,21 @@ public class ArmFSM {
     private static final double MINI_INTAKE = 7;
     private static final int MAX_HEIGHT = 40;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
+
+    private static final double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 2.1734; //cm
     private double chamberLockHeight = 60;
     private double[] submersibleHeights = {SUBMERSIBLE_LOW, SUBMERSIBLE_HIGH};
     private double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int submersibleIndex = 1;
     private int basketIndex = 1;
+    private double prevTime = 0, currentTime = 0;
 
+    public static double MAX_FEEDRATE = 500.0; // cm/sec
 
-    public static double PHorizontal = 0.1, IHorizontal = 0.4, DHorizontal = 0, FHorizontal = 0;
-    public static double PVertical = 0.066, IVertical = 0.1, DVertical = 0, FVertical = 0;
-    public static double PAngle = 0.2, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
+    private double feedPos = 0.0;
+    public static double PHorizontal = 0.04, IHorizontal = 0.04, DHorizontal = 0.0005, FHorizontal = 0;
+    public static double PVertical = 0.055, IVertical = 0.03, DVertical = 0.0045, FVertical = 0.003;
+    public static double PAngle = 0.03, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
     private final double[] intakeIndecies = {FULLY_RETRACTED, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60};
 
     private final ArmMotorsWrapper armMotorsWrapper;
@@ -58,20 +67,25 @@ public class ArmFSM {
     private double slidePowerCap = 1.0;
     private final double slideFinalMovementsCap = 1.0;
     private final double slideMovementCap = 1.0;
+    private double prevPosition = 0;
 
     private double power = 0;
-    private static final double TOLERANCE = 2.0;
+    private static double TOLERANCE = 7.0;
 
     private Logger logger;
+    private Timing.Timer timer;
+    private double rightY = 0;
+    private double currentFeedrate = 0;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
-            currentIndex = 1;
+        currentIndex = 1;
         targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);
         this.logger = logger;
         this.shoulderFSM = shoulderFSM;
+        timer = new Timing.Timer(300000000, TimeUnit.MILLISECONDS);
     }
 
     @VisibleForTesting
@@ -82,15 +96,21 @@ public class ArmFSM {
 
     }
 
-    public void updateState() {
+    public void updateState(double rightY) {
         updatePIDF();
-        pidfController.setTolerance(3);
+        this.rightY = rightY;
         armMotorsWrapper.readPositionInCM();
+        timer.start();
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
         } else if (shoulderFSM.AT_INTAKE() || shoulderFSM.GOING_TO_INTAKE()) {
-            setHorizontalPID();
+            if (isTargetPosAtFullyRetractedHeight()) {
+                setHorizontalPID();
+            } else {
+                setFeedPID();
+            }
         }
+
         if (pidfController.atSetPoint()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
@@ -128,7 +148,7 @@ public class ArmFSM {
         pidfController.setPIDF(PVertical, IVertical, DVertical, FVertical);
     }
 
-    public void setAngularPID() {
+    public void setFeedPID() {
         pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
     }
 
@@ -169,7 +189,10 @@ public class ArmFSM {
 
     public boolean AT_MINI_INTAKE() {
         return currentState == States.AT_MINI_INTAKE;
+    }
 
+    public boolean LINEARIZED() {
+        return currentState == States.LINEARIZED;
     }
 
     public void updatePIDF() {
@@ -181,7 +204,7 @@ public class ArmFSM {
     }
 
     public void moveToSelectedIndexPosition() {
-        targetPosition = intakeIndecies[currentIndex];
+        targetPosition = feed();
     }
 
     public void indexIncrement() {
@@ -267,9 +290,6 @@ public class ArmFSM {
         targetPosition = submersibleHeights[submersibleIndex];
     }
 
-    public void moveToBasketHeight() {
-        targetPosition = basketHeights[basketIndex];
-    }
 
     public void setIndexToSubmersibleLowHeight() {
         chamberLockHeight = 28;
@@ -299,6 +319,12 @@ public class ArmFSM {
         targetPosition = basketHeights[basketIndex];
     }
 
+    public void linearizeIntakePos() {
+        prevPosition = targetPosition;
+        targetPosition -= SAMPLE_PICKUP_LINEARIZATION_OFFSET;
+    }
+
+
     public void retract() {
         targetPosition = FULLY_RETRACTED;
     }
@@ -315,6 +341,25 @@ public class ArmFSM {
         return targetPosition == submersibleHeights[0];
     }
 
+    public void setTolerance(double tolerance) {
+        TOLERANCE = tolerance;
+    }
+
+    public double feed() {
+        currentTime = timer.elapsedTime();
+        currentFeedrate = MAX_FEEDRATE * rightY;
+        feedPos += currentFeedrate * (currentTime / 1000.0);
+        if (feedPos > 60) {
+            feedPos = 60;
+        } else if (feedPos < FULLY_RETRACTED + SAMPLE_PICKUP_LINEARIZATION_OFFSET) {
+            feedPos = FULLY_RETRACTED + SAMPLE_PICKUP_LINEARIZATION_OFFSET;
+        }
+
+        targetPosition = feedPos;
+
+        return feedPos;
+    }
+
     public void log() {
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Arm State: ", currentState, Logger.LogLevels.PRODUCTION);
@@ -322,6 +367,11 @@ public class ArmFSM {
         logger.log("Arm Target Height: ", targetPosition, Logger.LogLevels.PRODUCTION);
         logger.log("Current Index: ", currentIndex, Logger.LogLevels.PRODUCTION);
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.PRODUCTION);
+        logger.log("Right Y:", rightY, Logger.LogLevels.PRODUCTION);
+        logger.log("Feed Pos:", feedPos, Logger.LogLevels.PRODUCTION);
+        logger.log("Timer: ", timer.elapsedTime(), Logger.LogLevels.PRODUCTION);
+        logger.log("Current feedrate: ", currentFeedrate, Logger.LogLevels.PRODUCTION);
+
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }

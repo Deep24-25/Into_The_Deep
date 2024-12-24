@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 public class ElbowServoTest extends LinearOpMode {
     AxonServoWrapper elbowServoWrapper;
     HWMap hwMap;
-    public static double targetAngle = 0.5;
+    public static double targetAngle = 180;
     @Override
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);

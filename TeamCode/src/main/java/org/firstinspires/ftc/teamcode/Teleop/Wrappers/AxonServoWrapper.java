@@ -34,7 +34,7 @@ public class AxonServoWrapper {
     }
 */
     public void set(double pos) {
-        axon.setPosition((pos - encoderOffset) / 355.0);
+        axon.setPosition((pos) / 355.0);
     }
 
     public double readPos() {

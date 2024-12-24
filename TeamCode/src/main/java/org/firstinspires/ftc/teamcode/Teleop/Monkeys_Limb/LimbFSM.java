@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 public class LimbFSM {
     public enum States {
-        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE, RETRACTING_INTAKE, RETRACTED_INTAKE
+        PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE, RETRACTING_INTAKE, RETRACTED_INTAKE
     }
 
     public enum Mode {
@@ -53,28 +53,18 @@ public class LimbFSM {
     private ShoulderFSM shoulderFSM;
     private volatile MonkeyPawFSM monkeyPawFSM;
 
-    private States states = States.INTAKED_SPECIMEN;
-    private Mode mode = Mode.SPECIMEN_MODE;
+    private States states = States.PREPARING_TO_INTAKE;
+    private Mode mode = Mode.SAMPLE_MODE;
     private Logger logger;
 
     private boolean notBeenInMovingToIntake = true;
+    private double rightY;
 
     public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
         this.armFSM = armFSM;
         this.shoulderFSM = shoulderFSM;
         this.monkeyPawFSM = monkeyPawFSM;
-    }
-
-    public MonkeyPawFSM getMonkeyPawFSM() {
-        if (monkeyPawFSM == null) {
-            synchronized (this) {
-                if (monkeyPawFSM == null) {
-                    monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, this);
-                }
-            }
-        }
-        return monkeyPawFSM;
     }
 
 
@@ -122,7 +112,7 @@ public class LimbFSM {
                 notBeenInMovingToIntake = true;
                 states = States.MOVING_TO_INTAKE_POS;
             } else if (MOVING_TO_INTAKE_POS() && !notBeenInMovingToIntake) {
-                states = States.MOVED_TO_INTAKE_POS;
+                states = States.LINEARIZING_INTAKE;
             } else if (MOVED_TO_INTAKE_POS()) {
                 states = States.RETRACTING_INTAKE;
             }
@@ -143,8 +133,9 @@ public class LimbFSM {
         }
     }
 
-    public void updateState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, boolean test) {
+    public void updateState(boolean yPressed, boolean aPressed, boolean xPressed, boolean rightBumperPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test) {
         updateLowLevelFSMStates();
+        this.rightY = rightY;
         if (!test)
             findTargetState(yPressed, aPressed, xPressed, rightBumperPressed, rightTriggerPressed, leftBumperPressed, leftTriggerPressed);
         switch (states) {
@@ -243,7 +234,7 @@ public class LimbFSM {
                 } else if (leftTriggerPressed) {
                     armFSM.setIndexToBasketHighHeight();
                 }
-                if(!armFSM.AT_BASKET_HEIGHT()){
+                if (!armFSM.AT_BASKET_HEIGHT()) {
                     states = States.EXTENDING_TO_BASKET_HEIGHT;
                 }
                 break;
@@ -255,7 +246,6 @@ public class LimbFSM {
             case PREPARING_TO_INTAKE:
                 if (shoulderFSM.AT_INTAKE()) {
                     if (!armFSM.FULLY_RETRACTED()) {
-                        armFSM.moveToSafeHeight();
                         if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE()) {
                             armFSM.retract();
                             if (armFSM.FULLY_RETRACTED()) {
@@ -278,7 +268,7 @@ public class LimbFSM {
                 }
                 break;
             case MOVING_TO_INTAKE_POS:
-                armFSM.moveToSelectedIndexPosition();
+                armFSM.feed();
                 notBeenInMovingToIntake = false;
                 if (leftTriggerPressed) {
                     armFSM.indexIncrement();
@@ -287,6 +277,13 @@ public class LimbFSM {
                     armFSM.indexDecrement();
                 }
                 break;
+            case LINEARIZING_INTAKE:
+                armFSM.linearizeIntakePos();
+                notBeenInMovingToIntake = true;
+
+                states = States.MOVED_TO_INTAKE_POS;
+
+
             case MOVED_TO_INTAKE_POS:
                 if (xPressed) {
                     states = States.MOVING_TO_INTAKE_POS;
@@ -294,7 +291,6 @@ public class LimbFSM {
                 break;
             case RETRACTING_INTAKE:
                 if (!armFSM.FULLY_RETRACTED()) {
-                    armFSM.moveToSafeHeight();
                     if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE()) {
                         armFSM.retract();
                         if (armFSM.FULLY_RETRACTED()) {
@@ -337,13 +333,10 @@ public class LimbFSM {
 
 
     public void updateLowLevelFSMStates() {
-        armFSM.updateState();
+        armFSM.updateState(rightY);
         shoulderFSM.updateState();
     }
 
-    public void checkIndexUpOrDown() {
-
-    }
 
     public boolean PREPARING_TO_INTAKE_SPECIMEN() {
         return states == States.PREPARING_TO_INTAKE_SPECIMEN;

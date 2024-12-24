@@ -44,6 +44,8 @@ public class MainTeleop extends LinearOpMode {
     private boolean prevRightBumperPressed;
     private static final double MULTIPLIER = 0.6;
 
+    private double rightX;
+
     @Override
     public void runOpMode() throws InterruptedException {
         try {
@@ -70,13 +72,19 @@ public class MainTeleop extends LinearOpMode {
             gamePad1.readButtons();
             gamePad2.readButtons();
             triggersWasJustPressed();
-            if (gamePad1.isDown(GamepadKeys.Button.DPAD_DOWN))
-                HWMap.initializeIMU();
 
-
-            fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), gamePad1.getRightX() * MULTIPLIER, HWMap.readFromIMU());
-            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), gamePad2.wasJustPressed(GamepadKeys.Button.X), gamePad2.wasJustPressed(GamepadKeys.Button.B), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.A));
-            limbFSM.updateState(yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, false);
+            if (limbFSM.MOVING_TO_INTAKE_POS()) {
+                if (-gamePad1.getRightY() > 0.3 || -gamePad1.getRightY() < -0.3) {
+                    rightX = 0;
+                } else {
+                    rightX = gamePad1.getRightX();
+                }
+            }else{
+                rightX = gamePad1.getRightX();
+            }
+            fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
+            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), gamePad2.wasJustPressed(GamepadKeys.Button.X), gamePad2.wasJustPressed(GamepadKeys.Button.B), gamePad2.wasJustPressed(GamepadKeys.Button.A), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.Y), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.A), gamePad1.wasJustPressed(GamepadKeys.Button.Y));
+            limbFSM.updateState(yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 
 
             updatePID();
@@ -88,6 +96,7 @@ public class MainTeleop extends LinearOpMode {
     }
 
     private void log() {
+        logger.log("Right X: ", rightX, Logger.LogLevels.PRODUCTION);
         monkeyPawFSM.log();
         limbFSM.log();
     }

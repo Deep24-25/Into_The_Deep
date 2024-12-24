@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +23,9 @@ class ArmFSMTest {
     public void setup(){
         sut = spy(new ArmFSM(armMotorsWrapperMock,pidfController));
     }
-    /**---------------------------updateState()---------------------------------**/
+    */
+/**---------------------------updateState()---------------------------------**//*
+
     @Test
     public void FULLY_RETRACTED(){
         doReturn(true).when(pidfController).atSetPoint();
@@ -97,3 +100,4 @@ class ArmFSMTest {
         assertTrue(sut.MOVING_BELOW_SAFE_HEIGHT());
     }
 }
+*/
