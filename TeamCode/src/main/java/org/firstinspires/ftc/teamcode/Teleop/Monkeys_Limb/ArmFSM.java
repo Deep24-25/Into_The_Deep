@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
-import org.opencv.core.Mat;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +18,7 @@ public class ArmFSM {
 
 
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, LINEARIZED
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, AT_ZERO, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, LINEARIZED, EXTENDED
     }
 
     //Random Values
@@ -37,7 +36,7 @@ public class ArmFSM {
     private static final double SUBMERSIBLE_LOW = 17;
     private static final double SUBMERSIBLE_HIGH = 18;
 
-    private static final double FULLY_RETRACTED = 4;
+    private static double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
     private static final int MAX_HEIGHT = 40;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
@@ -50,17 +49,21 @@ public class ArmFSM {
     private int basketIndex = 1;
     private double prevTime = 0, currentTime = 0;
 
-    public static double MAX_FEEDRATE = 500.0; // cm/sec
+    public static double MAX_FEEDRATE = 150.0; // cm/sec
 
     private double feedPos = 0.0;
-    public static double PHorizontal = 0.04, IHorizontal = 0.04, DHorizontal = 0.0005, FHorizontal = 0;
-    public static double PVertical = 0.055, IVertical = 0.03, DVertical = 0.0045, FVertical = 0.003;
-    public static double PAngle = 0.03, IAngle = 0.001, DAngle = 0.002, FAngle = 0;
+    public static double PHorizontal = 0.12, IHorizontal = 0.1, DHorizontal = 0.004, FHorizontal = 0;
+    public static double PVertical = 0.12, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
+    public static double P_E_Horizontal = 0.12, I_E_Horizontal = 0.1, D_E_Horizontal = 0.004, F_E_Horizontal = 0;
+    public static double PLinearizing = 0.12, ILinearizing = 0.1, DLinearizing = 0.004, FLinearizing = 0;
+
     private final double[] intakeIndecies = {FULLY_RETRACTED, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60};
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
     private final ShoulderFSM shoulderFSM;
+    private final ElbowFSM elbowFSM;
+    private LimbFSM limbFSM;
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
@@ -71,17 +74,17 @@ public class ArmFSM {
     private double prevPosition = 0;
 
     private double power = 0;
-    private static double TOLERANCE = 7.0;
+    private static double TOLERANCE = 4.0;
 
     private Logger logger;
     private Timing.Timer timer;
     private double rightY = 0;
     private double currentFeedrate = 0;
 
-    private double elbowCurrentAngle;
-    private double elbowIntakeReadyPos;
+    private boolean linearizing = false;
+    private double lastLastReadPos = 0;
 
-    public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
+    public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, LimbFSM limbFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         currentIndex = 1;
@@ -89,14 +92,18 @@ public class ArmFSM {
         pidfController.setTolerance(TOLERANCE);
         this.logger = logger;
         this.shoulderFSM = shoulderFSM;
+        this.elbowFSM = elbowFSM;
+        this.limbFSM = limbFSM;
         timer = new Timing.Timer(300000000, TimeUnit.MILLISECONDS);
     }
 
     @VisibleForTesting
-    public ArmFSM(ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController, ShoulderFSM shoulderFSM) {
+    public ArmFSM(ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, LimbFSM limbFSM) {
         this.armMotorsWrapper = armMotorsWrapper;
         this.pidfController = pidfController;
         this.shoulderFSM = shoulderFSM;
+        this.elbowFSM = elbowFSM;
+        this.limbFSM = limbFSM;
 
     }
 
@@ -107,11 +114,22 @@ public class ArmFSM {
         timer.start();
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
+            setTolerance(TOLERANCE);
         } else if (shoulderFSM.AT_INTAKE() || shoulderFSM.GOING_TO_INTAKE()) {
             if (isTargetPosAtFullyRetractedHeight()) {
                 setHorizontalPID();
+                setTolerance(TOLERANCE);
+                linearizing = false;
+            } else if (limbFSM.LINEARIZING_INTAKE()) {
+                setLinearizingPID();
+                linearizeIntakePos();
+                targetPosition = feedPos - SAMPLE_PICKUP_LINEARIZATION_OFFSET;
+                linearizing = true;
             } else {
+                linearizing = false;
                 setFeedPID();
+                setTolerance(TOLERANCE);
+
             }
         }
 
@@ -128,6 +146,8 @@ public class ArmFSM {
                 currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             } else if (isTargetPosMiniIntakeHeight()) {
                 currentState = States.AT_MINI_INTAKE;
+            } else {
+                currentState = States.EXTENDED;
             }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
@@ -137,6 +157,7 @@ public class ArmFSM {
             else if (isTargetPosBelowSafeHeight())
                 currentState = States.MOVING_BELOW_SAFE_HEIGHT;
         }
+        lastLastReadPos = elbowFSM.getElbowCurrentAngle();
     }
 
     public boolean isFullyExtended() {
@@ -153,7 +174,11 @@ public class ArmFSM {
     }
 
     public void setFeedPID() {
-        pidfController.setPIDF(PAngle, IAngle, DAngle, FAngle);
+        pidfController.setPIDF(P_E_Horizontal, I_E_Horizontal, D_E_Horizontal, F_E_Horizontal);
+    }
+
+    public void setLinearizingPID() {
+        pidfController.setPIDF(PLinearizing, ILinearizing, DLinearizing, FLinearizing);
     }
 
     // get state
@@ -188,7 +213,10 @@ public class ArmFSM {
 
     public boolean AT_CHAMBER_LOCK_HEIGHT() {
         return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
+    }
 
+    public boolean AT_ZERO() {
+        return currentState == States.AT_ZERO;
     }
 
     public boolean AT_MINI_INTAKE() {
@@ -207,9 +235,6 @@ public class ArmFSM {
         armMotorsWrapper.set(power);
     }
 
-    public void moveToSelectedIndexPosition() {
-        targetPosition = feed();
-    }
 
     public void indexIncrement() {
         int tempIndex = currentIndex + 1;
@@ -235,6 +260,10 @@ public class ArmFSM {
 
     public boolean isTargetPosAtFullyRetractedHeight() {
         return targetPosition == FULLY_RETRACTED;
+    }
+
+    public boolean isTargetPosAtZero() {
+        return targetPosition == 0;
     }
 
     public boolean isTargetPosAtBasketHeight() {
@@ -324,14 +353,18 @@ public class ArmFSM {
     }
 
     public void linearizeIntakePos() {
-        prevPosition = targetPosition;
-        SAMPLE_PICKUP_LINEARIZATION_OFFSET = ((15.5*Math.cos(Math.toRadians(180 - elbowCurrentAngle)))) - ((15.5*Math.cos(Math.toRadians(180 - elbowIntakeReadyPos))));
-        targetPosition -= SAMPLE_PICKUP_LINEARIZATION_OFFSET;
+        SAMPLE_PICKUP_LINEARIZATION_OFFSET = Math.abs(((15.5 * Math.cos(Math.toRadians(180 - elbowFSM.getElbowCurrentAngle())))) - ((15.5 * Math.cos(Math.toRadians(Math.toRadians(180 - elbowFSM.getIntakeReadyAngle()))))));
     }
 
 
     public void retract() {
+
         targetPosition = FULLY_RETRACTED;
+    }
+
+
+    public void goToZero() {
+        targetPosition = 0;
     }
 
     public void moveToSafeHeight() {
@@ -353,16 +386,16 @@ public class ArmFSM {
     public double feed() {
         currentTime = timer.elapsedTime();
         currentFeedrate = MAX_FEEDRATE * rightY;
-        feedPos += currentFeedrate * (currentTime / 1000.0);
-        if (feedPos > 60) {
-            feedPos = 60;
-        } else if (feedPos < FULLY_RETRACTED + SAMPLE_PICKUP_LINEARIZATION_OFFSET) {
-            feedPos = FULLY_RETRACTED + SAMPLE_PICKUP_LINEARIZATION_OFFSET;
-        }
+        feedPos += currentFeedrate * (20.0 / 1000.0);
+        feedPos = Math.max(Math.min(feedPos, 60), FULLY_RETRACTED);
 
         targetPosition = feedPos;
 
         return feedPos;
+    }
+
+    public boolean atSP() {
+        return pidfController.atSetPoint();
     }
 
     public void log() {
@@ -370,24 +403,30 @@ public class ArmFSM {
         logger.log("Arm State: ", currentState, Logger.LogLevels.PRODUCTION);
         logger.log("Arm Current Height: ", armMotorsWrapper.getLastReadPositionInCM(), Logger.LogLevels.PRODUCTION);
         logger.log("Arm Target Height: ", targetPosition, Logger.LogLevels.PRODUCTION);
-        logger.log("Current Index: ", currentIndex, Logger.LogLevels.PRODUCTION);
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.PRODUCTION);
-        logger.log("Right Y:", rightY, Logger.LogLevels.PRODUCTION);
         logger.log("Feed Pos:", feedPos, Logger.LogLevels.PRODUCTION);
-        logger.log("Timer: ", timer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         logger.log("Current feedrate: ", currentFeedrate, Logger.LogLevels.PRODUCTION);
         logger.log("Linearization offset", SAMPLE_PICKUP_LINEARIZATION_OFFSET, Logger.LogLevels.PRODUCTION);
-
+        logger.log("power cap", slidePowerCap, Logger.LogLevels.PRODUCTION);
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
 
-    public void setElbowCurrentAngle(double elbowCurrentAngle) {
-        this.elbowCurrentAngle = elbowCurrentAngle;
-    }
-    public void setElbowIntakeReadyPos(double elbowIntakeReadyPos) {
-        this.elbowIntakeReadyPos = elbowIntakeReadyPos;
+    public void resetEncoder() {
+        armMotorsWrapper.resetEncoder();
     }
 
+    public void setLimbFSM(LimbFSM limbFSM) {
+        this.limbFSM = limbFSM;
+    }
 
+    public double getCurrentVelocity() {
+        return armMotorsWrapper.currentVelocity();
+    }
+
+    public void capSetPower(boolean cap) {
+        if (cap)
+            slidePowerCap = 0.4;
+        else slidePowerCap = 1.0;
+    }
 }

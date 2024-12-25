@@ -39,7 +39,7 @@ public class FingerFSM {
         fingerServoWrapper = new FingerServoWrapper(hwMap);
         this.logger = logger;
         fingerCurrentAngle = fingerServoWrapper.readAngle();
-        timer =  new Timing.Timer(100, TimeUnit.MILLISECONDS);
+        timer =  new Timing.Timer(10, TimeUnit.MILLISECONDS);
         state = FingerStates.RELEASING;
     }
     @VisibleForTesting

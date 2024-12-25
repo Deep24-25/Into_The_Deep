@@ -59,12 +59,12 @@ public class MonkeyPawFSM {
     private Timing.Timer timer;
 
 
-    public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
+    public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, ElbowFSM elbowFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM) {
         this.logger = logger;
         fingerFSM = new FingerFSM(hwMap, logger);
-        deviatorFSM = new DeviatorFSM(hwMap, logger);
-        elbowFSM = new ElbowFSM(hwMap, logger, limbFSM.getShoulderFSM());
-        wristFSM = new WristFSM(hwMap, logger, elbowFSM);
+        this.deviatorFSM = deviatorFSM;
+        this.elbowFSM = elbowFSM;
+        this.wristFSM = wristFSM;
         this.limbFSM = limbFSM;
         timer = new Timing.Timer(2000, TimeUnit.MILLISECONDS);
         state = States.START;
@@ -276,7 +276,7 @@ public class MonkeyPawFSM {
     }
 
     public void findTargetState(boolean rbPressed2, boolean dpadUpPressed, boolean yPressed, boolean dpadDownPressed, boolean dpadRightPressed, boolean aPressed1) {
-        if ((limbFSM.PREPARED_TO_INTAKE()) && (!PREPARED_TO_INTAKE_SAMPLE() && !RELAXING_WITH_SAMPLE() && !RELAXED_POS_WITH_SAMPLE() && !RETRACTING_INTAKE())) {
+        if ((limbFSM.PREPARED_TO_INTAKE() || limbFSM.PREPARING_TO_INTAKE()) && (!PREPARED_TO_INTAKE_SAMPLE() && !RELAXING_WITH_SAMPLE() && !RELAXED_POS_WITH_SAMPLE() && !RETRACTING_INTAKE())) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         } else if (limbFSM.MOVED_TO_INTAKE_POS() && (PREPARED_TO_INTAKE_SAMPLE() || INTAKING_SAMPLE())) {
             state = States.INTAKING_SAMPLE;

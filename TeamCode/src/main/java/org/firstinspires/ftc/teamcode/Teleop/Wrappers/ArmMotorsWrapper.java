@@ -49,18 +49,17 @@ public class ArmMotorsWrapper {
         return lastReadPositionInCM;
     }
 
-    public double getCurrentVelocity() {
-        double currentVelocity = armMoterOne.getCorrectedVelocity();
-        double diameterOfSpool = 0;
-        //   double ratio = (0 / 0) * (0 / 0);
-        return (currentVelocity / (SLIDES_CPR)) * Math.PI * diameterOfSpool;
-    }
-
     /**
      * Description: This method returns the value that was last read from the slides (Not to most current value).
      * Parameters: None
      */
     public double getLastReadPositionInCM() {
         return lastReadPositionInCM;
+    }
+    public void resetEncoder(){
+        armMoterOne.resetEncoder();
+    }
+    public double currentVelocity(){
+        return armMoterOne.getCorrectedVelocity();
     }
 }

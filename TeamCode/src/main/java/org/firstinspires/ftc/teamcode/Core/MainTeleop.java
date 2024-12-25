@@ -10,7 +10,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.DeviatorFSM;
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
+import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 
 @TeleOp
 public class MainTeleop extends LinearOpMode {
@@ -22,6 +25,10 @@ public class MainTeleop extends LinearOpMode {
     private ShoulderFSM shoulderFSM;
     private ArmFSM armFSM;
     private MonkeyPawFSM monkeyPawFSM;
+
+    private ElbowFSM elbowFSM;
+    private WristFSM wristFSM;
+    private DeviatorFSM deviatorFSM;
     private FieldCentricDrive fieldCentricDrive;
     private boolean leftTriggerWasJustPressed;
     private boolean rightTriggerWasJustPressed;
@@ -46,6 +53,7 @@ public class MainTeleop extends LinearOpMode {
     private int counter = 0;
     private double rightX;
 
+
     @Override
     public void runOpMode() throws InterruptedException {
         try {
@@ -55,10 +63,14 @@ public class MainTeleop extends LinearOpMode {
             hwMap = new HWMap(hardwareMap);
             logger = new Logger(telemetry);
             shoulderFSM = new ShoulderFSM(hwMap, logger);
-            armFSM = new ArmFSM(hwMap, logger, shoulderFSM);
+            elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
+            armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM, limbFSM);
+            deviatorFSM = new DeviatorFSM(hwMap, logger);
+            wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(shoulderFSM, armFSM, monkeyPawFSM, logger);
-            monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM);
+            monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM);
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
+            armFSM.setLimbFSM(limbFSM);
             fieldCentricDrive = new FieldCentricDrive(hwMap);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
@@ -79,7 +91,7 @@ public class MainTeleop extends LinearOpMode {
                 } else {
                     rightX = gamePad1.getRightX();
                 }
-            }else{
+            } else {
                 rightX = gamePad1.getRightX();
             }
             fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
@@ -87,9 +99,7 @@ public class MainTeleop extends LinearOpMode {
 
             limbFSM.updateState(yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 
-            counter++;
-            logger.log("number of loops",counter, Logger.LogLevels.PRODUCTION);
-            logger.print();
+
 
             updatePID();
             monkeyPawFSM.updatePID();

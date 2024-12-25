@@ -99,7 +99,7 @@ public class ElbowFSM {
 
 
     public static  double RELAXED_POS = 75;
-    public static  double SAMPLE_INTAKE_READY_POS = 135; //140.47-118.736
+    public static  double SAMPLE_INTAKE_READY_POS = 140 ; //140.47-118.736
     public static double SAMPLE_INTAKE_CAPTURE_POS = 155;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;

@@ -19,7 +19,7 @@ public class AxonServoWrapper {
             sign = -1;
         }
         if (inverseEncoder) {
-            inverseEncoderOffset = 355;
+            inverseEncoderOffset = 360;
         }
 
         this.encoderOffset = encoderOffset;
@@ -34,7 +34,7 @@ public class AxonServoWrapper {
     }
 */
     public void set(double pos) {
-        axon.setPosition((pos) / 355.0);
+        axon.setPosition((pos) / 360.0);
     }
 
     public double readPos() {
