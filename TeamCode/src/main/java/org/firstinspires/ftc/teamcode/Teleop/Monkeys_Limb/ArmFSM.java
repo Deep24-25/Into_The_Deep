@@ -81,7 +81,7 @@ public class ArmFSM {
     private double rightY = 0;
     private double currentFeedrate = 0;
 
-    private boolean linearizing = false;
+    private boolean shouldPID = true;
     private double lastLastReadPos = 0;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, LimbFSM limbFSM) {
@@ -119,14 +119,11 @@ public class ArmFSM {
             if (isTargetPosAtFullyRetractedHeight()) {
                 setHorizontalPID();
                 setTolerance(TOLERANCE);
-                linearizing = false;
             } else if (limbFSM.LINEARIZING_INTAKE()) {
                 setLinearizingPID();
                 linearizeIntakePos();
-                targetPosition = feedPos - SAMPLE_PICKUP_LINEARIZATION_OFFSET;
-                linearizing = true;
+                targetPosition = feedPos - 0;
             } else {
-                linearizing = false;
                 setFeedPID();
                 setTolerance(TOLERANCE);
 
@@ -228,11 +225,15 @@ public class ArmFSM {
     }
 
     public void updatePIDF() {
-        armMotorsWrapper.readPositionInCM();
-        measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
-        power = pidfController.calculate(measuredPosition, targetPosition);
-        power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
-        armMotorsWrapper.set(power);
+        if (shouldPID) {
+            armMotorsWrapper.readPositionInCM();
+            measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
+            power = pidfController.calculate(measuredPosition, targetPosition);
+            power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
+            armMotorsWrapper.set(power);
+        }
+
+
     }
 
 
@@ -394,8 +395,17 @@ public class ArmFSM {
         return feedPos;
     }
 
-    public boolean atSP() {
-        return pidfController.atSetPoint();
+    public void resetArm(boolean dPadUpIsDown, boolean dpadUpIsReleased) {
+        if (dPadUpIsDown) {
+            shouldPID = false;
+            armMotorsWrapper.set(-0.1);
+        }
+        if (dpadUpIsReleased) {
+            armMotorsWrapper.resetEncoder();
+            shouldPID = true;
+            targetPosition = FULLY_RETRACTED;
+        }
+
     }
 
     public void log() {
@@ -441,7 +451,6 @@ public class ArmFSM {
     public double getMaxHeight() {
         return MAX_HEIGHT;
     }
-
 
 
 }
