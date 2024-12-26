@@ -38,7 +38,7 @@ public class ArmFSM {
 
     private static double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final int MAX_HEIGHT = 40;//102 cm is physical max
+    private static final int MAX_HEIGHT = 60;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
 
     private double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 0; // 2.1734 cm
@@ -429,4 +429,19 @@ public class ArmFSM {
             slidePowerCap = 0.4;
         else slidePowerCap = 1.0;
     }
+
+    public double getCurrentHeight() {
+        return armMotorsWrapper.getLastReadPositionInCM();
+    }
+
+    public double getFullyRetracted() {
+        return FULLY_RETRACTED;
+    }
+
+    public double getMaxHeight() {
+        return MAX_HEIGHT;
+    }
+
+
+
 }

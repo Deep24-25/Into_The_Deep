@@ -7,7 +7,9 @@ import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
+import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 
 @Config
@@ -100,8 +102,11 @@ public class ElbowFSM {
 
     public static  double RELAXED_POS = 75;
     public static  double SAMPLE_INTAKE_READY_POS = 140 ; //140.47-118.736
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 155;
-    public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_INTAKE_READY_POS;
+    public static double HOVERING_LOWER_LIMIT = 140.5;
+    public static double HOVERING_UPPER_LIMIT = 145;
+    public static double HOVERING_ANGLE = HOVERING_LOWER_LIMIT;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 158;
+    public static double SAMPLE_INTAKE_CONTROL_POS = 120;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
@@ -115,10 +120,12 @@ public class ElbowFSM {
     public static double CHAMBER_RELAX_POS = 0;
 
     private AxonServoWrapper elbowServoWrapper;
+    private ArmFSM armFSM;
     /*private PIDController pidController;
 */
     private ElbowStates state;
     private Logger logger;
+
 
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
@@ -126,6 +133,8 @@ public class ElbowFSM {
     public static double ENCODER_OFFSET = -15;
 
     public static double CAPTURE_OFFSET = 27;
+
+    public static double HOVER_TUNER = 30;
 
     public ShoulderFSM shoulderFSM;
 
@@ -333,6 +342,15 @@ public class ElbowFSM {
     }
 */
 
+
+
+
+    public void flexToSampleHoveringPos() {
+        double slope = ((HOVERING_LOWER_LIMIT- HOVERING_UPPER_LIMIT)/HOVER_TUNER);
+        HOVERING_ANGLE = (slope * armFSM.getCurrentHeight()) + HOVERING_UPPER_LIMIT;
+        targetAngle = HOVERING_ANGLE;
+        sampleControl = false;
+    }
 
     public void flexToSampleIntakeReadyPos() {
         targetAngle = SAMPLE_INTAKE_READY_POS;
@@ -552,6 +570,10 @@ public class ElbowFSM {
         logger.log("Elbow Current Position",elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
 
+    }
+
+    public void setArmFSM(ArmFSM armFSM) {
+        this.armFSM = armFSM;
     }
 
 

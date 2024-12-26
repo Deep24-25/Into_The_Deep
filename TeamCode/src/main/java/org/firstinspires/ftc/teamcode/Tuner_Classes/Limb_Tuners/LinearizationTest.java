@@ -18,8 +18,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 @Config
 public class LinearizationTest extends LinearOpMode {
     private ArmMotorsWrapper armMotorsWrapper;
-
-    public static double PLinearizing = 0.05, ILinearizing = 0.05, DLinearizing = 0, FLinearizing = 0;
+    public static double PLinearizing = 0.12, ILinearizing = 0.1, DLinearizing = 0.004, FLinearizing = 0;
     private PIDFController pidfController;
 
 

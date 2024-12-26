@@ -284,6 +284,8 @@ public class LimbFSM {
                     if (armFSM.FULLY_RETRACTED()) {
                         shoulderFSM.moveToIntakeAngle();
                         if (shoulderFSM.AT_INTAKE()) {
+                            if(shoulderFSM.isShoulderPosNegative())
+                                shoulderFSM.resetEncoder();
                             armFSM.capSetPower(false);
                             if ((monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE())) {
                                 states = States.PREPARED_TO_INTAKE;

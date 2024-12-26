@@ -57,6 +57,7 @@ public class MonkeyPawFSM {
     private Logger logger;
     private States state;
     private Timing.Timer timer;
+    public static long TIMER_LENGTH = 500;
 
 
     public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, ElbowFSM elbowFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM) {
@@ -66,7 +67,7 @@ public class MonkeyPawFSM {
         this.elbowFSM = elbowFSM;
         this.wristFSM = wristFSM;
         this.limbFSM = limbFSM;
-        timer = new Timing.Timer(2000, TimeUnit.MILLISECONDS);
+        timer = new Timing.Timer(TIMER_LENGTH, TimeUnit.MILLISECONDS);
         state = States.START;
     }
 
@@ -146,6 +147,9 @@ public class MonkeyPawFSM {
                     deviatorFSM.relax();
                 } else if (yPressed2) {
                     deviatorFSM.vertical();
+                }
+                if(limbFSM.MOVING_TO_INTAKE_POS() || limbFSM.MOVED_TO_INTAKE_POS()) {
+                    elbowFSM.flexToSampleHoveringPos();
                 }
                 break;
             case INTAKING_SAMPLE:

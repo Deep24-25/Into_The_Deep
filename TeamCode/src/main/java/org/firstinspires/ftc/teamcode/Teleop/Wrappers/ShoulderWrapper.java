@@ -36,4 +36,7 @@ public class ShoulderWrapper {
     public double getLastReadAngle() {
         return lastReadAngle;
     }
+    public void resetEncoder(){
+        shoulderMotor.resetEncoder();
+    }
 }

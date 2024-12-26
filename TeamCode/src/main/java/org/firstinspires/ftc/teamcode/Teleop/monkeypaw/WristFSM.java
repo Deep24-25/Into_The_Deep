@@ -56,7 +56,7 @@ public class WristFSM {
     public static double D = 0;*/
 
     public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 270;
+    public static double SAMPLE_FLEXED_POS = 280;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;

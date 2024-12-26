@@ -4,10 +4,13 @@ import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.util.Timing;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ShoulderWrapper;
+
+import java.util.concurrent.TimeUnit;
 
 @Config
 public class ShoulderFSM {
@@ -24,7 +27,7 @@ public class ShoulderFSM {
 
 
     public static double P_R = 0.07;
-    public static double I_R = 0.04 ;
+    public static double I_R = 0.04;
     public static double D_R = 0.07;
     public static double F_R = 0.02;
 
@@ -50,14 +53,18 @@ public class ShoulderFSM {
 
     private double lastPIDAngle = 0;
     private double power;
-    private static final double TOLERANCE = 7.5;
+    private static double TOLERANCE = 7.5;
+    private Timing.Timer resetTimer;
 
     private Logger logger;
+    private boolean timerStarted = false;
+    private int resetted = 0;
 
     public ShoulderFSM(HWMap hwMap, Logger logger) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
         shoulderWrapper = new ShoulderWrapper(hwMap);
         this.logger = logger;
+        resetTimer = new Timing.Timer(500, TimeUnit.MILLISECONDS);
     }
 
     @VisibleForTesting
@@ -100,7 +107,7 @@ public class ShoulderFSM {
         return targetAngle == SPECIMEN_INTAKE_ANGLE;
     }
 
-    public boolean isShoulderTargetPosDepositChamberAngle(){
+    public boolean isShoulderTargetPosDepositChamberAngle() {
         return targetAngle == chamberAngles[0] || targetAngle == chamberAngles[1];
     }
 
@@ -149,6 +156,7 @@ public class ShoulderFSM {
         setExtendPIDF();
         targetAngle = basketAngles[basketIndex];
     }
+
     public void moveToIntakeAngle() {
         targetAngle = SAMPLE_INTAKE_ANGLE;
     }
@@ -216,12 +224,9 @@ public class ShoulderFSM {
     }
 
 
-
-
     public void moveToSpecimenIntakeAngle() {
         targetAngle = SPECIMEN_INTAKE_ANGLE;
     }
-
 
 
     protected double angleDelta(double measuredAngle, double targetAngle) {
@@ -240,16 +245,38 @@ public class ShoulderFSM {
         return TOLERANCE;
     }
 
-    public void setExtendPIDF(){
-        pidfController.setPIDF(P_E,I_E,D_E,F_E);
+    public void setExtendPIDF() {
+        pidfController.setPIDF(P_E, I_E, D_E, F_E);
     }
 
-    public void setRetractPIDF(){
-        pidfController.setPIDF(P_R,I_R,D_R,F_R);
+    public void setRetractPIDF() {
+        pidfController.setPIDF(P_R, I_R, D_R, F_R);
     }
 
-    public  double getShoulderCurrentAngle() {
+    public double getShoulderCurrentAngle() {
         return shoulderWrapper.getLastReadAngle();
+    }
+
+    public void resetEncoder() {
+        targetAngle = -5;
+        if(!timerStarted){
+            resetTimer.start();
+            timerStarted = false;
+        }
+
+        pidfController.setTolerance(3);
+        if (resetTimer.done()) {
+            resetted = 1;
+            shoulderWrapper.resetEncoder();
+            timerStarted = false;
+        }
+
+        pidfController.setTolerance(TOLERANCE);
+        targetAngle = 0;
+    }
+
+    public boolean isShoulderPosNegative() {
+        return shoulderWrapper.getLastReadAngle() < -0.5;
     }
 
     public void log() {
@@ -258,9 +285,12 @@ public class ShoulderFSM {
         logger.log("Shoulder Current Angle: ", shoulderWrapper.getLastReadAngle(), Logger.LogLevels.PRODUCTION);
         logger.log("Shoulder target Angle: ", targetAngle, Logger.LogLevels.PRODUCTION);
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.PRODUCTION);
+        logger.log("resetted: ", resetted, Logger.LogLevels.PRODUCTION);
 
         logger.log("-------------------------SHOULDER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
+
+
 
 }

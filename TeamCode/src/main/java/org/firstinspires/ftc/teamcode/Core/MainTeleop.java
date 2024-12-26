@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Core;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.DeviatorFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
-
+@Config
 @TeleOp
 public class MainTeleop extends LinearOpMode {
     private GamepadEx gamePad1;
@@ -49,7 +50,7 @@ public class MainTeleop extends LinearOpMode {
     private boolean prevBPressed;
     private boolean prevLeftBumperPressed;
     private boolean prevRightBumperPressed;
-    private static final double MULTIPLIER = 0.6;
+    public static double MULTIPLIER = 0.6;
     private int counter = 0;
     private double rightX;
 
@@ -72,6 +73,7 @@ public class MainTeleop extends LinearOpMode {
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             armFSM.setLimbFSM(limbFSM);
             fieldCentricDrive = new FieldCentricDrive(hwMap);
+            elbowFSM.setArmFSM(armFSM);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
             telemetry.update();
