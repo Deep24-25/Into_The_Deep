@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 
 @Config
-@TeleOp
+@TeleOp(name = "Main Tele-op V1.2.0")
 public class MainTeleop extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;
@@ -98,7 +98,7 @@ public class MainTeleop extends LinearOpMode {
                 rightX = gamePad1.getRightX();
             }
             fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
-            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.A), gamePad1.wasJustPressed(GamepadKeys.Button.Y));
+            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.A), gamePad1.wasJustPressed(GamepadKeys.Button.Y), xWasJustPressed);
 
             limbFSM.updateState(gamePad1.isDown(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_DOWN), gamePad1.isDown(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_UP),yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 

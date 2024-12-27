@@ -11,13 +11,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class DeviatorServoTest extends LinearOpMode {
     Servo deviatorServo;
     AnalogInput elbowEncoder;
-    public static double targetAngle = 0.5;
+    public static double targetAngle = 180;
+
     @Override
     public void runOpMode() throws InterruptedException {
         deviatorServo = hardwareMap.get(Servo.class, "WDS");
         waitForStart();
         while (opModeIsActive()) {
-            deviatorServo.setPosition(targetAngle);
+            deviatorServo.setPosition(targetAngle / 360.0);
             telemetry.addData("Current angle", deviatorServo.getPosition() * 355);
             telemetry.update();
         }
