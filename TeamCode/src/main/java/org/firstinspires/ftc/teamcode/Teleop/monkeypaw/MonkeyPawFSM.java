@@ -82,12 +82,12 @@ public class MonkeyPawFSM {
     }
 
 
-    public void updateState(boolean rbPressed2, boolean rightTrigger, boolean leftTrigger, boolean dePadRightPressed, boolean aPressed1, boolean yPressed) {
+    public void updateState(boolean rbPressed2, boolean rightTrigger, boolean leftTrigger, boolean dePadRightPressed, boolean aPressed1, boolean yPressed, boolean xPressed) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
-        findTargetState(rbPressed2, dePadRightPressed, aPressed1);
+        findTargetState(rbPressed2, dePadRightPressed, aPressed1, xPressed);
         switch (state) {
             // INTAKE STATES
             case START:
@@ -124,12 +124,7 @@ public class MonkeyPawFSM {
                         deviatorFSM.relax();
                     }
                 } else if (leftTrigger) {
-                    if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.RIGHT_DEVIATING()) {
-                        deviatorFSM.deviateLeft();
-                    }
-                    else {
-                        deviatorFSM.deviateRight();
-                    }
+                        deviatorFSM.indexIncrement();
                 }
 
                 if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS()) {
@@ -153,12 +148,7 @@ public class MonkeyPawFSM {
                         deviatorFSM.relax();
                     }
                 } else if (leftTrigger) {
-                    if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.RIGHT_DEVIATING()) {
-                        deviatorFSM.deviateLeft();
-                    }
-                    else {
-                        deviatorFSM.deviateRight();
-                    }
+                    deviatorFSM.indexIncrement();
                 }
                 if(limbFSM.MOVING_TO_INTAKE_POS() || limbFSM.MOVED_TO_INTAKE_POS()) {
                     elbowFSM.flexToSampleHoveringPos();
@@ -166,19 +156,14 @@ public class MonkeyPawFSM {
                 break;
             case INTAKING_SAMPLE:
                 if (rightTrigger) {
-                    if (deviatorFSM.RELAXED() || deviatorFSM.RELAXING()) {
-                        deviatorFSM.vertical();
-                    }
-                    else {
+                    if (deviatorFSM.indexCloserToRelaxation()) {
                         deviatorFSM.relax();
                     }
-                } else if (leftTrigger) {
-                    if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.RIGHT_DEVIATING()) {
-                        deviatorFSM.deviateLeft();
-                    }
                     else {
-                        deviatorFSM.deviateRight();
+                        deviatorFSM.vertical();
                     }
+                } else if (leftTrigger) {
+                    deviatorFSM.indexIncrement();
                 }
                 wristFSM.setSampleCapture(true);
                 elbowFSM.flexToSampleIntakeCapturePos();
@@ -278,12 +263,7 @@ public class MonkeyPawFSM {
                         deviatorFSM.relax();
                     }
                 } else if (leftTrigger) {
-                    if(deviatorFSM.RIGHT_DEVIATED() || deviatorFSM.RIGHT_DEVIATING()) {
-                        deviatorFSM.deviateLeft();
-                    }
-                    else {
-                        deviatorFSM.deviateRight();
-                    }
+                        deviatorFSM.indexIncrement();
                 }
                 break;
             case RELAXING_MINI_INTAKE:
@@ -305,7 +285,7 @@ public class MonkeyPawFSM {
 
     }
 
-    public void findTargetState(boolean rbPressed2, boolean dpadRightPressed, boolean aPressed1) {
+    public void findTargetState(boolean rbPressed2, boolean dpadRightPressed, boolean aPressed1, boolean xPressed) {
         if ((limbFSM.PREPARED_TO_INTAKE() || limbFSM.PREPARING_TO_INTAKE()) && (!PREPARED_TO_INTAKE_SAMPLE() && !RELAXING_WITH_SAMPLE() && !RELAXED_POS_WITH_SAMPLE() && !RETRACTING_INTAKE())) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         } else if (limbFSM.MOVED_TO_INTAKE_POS() && (PREPARED_TO_INTAKE_SAMPLE() || INTAKING_SAMPLE())) {
@@ -340,6 +320,9 @@ public class MonkeyPawFSM {
             state = States.MINI_INTAKING;
         } else if (limbFSM.RETRACTING_FROM_MINI_INTAKE() && MINI_INTAKED()) {
             state = States.RELAXING_MINI_INTAKE;
+        }
+        if(xPressed && RELAXED_POS_WITH_SAMPLE()) {
+            state = States.PREPARING_TO_INTAKE_SAMPLE;
         }
 
     }
