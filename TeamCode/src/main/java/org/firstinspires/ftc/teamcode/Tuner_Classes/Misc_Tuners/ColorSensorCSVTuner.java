@@ -1,21 +1,17 @@
-package org.firstinspires.ftc.teamcode.Tuner;
+package org.firstinspires.ftc.teamcode.Tuner_Classes.Misc_Tuners;
 
-import android.graphics.Color;
 import android.os.Environment;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.opencsv.CSVWriter;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
