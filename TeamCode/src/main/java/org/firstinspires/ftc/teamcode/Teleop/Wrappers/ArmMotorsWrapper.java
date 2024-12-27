@@ -62,4 +62,8 @@ public class ArmMotorsWrapper {
     public double currentVelocity(){
         return armMoterOne.getCorrectedVelocity();
     }
+
+    public double get() {
+        return armMoterOne.get();
+    }
 }

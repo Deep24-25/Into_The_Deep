@@ -24,6 +24,10 @@ public class ShoulderWrapper {
         shoulderMotor.set(power);
     }
 
+    public double get() {
+        return shoulderMotor.get();
+    }
+
     public double readAngle() {
         double currentPositionInTicks = shoulderMotor.getCurrentPosition();
         double ratio = 24.0 / 41.0;

@@ -49,7 +49,7 @@ public class ArmFSM {
     private int basketIndex = 1;
     private double prevTime = 0, currentTime = 0;
 
-    public static double MAX_FEEDRATE = 0.001; // cm/sec
+    public static double MAX_FEEDRATE = 0.8; // cm/sec
 
     private double feedPos = 0.0;
     public static double PHorizontal = 0.12, IHorizontal = 0.1, DHorizontal = 0.004, FHorizontal = 0;
@@ -384,27 +384,30 @@ public class ArmFSM {
         TOLERANCE = tolerance;
     }
 
-    public double feed() {
+    public void feed() {
         //35368.421 cpr of motor per one rotation
         shouldPID = false;
         currentTime = timer.elapsedTime();
         currentFeedrate = MAX_FEEDRATE * rightY;
-        feedPos += currentFeedrate * (currentTime / 1000.0);
-        feedPos = Math.max(Math.min(feedPos, 1), 0);
+
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
-        if (!(targetPosition > 60) && !(targetPosition < 0))
-            armMotorsWrapper.set(feedPos);
-        else
-            armMotorsWrapper.set(0);
 
+        if (targetPosition <= 60 && targetPosition >= 0) {
+            currentFeedrate = Math.max(Math.min(currentFeedrate, 1), -1);
+        } else if (targetPosition >= 60) {
+            currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
+        } else {
+            currentFeedrate = Math.max(currentFeedrate, 0);
+        }
 
-        return feedPos;
+        armMotorsWrapper.set(currentFeedrate);
+
     }
 
     public void resetArm(boolean dPadUpIsDown, boolean dpadUpIsReleased) {
         if (dPadUpIsDown) {
             shouldPID = false;
-            armMotorsWrapper.set(-0.1);
+            armMotorsWrapper.set(-0.4);
         }
         if (dpadUpIsReleased) {
             armMotorsWrapper.resetEncoder();
@@ -424,6 +427,7 @@ public class ArmFSM {
         logger.log("Current feedrate: ", currentFeedrate, Logger.LogLevels.PRODUCTION);
         logger.log("Linearization offset", SAMPLE_PICKUP_LINEARIZATION_OFFSET, Logger.LogLevels.PRODUCTION);
         logger.log("power cap", slidePowerCap, Logger.LogLevels.PRODUCTION);
+        logger.log("Current power", armMotorsWrapper.get(), Logger.LogLevels.PRODUCTION);
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }

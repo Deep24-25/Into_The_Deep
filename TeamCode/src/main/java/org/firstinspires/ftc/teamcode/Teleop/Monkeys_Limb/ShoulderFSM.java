@@ -60,6 +60,9 @@ public class ShoulderFSM {
     private boolean timerStarted = false;
     private int resetted = 0;
 
+    private boolean shouldPID = true;
+    private boolean pressedAlr = false;
+
     public ShoulderFSM(HWMap hwMap, Logger logger) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
         shoulderWrapper = new ShoulderWrapper(hwMap);
@@ -201,25 +204,28 @@ public class ShoulderFSM {
     public void updatePID() { // This method is used to update position every loop.
         shoulderWrapper.readAngle();
 
-        if (targetAngle >= 100)
-            targetAngle = 100;
+        if (shouldPID) {
 
-        if (lastPIDAngle != targetAngle) {
-            pidfController.reset();
+            if (targetAngle >= 100)
+                targetAngle = 100;
+
+            if (lastPIDAngle != targetAngle) {
+                pidfController.reset();
+            }
+            lastPIDAngle = targetAngle;
+
+            measuredAngle = shoulderWrapper.readAngle();
+
+            //This is the error between measured and target position.
+            double delta = angleDelta(measuredAngle, targetAngle);
+            double sign = angleDeltaSign(measuredAngle, targetAngle);
+            // The error * sign (which is direction)
+            double error = delta * sign;
+
+            // We use zero because we already calculate for error
+            power = pidfController.calculate(0, error);
+            shoulderWrapper.set(power);
         }
-        lastPIDAngle = targetAngle;
-
-        measuredAngle = shoulderWrapper.readAngle();
-
-        //This is the error between measured and target position.
-        double delta = angleDelta(measuredAngle, targetAngle);
-        double sign = angleDeltaSign(measuredAngle, targetAngle);
-        // The error * sign (which is direction)
-        double error = delta * sign;
-
-        // We use zero because we already calculate for error
-        power = pidfController.calculate(0, error);
-        shoulderWrapper.set(power);
 
     }
 
@@ -259,7 +265,7 @@ public class ShoulderFSM {
 
     public void resetEncoder() {
         targetAngle = -5;
-        if(!timerStarted){
+        if (!timerStarted) {
             resetTimer.start();
             timerStarted = false;
         }
@@ -279,8 +285,21 @@ public class ShoulderFSM {
         return shoulderWrapper.getLastReadAngle() < -0.5;
     }
 
+    public void restShoulder(boolean dPadDownPressed, boolean dPadDownReleased) {
+        if (dPadDownPressed) {
+            shouldPID = false;
+            shoulderWrapper.set(-0.1);
+        }
+        if (dPadDownReleased) {
+            shoulderWrapper.resetEncoder();
+            shouldPID = true;
+        }
+
+    }
+
     public void log() {
         logger.log("-------------------------SHOULDER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
+        logger.log("Shoulder power", shoulderWrapper.get(), Logger.LogLevels.PRODUCTION);
         logger.log("Shoulder State:", currentState, Logger.LogLevels.PRODUCTION);
         logger.log("Shoulder Current Angle: ", shoulderWrapper.getLastReadAngle(), Logger.LogLevels.PRODUCTION);
         logger.log("Shoulder target Angle: ", targetAngle, Logger.LogLevels.PRODUCTION);
@@ -290,7 +309,6 @@ public class ShoulderFSM {
         logger.log("-------------------------SHOULDER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
-
 
 
 }

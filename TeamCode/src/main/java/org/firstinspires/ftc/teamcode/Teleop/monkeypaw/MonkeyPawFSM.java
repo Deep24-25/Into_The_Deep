@@ -82,12 +82,12 @@ public class MonkeyPawFSM {
     }
 
 
-    public void updateState(boolean rbPressed2, boolean rightTrigger, boolean leftTrigger, boolean dPadUpPressed, boolean dPadDownPressed, boolean dePadRightPressed, boolean aPressed1, boolean yPressed) {
+    public void updateState(boolean rbPressed2, boolean rightTrigger, boolean leftTrigger, boolean dePadRightPressed, boolean aPressed1, boolean yPressed) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
-        findTargetState(rbPressed2, dPadUpPressed, dPadDownPressed, dePadRightPressed, aPressed1);
+        findTargetState(rbPressed2, dePadRightPressed, aPressed1);
         switch (state) {
             // INTAKE STATES
             case START:
@@ -201,7 +201,7 @@ public class MonkeyPawFSM {
             case RELAXING_WITH_SAMPLE:
                 elbowFSM.flexToSampleIntakeControlPos();
                 wristFSM.flexToSampleIntakeControlPos();
-                if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS() && deviatorFSM.RELAXED()) {
+                if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS()) {
                     state = States.RELAXED_POS_WITH_SAMPLE;
                 }
                 break;
@@ -209,7 +209,7 @@ public class MonkeyPawFSM {
                 wristFSM.flexToSampleIntakeRetractPos();
                 elbowFSM.flexToSampleIntakeRetractPos();
                 deviatorFSM.relax();
-                if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS()) {
+                if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() && deviatorFSM.RELAXED()) {
                     state = States.RETRACTED_INTAKE;
                 }
                 break;
@@ -305,7 +305,7 @@ public class MonkeyPawFSM {
 
     }
 
-    public void findTargetState(boolean rbPressed2, boolean dpadUpPressed, boolean dpadDownPressed, boolean dpadRightPressed, boolean aPressed1) {
+    public void findTargetState(boolean rbPressed2, boolean dpadRightPressed, boolean aPressed1) {
         if ((limbFSM.PREPARED_TO_INTAKE() || limbFSM.PREPARING_TO_INTAKE()) && (!PREPARED_TO_INTAKE_SAMPLE() && !RELAXING_WITH_SAMPLE() && !RELAXED_POS_WITH_SAMPLE() && !RETRACTING_INTAKE())) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         } else if (limbFSM.MOVED_TO_INTAKE_POS() && (PREPARED_TO_INTAKE_SAMPLE() || INTAKING_SAMPLE())) {
