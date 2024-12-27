@@ -298,14 +298,9 @@ public class LimbFSM {
             case MOVING_TO_INTAKE_POS:
                 armFSM.feed();
                 notBeenInMovingToIntake = false;
-                if (leftTriggerPressed) {
-                    armFSM.indexIncrement();
-                } else if (rightTriggerPressed) {
-                    armFSM.indexDecrement();
-                }
                 break;
             case LINEARIZING_INTAKE:
-                notBeenInMovingToIntake = true;
+                 armFSM.setShouldPID(true);
                 states = States.MOVED_TO_INTAKE_POS;
 
 

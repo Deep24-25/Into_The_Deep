@@ -49,7 +49,7 @@ public class ArmFSM {
     private int basketIndex = 1;
     private double prevTime = 0, currentTime = 0;
 
-    public static double MAX_FEEDRATE = 150.0; // cm/sec
+    public static double MAX_FEEDRATE = 0.001; // cm/sec
 
     private double feedPos = 0.0;
     public static double PHorizontal = 0.12, IHorizontal = 0.1, DHorizontal = 0.004, FHorizontal = 0;
@@ -225,8 +225,8 @@ public class ArmFSM {
     }
 
     public void updatePIDF() {
+        armMotorsWrapper.readPositionInCM();
         if (shouldPID) {
-            armMotorsWrapper.readPositionInCM();
             measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
             power = pidfController.calculate(measuredPosition, targetPosition);
             power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
@@ -385,12 +385,18 @@ public class ArmFSM {
     }
 
     public double feed() {
+        //35368.421 cpr of motor per one rotation
+        shouldPID = false;
         currentTime = timer.elapsedTime();
         currentFeedrate = MAX_FEEDRATE * rightY;
-        feedPos += currentFeedrate * (20.0 / 1000.0);
-        feedPos = Math.max(Math.min(feedPos, 60), FULLY_RETRACTED);
+        feedPos += currentFeedrate * (currentTime / 1000.0);
+        feedPos = Math.max(Math.min(feedPos, 1), 0);
+        targetPosition = armMotorsWrapper.getLastReadPositionInCM();
+        if (!(targetPosition > 60) && !(targetPosition < 0))
+            armMotorsWrapper.set(feedPos);
+        else
+            armMotorsWrapper.set(0);
 
-        targetPosition = feedPos;
 
         return feedPos;
     }
@@ -452,5 +458,8 @@ public class ArmFSM {
         return MAX_HEIGHT;
     }
 
+    public void setShouldPID(boolean setShouldPID) {
+        this.shouldPID = setShouldPID;
+    }
 
 }
