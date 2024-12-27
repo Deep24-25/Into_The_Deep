@@ -315,11 +315,8 @@ public class MonkeyPawFSM {
             state = States.DEPOSITING_SPECIMEN;
         }
         //}*/
-
-        else if (limbFSM.MOVED_TO_MINI_INTAKE() && !MINI_INTAKED()) {
-            state = States.MINI_INTAKING;
-        } else if (limbFSM.RETRACTING_FROM_MINI_INTAKE() && MINI_INTAKED()) {
-            state = States.RELAXING_MINI_INTAKE;
+        if(xPressed && RELAXED_POS_WITH_SAMPLE()) {
+            state = States.PREPARING_TO_INTAKE_SAMPLE;
         }
         if(xPressed && RELAXED_POS_WITH_SAMPLE()) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
