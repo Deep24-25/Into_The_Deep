@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class LimbFSM {
     public enum States {
-        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, MOVING_TO_MINI_INTAKE, MOVED_TO_MINI_INTAKE, RETRACTING_FROM_MINI_INTAKE, RETRACTED_FROM_MINI_INTAKE, RETRACTING_INTAKE, RETRACTED_INTAKE
+        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SPECIMEN, PREPARED_TO_DEPOSIT_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE
     }
 
     public enum Mode {
@@ -95,7 +95,7 @@ public class LimbFSM {
             }
         } else*/
         if (yPressed && SAMPLE_MODE()) {
-            if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() && !EXTENDED_TO_BASKET_HEIGHT() && !EXTENDING_TO_BASKET_HEIGHT()) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
+            if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() && !EXTENDED_TO_BASKET_HEIGHT() && !EXTENDING_TO_BASKET_HEIGHT() && !MOVING_TO_INTAKE_POS() && !MOVED_TO_INTAKE_POS()) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
                 states = States.PREPARING_TO_DEPOSIT_SAMPLE;
             } else if (PREPARED_TO_DEPOSIT_SAMPLE()) {
                 states = States.EXTENDING_TO_BASKET_HEIGHT;
@@ -124,13 +124,6 @@ public class LimbFSM {
                 states = States.LINEARIZING_INTAKE;
             } else if (MOVED_TO_INTAKE_POS()) {
                 states = States.RETRACTING_INTAKE;
-            }
-        }
-        if (rightBumperPressed) {
-            if (PREPARED_TO_INTAKE()) {
-                states = States.MOVING_TO_MINI_INTAKE;
-            } else if (MOVED_TO_MINI_INTAKE() && monkeyPawFSM.MINI_INTAKED()) {
-                states = States.RETRACTING_FROM_MINI_INTAKE;
             }
         }
         if (leftBumperPressed) {
@@ -234,8 +227,6 @@ public class LimbFSM {
                     if (shoulderFSM.AT_BASKET_DEPOSIT()) {
                         states = States.PREPARED_TO_DEPOSIT_SAMPLE;
                     }
-                } else {
-                    armFSM.retract();
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
@@ -300,7 +291,7 @@ public class LimbFSM {
                 notBeenInMovingToIntake = false;
                 break;
             case LINEARIZING_INTAKE:
-                 armFSM.setShouldPID(true);
+                armFSM.setShouldPID(true);
                 states = States.MOVED_TO_INTAKE_POS;
 
 
@@ -324,23 +315,10 @@ public class LimbFSM {
                     }
                 }
                 break;
-            case MOVING_TO_MINI_INTAKE:
-                armFSM.moveToMiniIntake();
-                if (armFSM.AT_MINI_INTAKE()) {
-                    states = States.MOVED_TO_MINI_INTAKE;
-                }
-                break;
-            case RETRACTING_FROM_MINI_INTAKE:
-                if (monkeyPawFSM.RELAXED_MINI_INTAKE()) {
-                    armFSM.retract();
-                    if (armFSM.FULLY_RETRACTED()) {
-                        states = States.PREPARED_TO_INTAKE;
-                    }
-                }
-                break;
-        }
 
+        }
     }
+
 
     public void log() {
         logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
@@ -432,24 +410,9 @@ public class LimbFSM {
         return states == States.MOVED_TO_INTAKE_POS;
     }
 
-    public boolean MOVING_TO_MINI_INTAKE() {
-        return states == States.MOVING_TO_MINI_INTAKE;
-    }
-
-    public boolean MOVED_TO_MINI_INTAKE() {
-        return states == States.MOVED_TO_MINI_INTAKE;
-    }
 
     public boolean LINEARIZING_INTAKE() {
         return states == States.LINEARIZING_INTAKE;
-    }
-
-    public boolean RETRACTING_FROM_MINI_INTAKE() {
-        return states == States.RETRACTING_FROM_MINI_INTAKE;
-    }
-
-    public boolean RETRACTED_FROM_MINI_INTAKE() {
-        return states == States.RETRACTED_FROM_MINI_INTAKE;
     }
 
     public boolean RETRACTED_INTAKE() {
