@@ -95,7 +95,7 @@ public class LimbFSM {
             }
         } else*/
         if (yPressed && SAMPLE_MODE()) {
-            if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() && !EXTENDED_TO_BASKET_HEIGHT() && !EXTENDING_TO_BASKET_HEIGHT() && !MOVING_TO_INTAKE_POS() && !MOVED_TO_INTAKE_POS()) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
+            if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() && !EXTENDED_TO_BASKET_HEIGHT() && !EXTENDING_TO_BASKET_HEIGHT() && !MOVING_TO_INTAKE_POS() ) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
                 states = States.PREPARING_TO_DEPOSIT_SAMPLE;
             } else if (PREPARED_TO_DEPOSIT_SAMPLE()) {
                 states = States.EXTENDING_TO_BASKET_HEIGHT;

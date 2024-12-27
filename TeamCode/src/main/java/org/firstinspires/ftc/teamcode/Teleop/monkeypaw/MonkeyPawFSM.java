@@ -315,7 +315,7 @@ public class MonkeyPawFSM {
             state = States.DEPOSITING_SPECIMEN;
         }
         //}*/
-        if(xPressed && RELAXED_POS_WITH_SAMPLE()) {
+        if(xPressed && (RELAXED_POS_WITH_SAMPLE() || PREPARED_TO_INTAKE_SAMPLE())) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         }
 
