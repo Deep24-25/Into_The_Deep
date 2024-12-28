@@ -261,12 +261,18 @@ public class ArmFSM {
         currentFeedrate = MAX_FEEDRATE * rightY;
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
 
-        if (targetPosition <= 60 && targetPosition >= 0) {
+        if (targetPosition <= MAX_HEIGHT && targetPosition >= 0) {
             currentFeedrate = Math.max(Math.min(currentFeedrate, 1), -1);
-        } else if (targetPosition >= 60) {
+        } else if (targetPosition >= MAX_HEIGHT) {
             currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
         } else {
             currentFeedrate = Math.max(currentFeedrate, 0);
+        }
+
+        if (currentFeedrate < 0 && targetPosition < 10) {
+            currentFeedrate = -(0.1 * targetPosition);
+        } else if (currentFeedrate > 0 && targetPosition > (MAX_HEIGHT - 10)) {
+            currentFeedrate = (0.1 * (MAX_HEIGHT - 10));
         }
 
         armMotorsWrapper.set(currentFeedrate);
@@ -291,21 +297,24 @@ public class ArmFSM {
         logger.log("Arm State: ", currentState, Logger.LogLevels.PRODUCTION);
         logger.log("Arm Current Height: ", armMotorsWrapper.getLastReadPositionInCM(), Logger.LogLevels.PRODUCTION);
         logger.log("Arm Target Height: ", targetPosition, Logger.LogLevels.PRODUCTION);
-        logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.PRODUCTION);
+        logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("power cap", slidePowerCap, Logger.LogLevels.DEBUG);
         logger.log("Current power", armMotorsWrapper.get(), Logger.LogLevels.DEBUG);
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
 
-
-
-    public void capSetPower(boolean cap) {
-        if (cap)
-            slidePowerCap = 0.4;
-        else slidePowerCap = 1.0;
+    public void capSetPower() {
+        double currentPos = armMotorsWrapper.getLastReadPositionInCM();
+        if (targetPosition >= currentPos - 10) {
+            slidePowerCap = 0.1 * (currentPos - targetPosition);
+        } else
+            slidePowerCap = 1.0;
     }
 
+    public void uncapSetPower(){
+        slidePowerCap = 1.0;
+    }
     public double getCurrentHeight() {
         return armMotorsWrapper.getLastReadPositionInCM();
     }

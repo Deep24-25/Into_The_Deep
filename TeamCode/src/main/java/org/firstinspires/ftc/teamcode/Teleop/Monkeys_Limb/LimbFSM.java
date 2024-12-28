@@ -143,7 +143,6 @@ public class LimbFSM {
                 break;
             //INTAKING STATES
             case PREPARING_TO_INTAKE:
-                armFSM.capSetPower(false);
                 if (shoulderFSM.AT_INTAKE()) {
                     if (!armFSM.FULLY_RETRACTED()) {
                         if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE()) {
@@ -156,12 +155,11 @@ public class LimbFSM {
                         states = States.PREPARED_TO_INTAKE;
                     }
                 } else {
-                    armFSM.capSetPower(true);
+                    armFSM.capSetPower();
                     armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()) {
                         shoulderFSM.moveToIntakeAngle();
                         if (shoulderFSM.AT_INTAKE() || shoulderFSM.AT_SPECIMEN_INTAKE()) {
-                            armFSM.capSetPower(false);
                             if ((monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE())) {
                                 states = States.PREPARED_TO_INTAKE;
                             }
@@ -169,6 +167,8 @@ public class LimbFSM {
                     }
                 }
                 break;
+            case PREPARED_TO_INTAKE:
+                armFSM.uncapSetPower();
             case MOVING_TO_INTAKE_POS:
                 armFSM.feed();
                 break;
@@ -239,7 +239,6 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                armFSM.capSetPower(false);
                 shoulderFSM.setBasketTargetAngle();
                 armFSM.goToBasketHeight();
                 if (leftTriggerPressed) {

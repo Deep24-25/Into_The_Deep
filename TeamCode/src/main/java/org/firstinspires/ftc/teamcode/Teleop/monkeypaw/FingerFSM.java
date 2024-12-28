@@ -24,26 +24,31 @@ public class FingerFSM {
     private double fingerCurrentAngle;
 
 
-    public static  double SAMPLE_GRIPPED_POS = 300;
+    public static double SAMPLE_GRIPPED_POS = 300;
     public static double SPECIMEN_GRIPPED_POS = 5;
-    public static  double SAMPLE_RELEASED_POS = 0;
+    public static double SAMPLE_RELEASED_POS = 0;
     public static double SPECIMEN_RELEASED_POS = 280;
 
     private FingerServoWrapper fingerServoWrapper;
 
     private FingerStates state;
     private Logger logger;
-    private Timing.Timer timer;
+    private Timing.Timer specimenGrippingTimer;
+    private Timing.Timer otherTimer;
 
-    public static long TIMER = 2500;
+    public static long SPECIMEN_TIME_OFFSET = 2500;
+
+    public static long SAMPLE_TIME_OFFSET = 500;
 
     public FingerFSM(HWMap hwMap, Logger logger) {
         fingerServoWrapper = new FingerServoWrapper(hwMap);
         this.logger = logger;
         fingerCurrentAngle = fingerServoWrapper.readAngle();
-        timer =  new Timing.Timer(TIMER, TimeUnit.MILLISECONDS);
+        otherTimer = new Timing.Timer(SAMPLE_TIME_OFFSET, TimeUnit.MILLISECONDS);
+        specimenGrippingTimer = new Timing.Timer(SPECIMEN_TIME_OFFSET, TimeUnit.MILLISECONDS);
         state = FingerStates.RELEASING;
     }
+
     @VisibleForTesting
     public FingerFSM(FingerServoWrapper fingerServoWrapper, Logger logger) {
         this.fingerServoWrapper = fingerServoWrapper;
@@ -55,26 +60,38 @@ public class FingerFSM {
         fingerServoWrapper.readAngle();
         fingerServoWrapper.setAngle(targetAngle);
         if (isTargetAngleToGrip()) {
-            if(!(state == FingerStates.GRIPPED)) {
-                state = FingerStates.GRIPPING;
+            if (isTargetAngleSpecimenGrip()) {
+                if (!(state == FingerStates.GRIPPED)) {
+                    state = FingerStates.GRIPPING;
+                }
+                if (!specimenGrippingTimer.isTimerOn()) {
+                    specimenGrippingTimer.start();
+                }
+                if (specimenGrippingTimer.done()) {
+                    specimenGrippingTimer.pause();
+                    state = FingerStates.GRIPPED;
+                }
+            } else {
+                if (!(state == FingerStates.GRIPPED)) {
+                    state = FingerStates.GRIPPING;
+                }
+                if (!otherTimer.isTimerOn()) {
+                    otherTimer.start();
+                }
+                if (otherTimer.done()) {
+                    otherTimer.pause();
+                    state = FingerStates.GRIPPED;
+                }
             }
-            if(!timer.isTimerOn()) {
-                timer.start();
-            }
-            if(timer.done()) {
-                timer.pause();
-                state = FingerStates.GRIPPED;
-            }
-
         } else if (isTargetAngleToRelease()) {
-            if(!timer.isTimerOn()) {
-                timer.start();
+            if (!otherTimer.isTimerOn()) {
+                otherTimer.start();
             }
-            if(timer.done()) {
-                timer.pause();
+            if (otherTimer.done()) {
+                otherTimer.pause();
                 state = FingerStates.RELEASED;
             }
-            if(!(state == FingerStates.RELEASED)) {
+            if (!(state == FingerStates.RELEASED)) {
                 state = FingerStates.RELEASING;
             }
 
@@ -89,7 +106,11 @@ public class FingerFSM {
         return targetAngle == SAMPLE_GRIPPED_POS || targetAngle == SPECIMEN_GRIPPED_POS;
     }
 
-   // public void updatePID() { // This method is used to update position every loop.
+    public boolean isTargetAngleSpecimenGrip() {
+        return targetAngle == SPECIMEN_GRIPPED_POS;
+    }
+
+    // public void updatePID() { // This method is used to update position every loop.
        /* fingerServoWrapper.readAngle();
         double angleDelta = angleDelta(fingerServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
         double sign = angleDeltaSign(fingerServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
@@ -100,11 +121,11 @@ public class FingerFSM {
     //}
 
 
-
     public void gripSample() {
         targetAngle = SAMPLE_GRIPPED_POS;
         fingerServoWrapper.setAngle(targetAngle);
     }
+
     public void gripSpecimen() {
         targetAngle = SPECIMEN_GRIPPED_POS;
         fingerServoWrapper.setAngle(targetAngle);
@@ -115,6 +136,7 @@ public class FingerFSM {
         targetAngle = SAMPLE_RELEASED_POS;
         fingerServoWrapper.setAngle(targetAngle);
     }
+
     public void releaseSpecimen() {
         targetAngle = SPECIMEN_RELEASED_POS;
         fingerServoWrapper.setAngle(targetAngle);
@@ -164,16 +186,16 @@ public class FingerFSM {
     public double getGrippedPos() {
         return SAMPLE_GRIPPED_POS;
     }
+
     public double getReleasedPos() {
         return SAMPLE_RELEASED_POS;
     }
 
 
-
     public void log() {
         logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
-        logger.log("Finger State",state, Logger.LogLevels.PRODUCTION);
-        logger.log("Finger Target Pos",targetAngle, Logger.LogLevels.DEBUG);
+        logger.log("Finger State", state, Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Target Pos", targetAngle, Logger.LogLevels.DEBUG);
         logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
