@@ -131,9 +131,9 @@ public class WristFSM {
             }
         } else if (isTargetAngleToSpecimenIntakeRetractPos()) {
             if (atPos(TOLERANCE)) {
-                state = WristStates.SPECIMEN_INTAKE_RETRACTING;
-            } else {
                 state = WristStates.SPECIMEN_INTAKE_RETRACTED;
+            } else {
+                state = WristStates.SPECIMEN_INTAKE_RETRACTING;
             }
         } else if (isTargetAngleToHighChamberDepositFlexedPos()) {
             if (atPos(TOLERANCE)) {

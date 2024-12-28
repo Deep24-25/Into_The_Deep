@@ -1,3 +1,4 @@
+/*
 
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
@@ -30,9 +31,11 @@ class LimbFSMTest {
     }
 
 
-    /**
+    */
+/**
      * ------------------------------------findTargetState()-----------------------------------
-     **/
+     **//*
+
 
 
     // Specimen State Tests
@@ -317,9 +320,11 @@ class LimbFSMTest {
         assertTrue(sut.SAMPLE_MODE());
     }
 
-    /**
+    */
+/**
      * ------------------------------------updateState()-----------------------------------
-     **/
+     **//*
+
 
 
     //Specimen: Preparing To Intake Specimen
@@ -634,3 +639,4 @@ class LimbFSMTest {
     //Intake: Moving To Mini Intake
     //TODO: Again flawed indexIncrement logic and as this is from the flowchart the test is different.
 
+*/

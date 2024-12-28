@@ -43,6 +43,12 @@ public class ShoulderFSM {
     private boolean shouldPID = true;
     private LimbFSM limbFSM;
 
+    public ShoulderFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
+        this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
+        shoulderWrapper = new ShoulderWrapper(hwMap);
+        this.logger = logger;
+        this.limbFSM = limbFSM;
+    }
     public ShoulderFSM(HWMap hwMap, Logger logger) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
         shoulderWrapper = new ShoulderWrapper(hwMap);
@@ -65,9 +71,9 @@ public class ShoulderFSM {
                 currentState = States.AT_DEPOSIT_CHAMBERS;
             } else if (isShoulderTargetPosDepositBasketAngle()) {
                 currentState = States.AT_BASKET_DEPOSIT;
-            } else if (isShoulderTargetPosSpecimenIntakeAngle()) {
+            } else if (isShoulderTargetPosSpecimenIntakeAngle() && limbFSM.SPECIMEN_MODE()) {
                 currentState = States.AT_SPECIMEN_INTAKE;
-            } else if (isShoulderTargetPosSampleIntakeAngle()) {
+            } else if (isShoulderTargetPosSampleIntakeAngle() && limbFSM.SAMPLE_MODE()) {
                 currentState = States.AT_INTAKE;
             }
         } else {
