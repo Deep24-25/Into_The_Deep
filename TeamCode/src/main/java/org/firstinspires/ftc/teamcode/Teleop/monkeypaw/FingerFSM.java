@@ -25,9 +25,9 @@ public class FingerFSM {
 
 
     public static  double SAMPLE_GRIPPED_POS = 300;
-    public static double SPECIMEN_GRIPPED_POS = 50;
+    public static double SPECIMEN_GRIPPED_POS = 5;
     public static  double SAMPLE_RELEASED_POS = 0;
-    public static double SPECIMEN_RELEASED_POS = 140;
+    public static double SPECIMEN_RELEASED_POS = 280;
 
     private FingerServoWrapper fingerServoWrapper;
 
@@ -35,11 +35,13 @@ public class FingerFSM {
     private Logger logger;
     private Timing.Timer timer;
 
+    public static long TIMER = 2500;
+
     public FingerFSM(HWMap hwMap, Logger logger) {
         fingerServoWrapper = new FingerServoWrapper(hwMap);
         this.logger = logger;
         fingerCurrentAngle = fingerServoWrapper.readAngle();
-        timer =  new Timing.Timer(10, TimeUnit.MILLISECONDS);
+        timer =  new Timing.Timer(TIMER, TimeUnit.MILLISECONDS);
         state = FingerStates.RELEASING;
     }
     @VisibleForTesting
@@ -169,12 +171,10 @@ public class FingerFSM {
 
 
     public void log() {
+        logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Finger State",state, Logger.LogLevels.PRODUCTION);
-        logger.log("Finger Current Position",fingerServoWrapper.getPos(), Logger.LogLevels.PRODUCTION);
-        logger.log("Finger Current Angle",fingerServoWrapper.readAngle(), Logger.LogLevels.PRODUCTION);
-        logger.log("Finger Target Pos",targetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("At Target Pos", fingerServoWrapper.readAngle() == targetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("Finger Servo Timer", timer.elapsedTime(), Logger.LogLevels.PRODUCTION);
+        logger.log("Finger Target Pos",targetAngle, Logger.LogLevels.DEBUG);
+        logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
 

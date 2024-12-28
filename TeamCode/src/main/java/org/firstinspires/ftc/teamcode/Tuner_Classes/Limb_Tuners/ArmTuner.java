@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 

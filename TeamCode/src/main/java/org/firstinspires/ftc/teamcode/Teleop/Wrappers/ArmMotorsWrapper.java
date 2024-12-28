@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 
@@ -17,9 +18,9 @@ public class ArmMotorsWrapper {
         armMoterOne = hwMap.getArmMotorOne();
         armMoterTwo = hwMap.getArmMotorTwo();
         armMoterThree = hwMap.getArmMotorThree();
+
         armMoterOne.resetEncoder();
-        armMoterTwo.resetEncoder();
-        armMoterThree.resetEncoder();
+
         SLIDES_CPR = armMoterOne.getCPR();
     }
 

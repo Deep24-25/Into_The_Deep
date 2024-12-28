@@ -66,15 +66,13 @@ public class MainTeleop extends LinearOpMode {
             logger = new Logger(telemetry);
             shoulderFSM = new ShoulderFSM(hwMap, logger);
             elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
-            armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM, limbFSM);
+            armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM);
             deviatorFSM = new DeviatorFSM(hwMap, logger);
             wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM);
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
-            armFSM.setLimbFSM(limbFSM);
             fieldCentricDrive = new FieldCentricDrive(hwMap);
-            elbowFSM.setArmFSM(armFSM);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
             telemetry.update();
@@ -98,9 +96,8 @@ public class MainTeleop extends LinearOpMode {
                 rightX = gamePad1.getRightX();
             }
             fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
-            monkeyPawFSM.updateState(gamePad2.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER), rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.A), gamePad1.wasJustPressed(GamepadKeys.Button.Y), xWasJustPressed);
-
-            limbFSM.updateState(gamePad1.isDown(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_DOWN), gamePad1.isDown(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_UP),yWasJustPressed, aWasJustPressed, xWasJustPressed, rightBumperWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
+            monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.A));
+            limbFSM.updateState(gamePad1.isDown(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_DOWN), gamePad1.isDown(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_UP),yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 
 
 
@@ -119,22 +116,9 @@ public class MainTeleop extends LinearOpMode {
     }
 
     private void triggersWasJustPressed() {
-        yWasJustPressed = gamePad1.isDown(GamepadKeys.Button.Y) & !prevYPressed;
-        aWasJustPressed = gamePad1.isDown(GamepadKeys.Button.A) & !prevAPressed;
-        xWasJustPressed = gamePad1.isDown(GamepadKeys.Button.X) & !prevXPressed;
-        bWasJustPressed = gamePad1.isDown(GamepadKeys.Button.B) & !prevBPressed;
-        rightBumperWasJustPressed = gamePad1.isDown(GamepadKeys.Button.RIGHT_BUMPER) & !prevRightBumperPressed;
-        leftBumperWasJustPressed = gamePad1.isDown(GamepadKeys.Button.LEFT_BUMPER) & !prevLeftBumperPressed;
         leftTriggerWasJustPressed = gamePad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) == 1.0 & prevLeftTrigger != 1.0;
         rightTriggerWasJustPressed = gamePad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) == 1.0 & prevRightTrigger != 1.0;
 
-
-        prevYPressed = gamePad1.isDown(GamepadKeys.Button.Y);
-        prevAPressed = gamePad1.isDown(GamepadKeys.Button.A);
-        prevXPressed = gamePad1.isDown(GamepadKeys.Button.X);
-        prevBPressed = gamePad1.isDown(GamepadKeys.Button.B);
-        prevRightBumperPressed = gamePad1.isDown(GamepadKeys.Button.RIGHT_BUMPER);
-        prevLeftBumperPressed = gamePad1.isDown(GamepadKeys.Button.LEFT_BUMPER);
 
         prevLeftTrigger = gamePad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
         prevRightTrigger = gamePad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
