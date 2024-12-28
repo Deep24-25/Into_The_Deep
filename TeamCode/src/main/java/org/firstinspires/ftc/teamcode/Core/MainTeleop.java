@@ -70,7 +70,7 @@ public class MainTeleop extends LinearOpMode {
             deviatorFSM = new DeviatorFSM(hwMap, logger);
             wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(shoulderFSM, armFSM, monkeyPawFSM, logger);
-            monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM);
+            monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM, armFSM);
             fieldCentricDrive = new FieldCentricDrive(hwMap);
 
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);

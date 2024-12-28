@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.util.Timing;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,7 @@ public class MonkeyPawFSM {
     private final DeviatorFSM deviatorFSM;
     private final WristFSM wristFSM;
     private final ElbowFSM elbowFSM;
+    private final ArmFSM armFSM;
 
     private final LimbFSM limbFSM;
     private final Logger logger;
@@ -39,13 +41,14 @@ public class MonkeyPawFSM {
     public static long TIMER_LENGTH = 1000;
 
 
-    public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, ElbowFSM elbowFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM) {
+    public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, ElbowFSM elbowFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM, ArmFSM armFSM) {
         this.logger = logger;
         fingerFSM = new FingerFSM(hwMap, logger);
         this.deviatorFSM = deviatorFSM;
         this.elbowFSM = elbowFSM;
         this.wristFSM = wristFSM;
         this.limbFSM = limbFSM;
+        this.armFSM = armFSM;
         timer = new Timing.Timer(TIMER_LENGTH, TimeUnit.MILLISECONDS);
         state = States.START;
     }
@@ -222,13 +225,14 @@ public class MonkeyPawFSM {
             case GETTING_READY_TO_DEPOSIT_SPECIMEN:
                 elbowFSM.flexToHighChamberDepositFlexedPos();
                 wristFSM.flexToSpecimenDepositReadyPos();
-                deviatorFSM.goToChamberDepositPos();
-                if (elbowFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT() && deviatorFSM.CHAMBER_DEPOSITTED())
+                if (elbowFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT())
                     state = States.READY_TO_DEPOSIT_SPECIMEN;
                 break;
             case DEPOSITING_SPECIMEN:
+                armFSM.moveToSubmersibleHeight();
+                armFSM.moveToChamberLockHeight();
                 fingerFSM.releaseSpecimen();
-                if (fingerFSM.RELEASED()) {
+                if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
                     state = States.DEPOSITED_SPECIMEN;
                 }
                 break;
