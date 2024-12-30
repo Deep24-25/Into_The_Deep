@@ -2,12 +2,8 @@ package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.arcrobotics.ftclib.util.Timing;
-
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
-
-import java.util.concurrent.TimeUnit;
 
 public class LimbFSM {
     public enum States {
@@ -57,7 +53,7 @@ public class LimbFSM {
 
     private States states = States.START;
     private Mode mode = Mode.SAMPLE_MODE;
-    private Logger logger;
+    private final Logger logger;
     private double rightY;
 
     public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
@@ -67,7 +63,6 @@ public class LimbFSM {
         this.monkeyPawFSM = monkeyPawFSM;
 
     }
-
 
 
     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean leftBumperPressed) {
@@ -122,9 +117,9 @@ public class LimbFSM {
         }
     }
 
-    public void updateState(boolean dPadDownPressed, boolean dPadReleased, boolean dpadUpIsDown, boolean dpadUpWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test) {
+    public void updateState(boolean dPadDownIsDown, boolean dPadWasJustReleased, boolean dpadUpIsDown, boolean dpadUpWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test) {
         updateLowLevelFSMStates();
-        shoulderFSM.resetShoulder(dPadDownPressed, dPadReleased);
+        shoulderFSM.resetShoulder(dPadDownIsDown, dPadWasJustReleased);
         armFSM.resetArm(dpadUpIsDown, dpadUpWasJustReleased);
         this.rightY = rightY;
         if (!test)
@@ -320,10 +315,6 @@ public class LimbFSM {
     }
 
 
-    public boolean PREPARING_TO_DEPOSIT_SAMPLE() {
-        return states == States.PREPARING_TO_DEPOSIT_SAMPLE;
-    }
-
     public boolean PREPARED_TO_DEPOSIT_SAMPLE() {
         return states == States.PREPARED_TO_DEPOSIT_SAMPLE;
     }
@@ -360,11 +351,6 @@ public class LimbFSM {
         return states == States.MOVED_TO_INTAKE_POS;
     }
 
-
-    public boolean LINEARIZING_INTAKE() {
-        return states == States.LINEARIZING_INTAKE;
-    }
-
     public boolean RETRACTED_INTAKE() {
         return states == States.RETRACTED_INTAKE;
     }
@@ -398,17 +384,6 @@ public class LimbFSM {
         armFSM.updatePIDF();
         shoulderFSM.updatePID();
     }
-
-    @VisibleForTesting
-    public void setCurrentState(States state) {
-        states = state;
-    }
-
-    @VisibleForTesting
-    public void setCurrentMode(Mode mode) {
-        this.mode = mode;
-    }
-
     public void setMonkeyPawFSM(MonkeyPawFSM monkeyPawFSM) {
         this.monkeyPawFSM = monkeyPawFSM;
     }

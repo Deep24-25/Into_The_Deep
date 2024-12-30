@@ -109,17 +109,9 @@ public class FingerFSM {
     public boolean isTargetAngleSpecimenGrip() {
         return targetAngle == SPECIMEN_GRIPPED_POS;
     }
-
-    // public void updatePID() { // This method is used to update position every loop.
-       /* fingerServoWrapper.readAngle();
-        double angleDelta = angleDelta(fingerServoWrapper.getLastReadPos(), targetAngle); // finds the minimum difference between current angle and target angle
-        double sign = angleDeltaSign(fingerServoWrapper.getLastReadPos(), targetAngle); // sets the direction of servo based on minimum difference
-        double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-        logger.log("Finger Power",power, Logger.LogLevels.PRODUCTION);
-        fingerServoWrapper.set(power);*/
-
-    //}
-
+    public boolean isTargetAngleSampleRelease() {
+        return targetAngle == SAMPLE_RELEASED_POS;
+    }
 
     public void gripSample() {
         targetAngle = SAMPLE_GRIPPED_POS;
@@ -196,7 +188,11 @@ public class FingerFSM {
         logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Finger State", state, Logger.LogLevels.PRODUCTION);
         logger.log("Finger Target Pos", targetAngle, Logger.LogLevels.DEBUG);
+        logger.log("Specimen timer:", specimenGrippingTimer.elapsedTime(), Logger.LogLevels.DEBUG);
+        logger.log("Sample timer:", otherTimer.elapsedTime(), Logger.LogLevels.DEBUG);
+
         logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
+
 
     }
 

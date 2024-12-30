@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -16,21 +17,17 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 
+import java.util.concurrent.TimeUnit;
+
 @Config
 @TeleOp(name = "Main Tele-op V1.2.0")
 public class MainTeleop extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;
-    private HWMap hwMap;
     private Logger logger;
     private LimbFSM limbFSM;
-    private ShoulderFSM shoulderFSM;
-    private ArmFSM armFSM;
     private MonkeyPawFSM monkeyPawFSM;
 
-    private ElbowFSM elbowFSM;
-    private WristFSM wristFSM;
-    private DeviatorFSM deviatorFSM;
     private FieldCentricDrive fieldCentricDrive;
     private boolean leftTriggerWasJustPressed;
     private boolean rightTriggerWasJustPressed;
@@ -40,20 +37,15 @@ public class MainTeleop extends LinearOpMode {
     private boolean yWasJustPressed;
     private boolean aWasJustPressed;
     private boolean xWasJustPressed;
-    private boolean bWasJustPressed;
     private boolean leftBumperWasJustPressed;
-    private boolean rightBumperWasJustPressed;
 
 
     private boolean prevYPressed;
     private boolean prevAPressed;
     private boolean prevXPressed;
-    private boolean prevBPressed;
     private boolean prevLeftBumperPressed;
-    private boolean prevRightBumperPressed;
     public static double MULTIPLIER = 0.4;
-    private int counter = 0;
-    private double rightX;
+    private Timing.Timer loopTimer;
 
 
     @Override
@@ -62,13 +54,13 @@ public class MainTeleop extends LinearOpMode {
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             gamePad1 = new GamepadEx(gamepad1);
             gamePad2 = new GamepadEx(gamepad2);
-            hwMap = new HWMap(hardwareMap);
+            HWMap hwMap = new HWMap(hardwareMap);
             logger = new Logger(telemetry);
-            shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
-            elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
-            armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM);
-            deviatorFSM = new DeviatorFSM(hwMap, logger);
-            wristFSM = new WristFSM(hwMap, logger, elbowFSM);
+            ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
+            ElbowFSM elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
+            ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM);
+            DeviatorFSM deviatorFSM = new DeviatorFSM(hwMap, logger);
+            WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM, armFSM);
             fieldCentricDrive = new FieldCentricDrive(hwMap);
@@ -76,6 +68,8 @@ public class MainTeleop extends LinearOpMode {
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             shoulderFSM.setLimbFSM(limbFSM);
             elbowFSM.setArmFSM(armFSM);
+
+            loopTimer = new Timing.Timer(999999999, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
             telemetry.update();
@@ -85,10 +79,12 @@ public class MainTeleop extends LinearOpMode {
         }
         waitForStart();
         while (opModeIsActive()) {
+            loopTimer.start();
             gamePad1.readButtons();
             gamePad2.readButtons();
             triggersWasJustPressed();
 
+            double rightX;
             if (limbFSM.MOVING_TO_INTAKE_POS()) {
                 if (-gamePad1.getRightY() > 0.3 || -gamePad1.getRightY() < -0.3) {
                     rightX = 0;
@@ -113,7 +109,7 @@ public class MainTeleop extends LinearOpMode {
     }
 
     private void log() {
-        logger.log("Right X: ", rightX, Logger.LogLevels.PRODUCTION);
+        logger.log("Loop time: ", loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         monkeyPawFSM.log();
         limbFSM.log();
     }
@@ -122,8 +118,6 @@ public class MainTeleop extends LinearOpMode {
         yWasJustPressed = gamePad1.isDown(GamepadKeys.Button.Y) & !prevYPressed;
         aWasJustPressed = gamePad1.isDown(GamepadKeys.Button.A) & !prevAPressed;
         xWasJustPressed = gamePad1.isDown(GamepadKeys.Button.X) & !prevXPressed;
-        bWasJustPressed = gamePad1.isDown(GamepadKeys.Button.B) & !prevBPressed;
-        rightBumperWasJustPressed = gamePad1.isDown(GamepadKeys.Button.RIGHT_BUMPER) & !prevRightBumperPressed;
         leftBumperWasJustPressed = gamePad1.isDown(GamepadKeys.Button.LEFT_BUMPER) & !prevLeftBumperPressed;
         leftTriggerWasJustPressed = gamePad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) == 1.0 & prevLeftTrigger != 1.0;
         rightTriggerWasJustPressed = gamePad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) == 1.0 & prevRightTrigger != 1.0;
@@ -132,8 +126,6 @@ public class MainTeleop extends LinearOpMode {
         prevYPressed = gamePad1.isDown(GamepadKeys.Button.Y);
         prevAPressed = gamePad1.isDown(GamepadKeys.Button.A);
         prevXPressed = gamePad1.isDown(GamepadKeys.Button.X);
-        prevBPressed = gamePad1.isDown(GamepadKeys.Button.B);
-        prevRightBumperPressed = gamePad1.isDown(GamepadKeys.Button.RIGHT_BUMPER);
         prevLeftBumperPressed = gamePad1.isDown(GamepadKeys.Button.LEFT_BUMPER);
 
         prevLeftTrigger = gamePad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
@@ -141,8 +133,6 @@ public class MainTeleop extends LinearOpMode {
     }
 
     public void updatePID() {
-        // monkeyPawFSM.updatePID();
         limbFSM.updatePID();
-
     }
 }

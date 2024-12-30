@@ -60,7 +60,7 @@ public class MonkeyPawFSM {
             state = States.INTAKING_SAMPLE;
         } else if (RELAXED_POS_WITH_SAMPLE() && (limbFSM.RETRACTING_INTAKE() || limbFSM.RETRACTED_INTAKE()) && !RETRACTED_INTAKE()) {
             state = States.RETRACTING_INTAKE;
-        } else if (limbFSM.EXTENDED_TO_BASKET_HEIGHT() && !RELAXING_AFTER_DEPOSIT() && !RELAXED_AFTER_DEPOSIT() ) {
+        } else if (limbFSM.EXTENDED_TO_BASKET_HEIGHT() && !RELAXING_AFTER_DEPOSIT() && !RELAXED_AFTER_DEPOSIT()) {
             state = States.DEPOSITING_SAMPLE;
         } else if (limbFSM.PREPARING_TO_INTAKE_SPECIMEN() && !PREPARED_TO_INTAKE_SPECIMEN() && !INTAKED_SPECIMEN()) {
             state = States.PREPARING_TO_INTAKE_SPECIMEN;
@@ -117,12 +117,10 @@ public class MonkeyPawFSM {
                 }
 
                 if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_READY_POS()) {
-                    if (fingerFSM.RELEASED()) {
+                    fingerFSM.releaseSample();
+                    if (fingerFSM.RELEASED() && fingerFSM.isTargetAngleSampleRelease()) {
                         state = States.PREPARED_TO_INTAKE_SAMPLE;
-                    } else {
-                        fingerFSM.releaseSample();
                     }
-
                 } else {
                     elbowFSM.flexToSampleIntakeReadyPos();
                     wristFSM.flexToSampleIntakeReadyPos();

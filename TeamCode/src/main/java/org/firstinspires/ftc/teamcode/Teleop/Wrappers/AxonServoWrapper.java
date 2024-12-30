@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
+import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class AxonServoWrapper {
-    private Servo axon;
+    private ServoEx axon;
     private AnalogInput encoder;
     private double lastReadPosition;
     private double sign = 1;
     private double encoderOffset;
     private double inverseEncoderOffset;
 
-    public AxonServoWrapper(Servo axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder, double encoderOffset) {
+    public AxonServoWrapper(ServoEx axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder, double encoderOffset) {
         this.axon = axon;
         this.encoder = encoder;
         if (inversePower) {

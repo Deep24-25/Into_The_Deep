@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
@@ -27,9 +28,9 @@ public class ConceptScanServo extends LinearOpMode {
     static final double MIN_POS = 0.0;     // Minimum rotational position
 
     // Define class members
-    Servo WDS;
-    Servo WFS;
-    Servo ES;
+    ServoEx WDS;
+    ServoEx WFS;
+    ServoEx ES;
     AnalogInput DeviatorEncoder;
     AnalogInput WristEncoder;
     AnalogInput ElbowEncoder;

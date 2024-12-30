@@ -67,9 +67,9 @@ public class ShoulderFSM {
         updatePID();
 
         if (pidfController.atSetPoint()) {
-            if (isShoulderTargetPosDepositChamberAngle() ) {
+            if (isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE()) {
                 currentState = States.AT_DEPOSIT_CHAMBERS;
-            } else if (isShoulderTargetPosDepositBasketAngle()) {
+            } else if (isShoulderTargetPosDepositBasketAngle() && limbFSM.SAMPLE_MODE()) {
                 currentState = States.AT_BASKET_DEPOSIT;
             } else if (isShoulderTargetPosSpecimenIntakeAngle() && limbFSM.SPECIMEN_MODE()) {
                 currentState = States.AT_SPECIMEN_INTAKE;
@@ -206,6 +206,7 @@ public class ShoulderFSM {
         if (dPadDownReleased) {
             shoulderWrapper.resetEncoder();
             shouldPID = true;
+            targetAngle = SAMPLE_INTAKE_ANGLE;
         }
 
     }
