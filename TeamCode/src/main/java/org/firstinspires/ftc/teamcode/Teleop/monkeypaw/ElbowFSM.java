@@ -71,7 +71,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -15;
+    public static double ENCODER_OFFSET = 90;
 
     public static double CAPTURE_OFFSET = 27;
 
@@ -227,7 +227,6 @@ public class ElbowFSM {
     public void updatePos() {
         elbowServoWrapper.readPos();
         elbowServoWrapper.set(targetAngle);
-        logger.log("Current angle", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
     }
 
     public void flexToSampleHoveringPos() {

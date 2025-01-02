@@ -28,6 +28,7 @@ public class MainTeleop extends LinearOpMode {
     private LimbFSM limbFSM;
     private MonkeyPawFSM monkeyPawFSM;
 
+    private HWMap hwMap;
     private FieldCentricDrive fieldCentricDrive;
     private boolean leftTriggerWasJustPressed;
     private boolean rightTriggerWasJustPressed;
@@ -54,14 +55,14 @@ public class MainTeleop extends LinearOpMode {
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             gamePad1 = new GamepadEx(gamepad1);
             gamePad2 = new GamepadEx(gamepad2);
-            HWMap hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap);
             logger = new Logger(telemetry);
             ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
             ElbowFSM elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
             ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM);
             DeviatorFSM deviatorFSM = new DeviatorFSM(hwMap, logger);
             WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
-            limbFSM = new LimbFSM(shoulderFSM, armFSM, monkeyPawFSM, logger);
+            limbFSM = new LimbFSM(hwMap, shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM, armFSM);
             fieldCentricDrive = new FieldCentricDrive(hwMap);
 
@@ -110,6 +111,7 @@ public class MainTeleop extends LinearOpMode {
 
     private void log() {
         logger.log("Loop time: ", loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
+        logger.log("Voltage: ", hwMap.getVoltageSensor().getVoltage(), Logger.LogLevels.PRODUCTION);
         monkeyPawFSM.log();
         limbFSM.log();
     }

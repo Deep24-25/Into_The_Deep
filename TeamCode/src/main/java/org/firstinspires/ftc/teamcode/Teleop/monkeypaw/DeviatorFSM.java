@@ -36,6 +36,7 @@ public class DeviatorFSM {
     public static double VERTICAL_POS = 92.5;
     public static double CHAMBER_DEPOSIT_POS = 5;
 
+    public static double OFFSET = -75;
 
     private final AxonServoWrapper deviatorServoWrapper;
 
@@ -53,6 +54,7 @@ public class DeviatorFSM {
         state = DeviatorStates.RELAXING;
 
     }
+
     public void updateState() {
         updatePos();
         if (isTargetAngleToDeviateRight()) {
@@ -99,27 +101,27 @@ public class DeviatorFSM {
 
 
     public boolean isTargetAngleToRelax() {
-        return targetAngle == RELAXED_POS;
+        return targetAngle == (RELAXED_POS + OFFSET);
     }
 
     public boolean isTargetAngleToVertical() {
-        return targetAngle == VERTICAL_POS;
+        return targetAngle == (VERTICAL_POS + OFFSET);
     }
 
     public boolean isTargetAngleToDeviateRight() {
-        return targetAngle == RIGHT_DEVIATED_POS;
+        return targetAngle == (RIGHT_DEVIATED_POS + OFFSET);
     }
 
     public boolean isTargetAngleToDeviateLeft() {
-        return targetAngle == LEFT_DEVIATED_POS;
+        return targetAngle == (LEFT_DEVIATED_POS + OFFSET);
     }
 
     public boolean isTargetAngleChamberDepositPos() {
-        return targetAngle == CHAMBER_DEPOSIT_POS;
+        return targetAngle == (CHAMBER_DEPOSIT_POS + OFFSET);
     }
 
     public void goToChamberDepositPos() {
-        targetAngle = CHAMBER_DEPOSIT_POS;
+        targetAngle = (CHAMBER_DEPOSIT_POS + OFFSET);
     }
 
     public boolean atSetPoint() {
@@ -129,7 +131,7 @@ public class DeviatorFSM {
     public void updatePos() {
         deviatorServoWrapper.readPos();
         if (!isTargetAngleChamberDepositPos())
-            deviatorServoWrapper.set(deviations[currentIndex]);
+            deviatorServoWrapper.set(deviations[currentIndex] + OFFSET);
         else
             deviatorServoWrapper.set(targetAngle);
         logger.log("Current angle", deviatorServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
@@ -150,22 +152,22 @@ public class DeviatorFSM {
     }
 
     public void relax() {
-        targetAngle = RELAXED_POS;
+        targetAngle = RELAXED_POS + OFFSET;
         currentIndex = 0;
     }
 
     public void vertical() {
-        targetAngle = VERTICAL_POS;
+        targetAngle = VERTICAL_POS + OFFSET;
         currentIndex = 4;
     }
 
     public boolean indexCloserToRelaxation() {
         double angle = deviatorServoWrapper.getLastReadPos();
-        if (deviatorServoWrapper.getLastReadPos() < VERTICAL_POS) {
+        if (deviatorServoWrapper.getLastReadPos() < (VERTICAL_POS + OFFSET)) {
             angle = 360 - deviatorServoWrapper.getLastReadPos();
         }
 
-        return Math.abs(angle - RELAXED_POS) <= 45;
+        return Math.abs(angle - (RELAXED_POS + OFFSET)) <= 45;
     }
 
 

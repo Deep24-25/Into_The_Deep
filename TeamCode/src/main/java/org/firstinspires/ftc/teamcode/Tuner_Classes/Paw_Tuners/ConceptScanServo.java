@@ -28,9 +28,9 @@ public class ConceptScanServo extends LinearOpMode {
     static final double MIN_POS = 0.0;     // Minimum rotational position
 
     // Define class members
-    ServoEx WDS;
-    ServoEx WFS;
-    ServoEx ES;
+    Servo WDS;
+    Servo WFS;
+    Servo ES;
     AnalogInput DeviatorEncoder;
     AnalogInput WristEncoder;
     AnalogInput ElbowEncoder;

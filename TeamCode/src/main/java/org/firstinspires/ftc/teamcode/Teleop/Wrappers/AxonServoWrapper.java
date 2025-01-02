@@ -6,14 +6,14 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class AxonServoWrapper {
-    private ServoEx axon;
+    private Servo axon;
     private AnalogInput encoder;
     private double lastReadPosition;
     private double sign = 1;
     private double encoderOffset;
     private double inverseEncoderOffset;
 
-    public AxonServoWrapper(ServoEx axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder, double encoderOffset) {
+    public AxonServoWrapper(Servo axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder, double encoderOffset) {
         this.axon = axon;
         this.encoder = encoder;
         if (inversePower) {
@@ -35,24 +35,15 @@ public class AxonServoWrapper {
     }
 */
     public void set(double pos) {
-        axon.setPosition((pos) / 360.0);
+        axon.setPosition((pos - encoderOffset) / 360.0);
     }
 
     public double readPos() {
 
-        lastReadPosition = (Math.abs(inverseEncoderOffset - (((encoder.getVoltage() / 3.3 * 360)) + encoderOffset))) % 360;
+        lastReadPosition = (Math.abs(inverseEncoderOffset - (((encoder.getVoltage() / 3.3 * 360)+encoderOffset)))) % 360;
 
         return lastReadPosition;
     }
-
-    public double readRawPos() {
-        return (encoder.getVoltage() / 3.3 * 360);
-    }
-
-    public double getRawPos() {
-        return (encoder.getVoltage() / 3.3 * 360);
-    }
-
     public double getLastReadPos() {
         return lastReadPosition;
     }

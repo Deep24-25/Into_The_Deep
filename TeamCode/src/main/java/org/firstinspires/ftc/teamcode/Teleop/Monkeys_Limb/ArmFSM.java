@@ -258,7 +258,7 @@ public class ArmFSM {
     public void feed() {
         //35368.421 cpr of motor per one rotation
         shouldPID = false;
-        currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2);
+        currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2)*Math.signum(rightY);
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
 
         //Protects the arm from over-extending and over-retracting
@@ -284,7 +284,7 @@ public class ArmFSM {
     public void resetArm(boolean dPadUpIsDown, boolean dpadUpIsReleased) {
         if (dPadUpIsDown) {
             shouldPID = false;
-            armMotorsWrapper.set(-0.4);
+            armMotorsWrapper.set(-0.6);
         }
         if (dpadUpIsReleased) {
             armMotorsWrapper.resetEncoder();

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import androidx.annotation.VisibleForTesting;
 
+import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
@@ -54,10 +55,12 @@ public class LimbFSM {
     private States states = States.START;
     private Mode mode = Mode.SAMPLE_MODE;
     private final Logger logger;
+    private final HWMap hwMap;
     private double rightY;
 
-    public LimbFSM(ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
+    public LimbFSM(HWMap hwMap, ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
+        this.hwMap = hwMap;
         this.armFSM = armFSM;
         this.shoulderFSM = shoulderFSM;
         this.monkeyPawFSM = monkeyPawFSM;
@@ -164,14 +167,13 @@ public class LimbFSM {
                 break;
             case PREPARED_TO_INTAKE:
                 armFSM.uncapSetPower();
+                break;
             case MOVING_TO_INTAKE_POS:
                 armFSM.feed();
                 break;
             case LINEARIZING_INTAKE:
                 armFSM.setShouldPID(true);
                 states = States.MOVED_TO_INTAKE_POS;
-                break;
-            case MOVED_TO_INTAKE_POS:
                 break;
             case RETRACTING_INTAKE:
                 if (!armFSM.FULLY_RETRACTED()) {
@@ -208,6 +210,7 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_SPECIMEN:
+                hwMap.brakingOff();
                 shoulderFSM.setChamberTargetAngle();
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     armFSM.moveToSubmersibleHeight();
@@ -218,6 +221,7 @@ public class LimbFSM {
                 break;
             case DEPOSITING_SPECIMEN:
                 armFSM.moveToChamberLockHeight();
+                hwMap.brakingOn();
                 if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     states = States.DEPOSITED_SPECIMEN;
 
@@ -234,6 +238,7 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
+                hwMap.brakingOff();
                 shoulderFSM.setBasketTargetAngle();
                 armFSM.goToBasketHeight();
                 if (leftTriggerPressed) {
@@ -257,6 +262,7 @@ public class LimbFSM {
                 }
                 break;
             case DEPOSITING_SAMPLE:
+                hwMap.brakingOn();
                 if (monkeyPawFSM.RELAXED_AFTER_DEPOSIT()) {
                     states = States.DEPOSITED_SAMPLE;
                 }
