@@ -40,7 +40,7 @@ public class WristFSM {
     public static double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 275;
+    public static double SAMPLE_FLEXED_POS = 270;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
@@ -214,7 +214,7 @@ public class WristFSM {
 
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
-        if (sampleCapture || sampleRetract) {
+        if (false) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
         } else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
