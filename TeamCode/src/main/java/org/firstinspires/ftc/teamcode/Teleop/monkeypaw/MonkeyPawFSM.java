@@ -38,8 +38,11 @@ public class MonkeyPawFSM {
     private final Logger logger;
     private States state;
     private final Timing.Timer timer;
-    public static long TIMER_LENGTH = 1000;
+    private final Timing.Timer specimenTimer;
+    public static long TIMER_LENGTH = 750;
 
+    public static long SPECIMEN_TIMER_LENGTH = 500;
+    private boolean grippedSpecimen = false;
 
     public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, ElbowFSM elbowFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM, ArmFSM armFSM) {
         this.logger = logger;
@@ -50,6 +53,7 @@ public class MonkeyPawFSM {
         this.limbFSM = limbFSM;
         this.armFSM = armFSM;
         timer = new Timing.Timer(TIMER_LENGTH, TimeUnit.MILLISECONDS);
+        specimenTimer = new Timing.Timer(SPECIMEN_TIMER_LENGTH, TimeUnit.MILLISECONDS);
         state = States.START;
     }
 
@@ -213,11 +217,20 @@ public class MonkeyPawFSM {
                 break;
             case INTAKING_SPECIMEN:
                 fingerFSM.gripSpecimen();
-                if (fingerFSM.GRIPPED()) {
-                    wristFSM.flexToSpecimenRetractIntake();
-                    if (wristFSM.SPECIMEN_INTAKE_RETRACTED()) {
-                        state = States.INTAKED_SPECIMEN;
+                if (fingerFSM.GRIPPED() && !grippedSpecimen) {
+                    if (!specimenTimer.isTimerOn()) {
+                        specimenTimer.start();
                     }
+                    if (specimenTimer.done()) {
+                        specimenTimer.pause();
+                        wristFSM.flexToSpecimenRetractIntake();
+                        grippedSpecimen = true;
+
+                    }
+                }
+                if (wristFSM.SPECIMEN_INTAKE_RETRACTED()) {
+                    grippedSpecimen = false;
+                    state = States.INTAKED_SPECIMEN;
                 }
                 break;
             case GETTING_READY_TO_DEPOSIT_SPECIMEN:
@@ -300,6 +313,8 @@ public class MonkeyPawFSM {
     public void log() {
         logger.log("---------------------MONKEY PAW LOG-------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Monkey Paw State: ", state, Logger.LogLevels.PRODUCTION);
+        logger.log("Sample Timer: ", timer.elapsedTime(), Logger.LogLevels.DEBUG);
+        logger.log("Specimen Timer: ", specimenTimer.elapsedTime(), Logger.LogLevels.DEBUG);
         logger.log("---------------------MONKEY PAW LOG-------------------", "-", Logger.LogLevels.PRODUCTION);
         elbowFSM.log();
         wristFSM.log();

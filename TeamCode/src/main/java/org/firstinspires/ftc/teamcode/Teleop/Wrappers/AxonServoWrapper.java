@@ -44,6 +44,7 @@ public class AxonServoWrapper {
 
         return lastReadPosition;
     }
+
     public double getLastReadPos() {
         return lastReadPosition;
     }

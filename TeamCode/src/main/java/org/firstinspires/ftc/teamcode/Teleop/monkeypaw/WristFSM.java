@@ -40,15 +40,15 @@ public class WristFSM {
     public static double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 270;
+    public static double SAMPLE_FLEXED_POS = 300;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 160;
+    public static double SPECIMEN_INTAKE_POS = 190;
     public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 30;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 110;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 180;
     //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
 
 
@@ -214,7 +214,7 @@ public class WristFSM {
 
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
-        if (false) {
+        if (sampleCapture || sampleControl) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
         } else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
@@ -227,7 +227,7 @@ public class WristFSM {
         globalTargetAngle = SAMPLE_INTAKE_READY_POS;
         relaxCalled = false;
         sampleControl = false;
-        sampleIntakeReady = true;
+        sampleIntakeReady = true;   
         sampleCapture = false;
         sampleRetract = false;
         PID_TOLERANCE = 8;
@@ -375,6 +375,8 @@ public class WristFSM {
         logger.log("Wrist State", state, Logger.LogLevels.PRODUCTION);
         logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.DEBUG);
         logger.log("Real Target angle", encoderTargetAngle, Logger.LogLevels.DEBUG);
+        logger.log("Global Target angle", globalTargetAngle, Logger.LogLevels.DEBUG);
+
         logger.log("--------------Wrist Log---------------", "-", Logger.LogLevels.PRODUCTION);
     }
 

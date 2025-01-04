@@ -43,21 +43,21 @@ public class ElbowFSM {
     private double targetAngle;
     public static double TOLERANCE = 10;
 
-    public static double RELAXED_POS = 55;
-    public static double SAMPLE_INTAKE_READY_POS = 110; //140.47-118.736
-    public static double HOVERING_LOWER_LIMIT = 118;
-    public static double HOVERING_UPPER_LIMIT = 125;
+    public static double RELAXED_POS = 65;
+    public static double SAMPLE_INTAKE_READY_POS = 130; //140.47-118.736
+    public static double HOVERING_LOWER_LIMIT = 139;
+    public static double HOVERING_UPPER_LIMIT = 144;
     public static double HOVERING_ANGLE = HOVERING_LOWER_LIMIT;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 130;
-    public static double SAMPLE_INTAKE_CONTROL_POS = 110;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 155;
+    public static double SAMPLE_INTAKE_CONTROL_POS = 130;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
-    public static double SPECIMEN_INTAKE_FLEXED_POS = 85;
+    public static double SPECIMEN_INTAKE_FLEXED_POS = 95;
     public static double SPECIMEN_INTAKE_RELAX_POS = 70;
-    public static double BASKET_DEPOSIT_FLEXED_POS = 95;
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 190;
-    public static double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
+    public static double BASKET_DEPOSIT_FLEXED_POS = 110;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 160;
+    public static double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 135;
 
     public static double BASKET_RELAX_POS = 90;
     public static double CHAMBER_RELAX_POS = 0;
@@ -71,7 +71,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 0;
+    public static double ENCODER_OFFSET = 75;
 
     public static double CAPTURE_OFFSET = 27;
 

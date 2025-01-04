@@ -23,7 +23,7 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     private static final double BASKET_LOW = 40;
     private static final double BASKET_HIGH = 78;
-    private static final double SUBMERSIBLE_HIGH = 13;
+    private static final double SUBMERSIBLE_HIGH = 15;
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;

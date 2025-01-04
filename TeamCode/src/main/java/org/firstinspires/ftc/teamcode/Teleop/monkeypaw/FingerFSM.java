@@ -22,27 +22,23 @@ public class FingerFSM {
     private double targetAngle;
 
 
-    public static double SAMPLE_GRIPPED_POS = 300;
-    public static double SPECIMEN_GRIPPED_POS = 5;
+    public static double SAMPLE_GRIPPED_POS = 1;
+    public static double SPECIMEN_GRIPPED_POS = 0.01;
     public static double SAMPLE_RELEASED_POS = 0;
-    public static double SPECIMEN_RELEASED_POS = 280;
+    public static double SPECIMEN_RELEASED_POS = 0.9;
 
     private final FingerServoWrapper fingerServoWrapper;
 
     private FingerStates state;
     private final Logger logger;
-    private final Timing.Timer specimenGrippingTimer;
-    private final Timing.Timer otherTimer;
+    private final Timing.Timer timer;
 
-    public static long SPECIMEN_TIME_OFFSET = 2500;
-
-    public static long SAMPLE_TIME_OFFSET = 500;
+    public static long OFFSET = 10;
 
     public FingerFSM(HWMap hwMap, Logger logger) {
         fingerServoWrapper = new FingerServoWrapper(hwMap);
         this.logger = logger;
-        otherTimer = new Timing.Timer(SAMPLE_TIME_OFFSET, TimeUnit.MILLISECONDS);
-        specimenGrippingTimer = new Timing.Timer(SPECIMEN_TIME_OFFSET, TimeUnit.MILLISECONDS);
+        timer = new Timing.Timer(OFFSET, TimeUnit.MILLISECONDS);
         state = FingerStates.RELEASING;
     }
 
@@ -50,37 +46,23 @@ public class FingerFSM {
         fingerServoWrapper.readAngle();
         fingerServoWrapper.setAngle(targetAngle);
         if (isTargetAngleToGrip()) {
-          /*  if (isTargetAngleSpecimenGrip()) {
-                gripSpecimen();
-                if (!(state == FingerStates.GRIPPED)) {
-                    state = FingerStates.GRIPPING;
-                }
-                if (!specimenGrippingTimer.isTimerOn()) {
-                    specimenGrippingTimer.start();
-                }
-                if (specimenGrippingTimer.done()) {
-                    specimenGrippingTimer.pause();
-                    state = FingerStates.GRIPPED;
-                }
-            } else {
-          */
             if (!(state == FingerStates.GRIPPED)) {
                 state = FingerStates.GRIPPING;
             }
-            if (!otherTimer.isTimerOn()) {
-                otherTimer.start();
+            if (!timer.isTimerOn()) {
+                timer.start();
             }
-            if (otherTimer.done()) {
-                otherTimer.pause();
+            if (timer.done()) {
+                timer.pause();
                 state = FingerStates.GRIPPED;
             }
 
         } else if (isTargetAngleToRelease()) {
-            if (!otherTimer.isTimerOn()) {
-                otherTimer.start();
+            if (!timer.isTimerOn()) {
+                timer.start();
             }
-            if (otherTimer.done()) {
-                otherTimer.pause();
+            if (timer.done()) {
+                timer.pause();
                 state = FingerStates.RELEASED;
             }
             if (!(state == FingerStates.RELEASED)) {
@@ -112,7 +94,6 @@ public class FingerFSM {
     }
 
     public void gripSpecimen() {
-        fingerServoWrapper.setAngle(90);
         targetAngle = SPECIMEN_GRIPPED_POS;
         fingerServoWrapper.setAngle(targetAngle);
     }
@@ -144,8 +125,8 @@ public class FingerFSM {
         logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Finger State", state, Logger.LogLevels.PRODUCTION);
         logger.log("Finger Target Pos", targetAngle, Logger.LogLevels.DEBUG);
-        logger.log("Specimen timer:", specimenGrippingTimer.elapsedTime(), Logger.LogLevels.DEBUG);
-        logger.log("Sample timer:", otherTimer.elapsedTime(), Logger.LogLevels.DEBUG);
+        logger.log("Specimen timer:", timer.elapsedTime(), Logger.LogLevels.DEBUG);
+        logger.log("Sample timer:", timer.elapsedTime(), Logger.LogLevels.DEBUG);
 
         logger.log("------------------------- FINGER LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
