@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -13,6 +14,8 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
+import java.util.List;
 
 public class HWMap {
     private static PinpointPod pinpointIMU;
@@ -44,8 +47,12 @@ public class HWMap {
     private final AnalogInput wristFlexEncoder;
     private final AnalogInput wristDeviEncoder;
 
+    List<LynxModule> hubs;
+
+
 
     public HWMap(HardwareMap hardwareMap) {
+        hubs = hardwareMap.getAll(LynxModule.class);
 
         frontRightMotor = new MotorEx(hardwareMap, "RF", Motor.GoBILDA.RPM_312);
         frontLeftMotor = new MotorEx(hardwareMap, "LF", Motor.GoBILDA.RPM_312);//CH Port 1. The right odo pod accesses this motor's encoder port
@@ -83,6 +90,10 @@ public class HWMap {
         frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
+        for (LynxModule hub : hubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
     }
 
     // Monkey's Limb Getters
@@ -169,4 +180,11 @@ public class HWMap {
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
     }
+
+    public void clearCache(){
+        for (LynxModule hub : hubs) {
+            hub.clearBulkCache();
+        }
+    }
+
 }

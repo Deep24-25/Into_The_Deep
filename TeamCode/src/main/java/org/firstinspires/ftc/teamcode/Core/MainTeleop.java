@@ -80,6 +80,7 @@ public class MainTeleop extends LinearOpMode {
         }
         waitForStart();
         while (opModeIsActive()) {
+            hwMap.clearCache();
             loopTimer.start();
             gamePad1.readButtons();
             gamePad2.readButtons();

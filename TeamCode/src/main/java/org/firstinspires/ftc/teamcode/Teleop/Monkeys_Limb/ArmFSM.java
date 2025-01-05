@@ -23,7 +23,7 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     private static final double BASKET_LOW = 40;
     private static final double BASKET_HIGH = 78;
-    private static final double SUBMERSIBLE_HIGH = 15;
+    private static final double SUBMERSIBLE_HIGH = 35;
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
@@ -49,7 +49,7 @@ public class ArmFSM {
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
-    private double slidePowerCap = 1.0;
+    private double slidePowerCap = 0.6;
 
     private static double TOLERANCE = 2.0;
 
@@ -284,7 +284,7 @@ public class ArmFSM {
     public void resetArm(boolean dPadUpIsDown, boolean dpadUpIsReleased) {
         if (dPadUpIsDown) {
             shouldPID = false;
-            armMotorsWrapper.set(-0.6);
+            armMotorsWrapper.set(-0.3);
         }
         if (dpadUpIsReleased) {
             armMotorsWrapper.resetEncoder();
@@ -309,13 +309,13 @@ public class ArmFSM {
     public void capSetPower() {
         double currentPos = armMotorsWrapper.getLastReadPositionInCM();
         if (Math.abs(currentPos - targetPosition) <= 20) {
-            slidePowerCap = 0.05 * Math.abs(currentPos - targetPosition);
+            slidePowerCap = 0.02 * Math.abs(currentPos - targetPosition);
         } else
-            slidePowerCap = 1.0;
+            slidePowerCap = 0.4;
     }
 
     public void uncapSetPower() {
-        slidePowerCap = 1.0;
+        slidePowerCap = 0.6;
     }
 
     public double getCurrentHeight() {

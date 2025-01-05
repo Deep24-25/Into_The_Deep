@@ -40,20 +40,20 @@ public class WristFSM {
     public static double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 300;
+    public static double SAMPLE_FLEXED_POS = 280;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 190;
+    public static double SPECIMEN_INTAKE_POS = 181;
     public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 30;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 180;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 110;
     //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
 
 
     public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 120;
-    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 120;
+    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 120.001;
 
     public static double BASKET_RELAXED_POS = 90;
 
@@ -147,7 +147,7 @@ public class WristFSM {
             } else {
                 state = WristStates.FLEXING_TO_LOW_BASKET_DEPOSIT;
             }
-        } else if (isTargetAngleToHighChamberDepositFlexedPos()) {
+        } else if (isTargetAngleToHighBasketDepositFlexedPos()) {
             if (atPos(TOLERANCE)) {
                 state = WristStates.FLEXED_TO_HIGH_BASKET_DEPOSIT;
             } else {
@@ -210,6 +210,10 @@ public class WristFSM {
 
     public boolean isTargetAngleToSpecimenIntakeRetractPos() {
         return globalTargetAngle == SPECIMEN_INTAKE_RETRACT_POS;
+    }
+
+    public boolean isTargetAngleToHighBasketDepositFlexedPos() {
+        return globalTargetAngle == HIGH_BASKET_DEPOSIT_FLEXED_POS;
     }
 
     public void updatePID() { // This method is used to update position every loop.
