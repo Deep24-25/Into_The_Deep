@@ -21,6 +21,7 @@ public class WristServoTest extends LinearOpMode {
         wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false,false, 0);
         waitForStart();
         while (opModeIsActive()) {
+            hwMap.clearCache();
             wristServoWrapper.set(targetAngle);
             telemetry.addData("target angle", targetAngle);
             telemetry.addData("Current angle", wristServoWrapper.readPos());

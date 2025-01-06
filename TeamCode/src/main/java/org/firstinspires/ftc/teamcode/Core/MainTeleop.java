@@ -97,7 +97,7 @@ public class MainTeleop extends LinearOpMode {
                 rightX = gamePad1.getRightX();
             }
             logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT));
-            fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
+            fieldCentricDrive.drive(gamePad1.getLeftX(), -gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
             monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.X));
             limbFSM.updateState(gamePad1.isDown(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_DOWN), gamePad1.isDown(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustReleased(GamepadKeys.Button.DPAD_UP), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 

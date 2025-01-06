@@ -23,7 +23,7 @@ public class DeviatorFSM {
     }
 
     private double targetAngle;
-    public static double TOLERANCE = 5;
+    public static double TOLERANCE = 10;
     //Robot CONSTANTS:
     public static double P = 0.005;
     public static double I = 0;
@@ -123,7 +123,7 @@ public class DeviatorFSM {
     }
 
     public boolean atSetPoint() {
-        return (deviatorServoWrapper.getLastReadPos() <= targetAngle + TOLERANCE) || (deviatorServoWrapper.getLastReadPos() >= targetAngle - TOLERANCE);
+        return (deviatorServoWrapper.getLastReadPos() <= targetAngle + TOLERANCE) && (deviatorServoWrapper.getLastReadPos() >= targetAngle - TOLERANCE);
     }
 
     public void updatePos() {

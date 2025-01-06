@@ -24,10 +24,13 @@ public class ElbowServoTest extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         while (opModeIsActive()) {
+            hwMap.clearCache();
             elbowServoWrapper.readPos();
             elbowServoWrapper.set(targetAngle);
             telemetry.addData("target angle", targetAngle);
             telemetry.addData("Current angle", elbowServoWrapper.getLastReadPos());
+            telemetry.addData("voltage", elbowServoWrapper.getVoltage());
+            telemetry.addData("Raw pos", elbowServoWrapper.getRawPos());
             telemetry.update();
         }
     }

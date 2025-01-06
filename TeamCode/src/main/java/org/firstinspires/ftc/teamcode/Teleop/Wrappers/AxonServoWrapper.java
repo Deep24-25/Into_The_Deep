@@ -34,6 +34,7 @@ public class AxonServoWrapper {
         return axon.get() * sign;
     }
 */
+
     public void set(double pos) {
         axon.setPosition((pos - encoderOffset) / 360.0);
     }
@@ -43,6 +44,18 @@ public class AxonServoWrapper {
         lastReadPosition = (Math.abs(inverseEncoderOffset - (((encoder.getVoltage() / 3.3 * 360)+encoderOffset)))) % 360;
 
         return lastReadPosition;
+    }
+
+    public double getVoltage() {
+        return encoder.getVoltage();
+    }
+
+    public double getRawPos() {
+        return (encoder.getVoltage() / 3.3);
+    }
+
+    public void setRawPos(double pos) {
+        axon.setPosition(pos);
     }
 
     public double getLastReadPos() {

@@ -41,15 +41,15 @@ public class ElbowFSM {
     }
 
     private double targetAngle;
-    public static double TOLERANCE = 10;
+    public static double TOLERANCE = 100;
 
     public static double RELAXED_POS = 65;
-    public static double SAMPLE_INTAKE_READY_POS = 130; //140.47-118.736
-    public static double HOVERING_LOWER_LIMIT = 139;
-    public static double HOVERING_UPPER_LIMIT = 144;
+    public static double SAMPLE_INTAKE_READY_POS = 120; //140.47-118.736
+    public static double HOVERING_LOWER_LIMIT = 128;
+    public static double HOVERING_UPPER_LIMIT = 135;
     public static double HOVERING_ANGLE = HOVERING_LOWER_LIMIT;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 155;
-    public static double SAMPLE_INTAKE_CONTROL_POS = 130;
+    public static double SAMPLE_INTAKE_CONTROL_POS = 120;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
@@ -62,6 +62,7 @@ public class ElbowFSM {
     public static double BASKET_RELAX_POS = 90;
     public static double CHAMBER_RELAX_POS = 0;
 
+
     private final AxonServoWrapper elbowServoWrapper;
     private ArmFSM armFSM;
     private ElbowStates state;
@@ -71,9 +72,9 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -23;
+    public static double ENCODER_OFFSET = -38;
 
-    public static double CAPTURE_OFFSET = 27;
+    public static double CAPTURE_OFFSET = 57;
 
     public static double HOVER_TUNER = 30;
 
@@ -172,7 +173,7 @@ public class ElbowFSM {
     }
 
     public boolean atSetPoint() {
-        return (elbowServoWrapper.getLastReadPos() <= targetAngle + TOLERANCE) || (elbowServoWrapper.getLastReadPos() >= targetAngle - TOLERANCE);
+        return (elbowServoWrapper.getLastReadPos() <= targetAngle + TOLERANCE) && (elbowServoWrapper.getLastReadPos() >= targetAngle - TOLERANCE);
     }
 
     public boolean isTargetAngleToRelax() {

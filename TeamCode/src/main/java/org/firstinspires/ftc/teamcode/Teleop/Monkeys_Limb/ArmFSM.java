@@ -35,7 +35,7 @@ public class ArmFSM {
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
-    public static double MAX_FEEDRATE = 0.8; // cm/sec
+    public static double MAX_FEEDRATE = 0.4; // cm/sec
 
     public static double PHorizontal = 0.12, IHorizontal = 0.1, DHorizontal = 0.004, FHorizontal = 0;
     public static double PVertical = 0.12, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;

@@ -40,7 +40,7 @@ public class WristFSM {
     public static double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 280;
+    public static double SAMPLE_FLEXED_POS = 270;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
@@ -73,7 +73,7 @@ public class WristFSM {
     private final ElbowFSM elbowFSM;
 
     public static double ENCODER_OFFSET = 10;
-    private static final double TOLERANCE = 15;
+    private static final double TOLERANCE = 100;
 
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
@@ -219,7 +219,7 @@ public class WristFSM {
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
         if (sampleCapture || sampleControl) {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle() -15);
         } else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
 
@@ -328,7 +328,7 @@ public class WristFSM {
     }
 
     public boolean atPos(double tolerance) {
-        return (encoderTargetAngle + tolerance >= wristCurrentAngle) || (encoderTargetAngle - tolerance <= wristCurrentAngle);
+        return (encoderTargetAngle + tolerance >= wristCurrentAngle) && (encoderTargetAngle - tolerance <= wristCurrentAngle);
     }
 
     public boolean RELAXED() {
