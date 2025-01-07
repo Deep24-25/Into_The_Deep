@@ -113,6 +113,7 @@ public class MainTeleop extends LinearOpMode {
     private void log() {
         logger.log("Loop time: ", loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         logger.log("Voltage: ", hwMap.getVoltageSensor().getVoltage(), Logger.LogLevels.PRODUCTION);
+        logger.log("IMU angle", HWMap.getIMUangle(), Logger.LogLevels.DEBUG);
         monkeyPawFSM.log();
         limbFSM.log();
     }

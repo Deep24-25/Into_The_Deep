@@ -47,9 +47,9 @@ public class HWMap {
     private final AnalogInput wristFlexEncoder;
     private final AnalogInput wristDeviEncoder;
 
+    private static Pose2D IMUpos;
+
     List<LynxModule> hubs;
-
-
 
     public HWMap(HardwareMap hardwareMap) {
         hubs = hardwareMap.getAll(LynxModule.class);
@@ -127,8 +127,12 @@ public class HWMap {
 
     public static double readFromIMU() {
         pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
-        Pose2D pos = pinpointIMU.getPosition();
-        return pos.getHeading(AngleUnit.DEGREES);
+        IMUpos = pinpointIMU.getPosition();
+        return IMUpos.getHeading(AngleUnit.DEGREES);
+    }
+
+    public static double getIMUangle() {
+        return IMUpos.getHeading(AngleUnit.DEGREES);
     }
 
     public static void initializeIMU() {
@@ -181,7 +185,7 @@ public class HWMap {
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
     }
 
-    public void clearCache(){
+    public void clearCache() {
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
