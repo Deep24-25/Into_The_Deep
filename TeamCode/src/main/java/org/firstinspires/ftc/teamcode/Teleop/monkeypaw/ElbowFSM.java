@@ -45,8 +45,8 @@ public class ElbowFSM {
 
     public static double RELAXED_POS = 65;
     public static double SAMPLE_INTAKE_READY_POS = 120; //140.47-118.736
-    public static double HOVERING_LOWER_LIMIT = 128;
-    public static double HOVERING_UPPER_LIMIT = 135;
+    public static double HOVERING_LOWER_LIMIT = 121;
+    public static double HOVERING_UPPER_LIMIT = 128;
     public static double HOVERING_ANGLE = HOVERING_LOWER_LIMIT;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 155;
     public static double SAMPLE_INTAKE_CONTROL_POS = 120;
@@ -79,6 +79,8 @@ public class ElbowFSM {
     public static double HOVER_TUNER = 30;
 
     public ShoulderFSM shoulderFSM;
+
+    private double hoveringOffset = 0;
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ENCODER_OFFSET); // check if you need to reverse axons
@@ -233,7 +235,7 @@ public class ElbowFSM {
     public void flexToSampleHoveringPos() {
         double slope = ((HOVERING_LOWER_LIMIT - HOVERING_UPPER_LIMIT) / HOVER_TUNER);
         HOVERING_ANGLE = (slope * armFSM.getCurrentHeight()) + HOVERING_UPPER_LIMIT;
-        targetAngle = HOVERING_ANGLE;
+        targetAngle = HOVERING_ANGLE + hoveringOffset;
         sampleControl = false;
     }
 
@@ -330,6 +332,7 @@ public class ElbowFSM {
         logger.log("Elbow State", state, Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Current Position", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.DEBUG);
         logger.log("Elbow Target Pos", targetAngle, Logger.LogLevels.DEBUG);
+        logger.log("Elbow Hovering Offset", hoveringOffset, Logger.LogLevels.PRODUCTION);
         logger.log("------------------------- ELBOW LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
 
@@ -339,9 +342,12 @@ public class ElbowFSM {
         this.armFSM = armFSM;
     }
 
-    public void setShoulderFSM(ShoulderFSM shoulderFSM) {
-        this.shoulderFSM = shoulderFSM;
+    public void increaseHoverOffset() {
+        hoveringOffset++;
     }
 
+    public void decreaseHoverOffset() {
+        hoveringOffset--;
+    }
 
 }

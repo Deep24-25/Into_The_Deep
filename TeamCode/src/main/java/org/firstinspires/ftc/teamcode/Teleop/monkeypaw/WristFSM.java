@@ -72,7 +72,7 @@ public class WristFSM {
 
     private final ElbowFSM elbowFSM;
 
-    public static double ENCODER_OFFSET = 10;
+    public static double ENCODER_OFFSET = 13;
     private static final double TOLERANCE = 100;
 
 
@@ -219,7 +219,7 @@ public class WristFSM {
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
         if (sampleCapture || sampleControl) {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle() -15);
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
         } else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
 

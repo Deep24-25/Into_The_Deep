@@ -42,6 +42,8 @@ public class MonkeyPawFSM {
     public static long TIMER_LENGTH = 750;
 
     public static long SPECIMEN_TIMER_LENGTH = 500;
+    private boolean dpadUp = false;
+    private boolean dpadDown = false;
     private boolean grippedSpecimen = false;
 
     public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, ElbowFSM elbowFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM, ArmFSM armFSM) {
@@ -82,12 +84,14 @@ public class MonkeyPawFSM {
 
     }
 
-    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed) {
+    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed, boolean dpadUp, boolean dpadDown) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
         findTargetState(xPressed);
+        this.dpadUp = dpadUp;
+        this.dpadDown = dpadDown;
         switch (state) {
             // INTAKE STATES
             case START:
@@ -142,6 +146,11 @@ public class MonkeyPawFSM {
                 }
                 if (limbFSM.MOVING_TO_INTAKE_POS() || limbFSM.MOVED_TO_INTAKE_POS()) {
                     elbowFSM.flexToSampleHoveringPos();
+                    if (dpadDown) {
+                        elbowFSM.increaseHoverOffset();
+                    } else if (dpadUp) {
+                        elbowFSM.decreaseHoverOffset();
+                    }
                 }
                 break;
             case INTAKING_SAMPLE:

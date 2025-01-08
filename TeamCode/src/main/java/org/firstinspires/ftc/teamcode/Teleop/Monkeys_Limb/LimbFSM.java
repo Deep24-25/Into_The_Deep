@@ -120,10 +120,10 @@ public class LimbFSM {
         }
     }
 
-    public void updateState(boolean dPadDownIsDown, boolean dPadWasJustReleased, boolean dpadUpIsDown, boolean dpadUpWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test) {
+    public void updateState(boolean dPadRightIsDown, boolean dPadRightWasJustReleased, boolean dpadLeftIsDown, boolean dpadLeftWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test) {
         updateLowLevelFSMStates();
-        shoulderFSM.resetShoulder(dPadDownIsDown, dPadWasJustReleased);
-        armFSM.resetArm(dpadUpIsDown, dpadUpWasJustReleased);
+        shoulderFSM.resetShoulder(dPadRightIsDown, dPadRightWasJustReleased);
+        armFSM.resetArm(dpadLeftIsDown, dpadLeftWasJustReleased);
         this.rightY = rightY;
         if (!test)
             findTargetState(yPressed, aPressed, xPressed, leftBumperPressed);

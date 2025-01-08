@@ -56,6 +56,7 @@ public class ArmFSM {
     private final Logger logger;
     private final Timing.Timer timer;
     private double rightY = 0;
+    private double prevRightY = 0;
     private double currentFeedrate = 0;
 
     private boolean shouldPID = true;
@@ -257,9 +258,22 @@ public class ArmFSM {
 
     public void feed() {
         //35368.421 cpr of motor per one rotation
+/*
+        if (rightY == 0)
+            if (prevRightY == 0) {
+                shouldPID = true;
+            } else {
+                targetPosition = armMotorsWrapper.getLastReadPositionInCM();
+            }
+        else {
+            shouldPID = false;
+            targetPosition = armMotorsWrapper.getLastReadPositionInCM();
+        }
+*/
         shouldPID = false;
-        currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2)*Math.signum(rightY);
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
+
+        currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2) * Math.signum(rightY);
 
         //Protects the arm from over-extending and over-retracting
         if (targetPosition <= MAX_HEIGHT && targetPosition >= 0) {
@@ -278,6 +292,7 @@ public class ArmFSM {
         }
 
         armMotorsWrapper.set(currentFeedrate);
+        prevRightY = rightY;
 
     }
 
@@ -302,6 +317,8 @@ public class ArmFSM {
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("power cap", slidePowerCap, Logger.LogLevels.DEBUG);
         logger.log("Current power", armMotorsWrapper.get(), Logger.LogLevels.DEBUG);
+        logger.log("rightY", rightY, Logger.LogLevels.DEBUG);
+
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
