@@ -224,6 +224,13 @@ public class WristFSM {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
 
         }
+        if(encoderTargetAngle >= 320) {
+            encoderTargetAngle = 320;
+        }
+        else if(encoderTargetAngle <= 140) {
+            encoderTargetAngle = 140;
+        }
+
         wristServoWrapper.set(encoderTargetAngle);
     }
 
