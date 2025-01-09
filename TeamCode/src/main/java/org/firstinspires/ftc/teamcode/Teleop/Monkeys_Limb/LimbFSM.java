@@ -210,7 +210,7 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_SPECIMEN:
-                hwMap.brakingOff();
+                /*hwMap.brakingOff();*/
                 shoulderFSM.setChamberTargetAngle();
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     armFSM.moveToSubmersibleHeight();
@@ -221,7 +221,7 @@ public class LimbFSM {
                 break;
             case DEPOSITING_SPECIMEN:
                 armFSM.moveToChamberLockHeight();
-                hwMap.brakingOn();
+                /*hwMap.brakingOn();*/
                 if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     states = States.DEPOSITED_SPECIMEN;
 
@@ -238,7 +238,7 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                hwMap.brakingOff();
+               /* hwMap.brakingOff();*/
                 shoulderFSM.setBasketTargetAngle();
                 armFSM.goToBasketHeight();
                 if (leftTriggerPressed) {
@@ -262,7 +262,7 @@ public class LimbFSM {
                 }
                 break;
             case DEPOSITING_SAMPLE:
-                hwMap.brakingOn();
+               /* hwMap.brakingOn();*/
                 if (monkeyPawFSM.RELAXED_AFTER_DEPOSIT()) {
                     states = States.DEPOSITED_SAMPLE;
                 }

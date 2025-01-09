@@ -84,7 +84,7 @@ public class MonkeyPawFSM {
 
     }
 
-    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed, boolean dpadUp, boolean dpadDown) {
+    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed, boolean dpadUp, boolean dpadDown, boolean dpadRight, boolean dpadLeft) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
@@ -92,6 +92,15 @@ public class MonkeyPawFSM {
         findTargetState(xPressed);
         this.dpadUp = dpadUp;
         this.dpadDown = dpadDown;
+
+        if(dpadRight) {
+            wristFSM.increaseCompensation();
+        }
+
+        if(dpadLeft) {
+            wristFSM.decreaseCompensation();
+        }
+
         switch (state) {
             // INTAKE STATES
             case START:

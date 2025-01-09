@@ -168,7 +168,7 @@ public class HWMap {
     public VoltageSensor getVoltageSensor() {
         return voltageSensor;
     }
-
+/*
     public void brakingOn() {
 
         frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -183,7 +183,7 @@ public class HWMap {
         frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-    }
+    }*/
 
     public void clearCache() {
         for (LynxModule hub : hubs) {

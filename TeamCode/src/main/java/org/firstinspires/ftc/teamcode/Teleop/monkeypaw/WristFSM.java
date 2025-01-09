@@ -72,7 +72,8 @@ public class WristFSM {
 
     private final ElbowFSM elbowFSM;
 
-    public static double ENCODER_OFFSET = 13;
+    public double compensation = -9;
+    public static double ENCODER_OFFSET = 0;
     private static final double TOLERANCE = 100;
 
 
@@ -218,12 +219,12 @@ public class WristFSM {
 
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
-        if (sampleCapture || sampleControl) {
+       /* if (sampleCapture || sampleControl) {*/
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
-        } else {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
+      //  } /*else {
+         //   encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
 
-        }
+       // }
         if(encoderTargetAngle >= 320) {
             encoderTargetAngle = 320;
         }
@@ -275,7 +276,6 @@ public class WristFSM {
         sampleCapture = false;
         sampleRetract = true;
         PID_TOLERANCE = 12;
-
     }
 
     public void relax() {
@@ -331,7 +331,7 @@ public class WristFSM {
     }
 
     private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowCurrentAngle) {
-        return (globalWristAngle - elbowCurrentAngle - ENCODER_OFFSET) + 180;
+        return ((globalWristAngle - elbowCurrentAngle) + 180) + compensation;
     }
 
     public boolean atPos(double tolerance) {
@@ -381,12 +381,21 @@ public class WristFSM {
         this.sampleCapture = sampleCapture;
     }
 
+    public void increaseCompensation() {
+        compensation++;
+    }
+
+    public void decreaseCompensation() {
+        compensation--;
+    }
+
     public void log() {
         logger.log("--------------Wrist Log---------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Wrist State", state, Logger.LogLevels.PRODUCTION);
         logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.DEBUG);
         logger.log("Real Target angle", encoderTargetAngle, Logger.LogLevels.DEBUG);
         logger.log("Global Target angle", globalTargetAngle, Logger.LogLevels.DEBUG);
+        logger.log("wrist angle compensation", compensation, Logger.LogLevels.PRODUCTION);
 
         logger.log("--------------Wrist Log---------------", "-", Logger.LogLevels.PRODUCTION);
     }

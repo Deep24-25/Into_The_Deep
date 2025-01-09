@@ -63,6 +63,7 @@ public class ElbowFSM {
     public static double CHAMBER_RELAX_POS = 0;
 
 
+
     private final AxonServoWrapper elbowServoWrapper;
     private ArmFSM armFSM;
     private ElbowStates state;
@@ -80,7 +81,7 @@ public class ElbowFSM {
 
     public ShoulderFSM shoulderFSM;
 
-    private double hoveringOffset = 0;
+    private double hoveringOffset = -7;
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ENCODER_OFFSET); // check if you need to reverse axons
