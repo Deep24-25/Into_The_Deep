@@ -107,10 +107,10 @@ public class MonkeyPawFSM {
                 if (elbowFSM.RELAXED()) {
                     if (wristFSM.RELAXED()) {
                         if (deviatorFSM.RELAXED()) {
-                            if (fingerFSM.RELEASED()) {
+                            if (fingerFSM.GRIPPED()) {
                                 state = States.READY_TO_START;
                             } else {
-                                fingerFSM.releaseSample();
+                                fingerFSM.gripSample();
                             }
                         } else {
                             deviatorFSM.relax();
