@@ -27,7 +27,7 @@ public class ArmFSM {
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final int MAX_HEIGHT = 60;//102 cm is physical max
+    private static final double MAX_HEIGHT = 38;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
 
     private double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 0; // 2.1734 cm
@@ -55,6 +55,7 @@ public class ArmFSM {
 
     private final Logger logger;
     private final Timing.Timer timer;
+    private final HWMap hwMap;
     private double rightY = 0;
     private double prevRightY = 0;
     private double currentFeedrate = 0;
@@ -63,6 +64,7 @@ public class ArmFSM {
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
+        this.hwMap = hwMap;
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);
@@ -170,6 +172,7 @@ public class ArmFSM {
     public void updatePIDF() {
         armMotorsWrapper.readPositionInCM();
         if (shouldPID) {
+            hwMap.brakingOff();
             measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
             double power = pidfController.calculate(measuredPosition, targetPosition);
             power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
@@ -258,41 +261,36 @@ public class ArmFSM {
 
     public void feed() {
         //35368.421 cpr of motor per one rotation
-/*
-        if (rightY == 0)
-            if (prevRightY == 0) {
-                shouldPID = true;
-            } else {
-                targetPosition = armMotorsWrapper.getLastReadPositionInCM();
-            }
-        else {
-            shouldPID = false;
-            targetPosition = armMotorsWrapper.getLastReadPositionInCM();
-        }
-*/
-        shouldPID = false;
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
-
+        shouldPID = false;
         currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2) * Math.signum(rightY);
 
-        //Protects the arm from over-extending and over-retracting
-        if (targetPosition <= MAX_HEIGHT && targetPosition >= 0) {
-            currentFeedrate = Math.max(Math.min(currentFeedrate, 1), -1);
-        } else if (targetPosition >= MAX_HEIGHT) {
-            currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
+        if (targetPosition >= (MAX_HEIGHT - 2)) {
+            hwMap.brakingOn();
+            if (rightY < 0)
+                currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
+            else
+                shouldPID = true;
+            targetPosition = MAX_HEIGHT;
         } else {
-            currentFeedrate = Math.max(currentFeedrate, 0);
-        }
+            //Protects the arm from over-extending and over-retracting
+            if (targetPosition <= (MAX_HEIGHT - 2) && targetPosition >= 0) {
+                hwMap.brakingOff();
+                currentFeedrate = Math.max(Math.min(currentFeedrate, 1), -1);
+            } else {
+                hwMap.brakingOff();
+                currentFeedrate = Math.max(currentFeedrate, 0);
+            }
 
-        //Slows the arm down when close to min and max.
-        if (currentFeedrate < 0 && targetPosition < 10) {
-            currentFeedrate = -Math.min(Math.abs(currentFeedrate), (0.02 * targetPosition));
-        } else if (currentFeedrate > 0 && targetPosition > (MAX_HEIGHT - 10)) {
-            currentFeedrate = Math.min(currentFeedrate, (0.02 * (MAX_HEIGHT - 10)));
-        }
+            /*//Slows the arm down when close to min and max.
+            if (currentFeedrate < 0 && targetPosition < 10) {
+                currentFeedrate = -Math.min(Math.abs(currentFeedrate), (0.02 * targetPosition));
+            } else if (currentFeedrate > 0 && targetPosition > (MAX_HEIGHT - 10)) {
+                currentFeedrate = Math.min(currentFeedrate, (0.02 * (MAX_HEIGHT - 10)));
+            }*/
 
+        }
         armMotorsWrapper.set(currentFeedrate);
-        prevRightY = rightY;
 
     }
 

@@ -90,6 +90,7 @@ public class HWMap {
         frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        brakingOff();
 
         for (LynxModule hub : hubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -168,22 +169,19 @@ public class HWMap {
     public VoltageSensor getVoltageSensor() {
         return voltageSensor;
     }
-/*
+
     public void brakingOn() {
 
-        frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        armMotorOne.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        armMotorTwo.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        armMotorThree.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
     }
 
     public void brakingOff() {
-
-        frontRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-        frontLeftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-        backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-        backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-    }*/
+        armMotorOne.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+        armMotorTwo.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+        armMotorThree.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+    }
 
     public void clearCache() {
         for (LynxModule hub : hubs) {
