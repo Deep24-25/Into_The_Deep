@@ -72,7 +72,7 @@ public class WristFSM {
 
     private final ElbowFSM elbowFSM;
 
-    public double compensation = -9;
+    public double compensation = 5;
     public static double ENCODER_OFFSET = 0;
     private static final double TOLERANCE = 100;
 

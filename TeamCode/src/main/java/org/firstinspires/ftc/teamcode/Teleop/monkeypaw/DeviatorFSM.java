@@ -30,10 +30,10 @@ public class DeviatorFSM {
     public static double D = 0;
 
 
-    public static double RIGHT_DEVIATED_POS = 47.5;
-    public static double LEFT_DEVIATED_POS = 150;
-    public static double RELAXED_POS = 195;
-    public static double VERTICAL_POS = 92.5;
+    public static double RIGHT_DEVIATED_POS = 42.5;
+    public static double LEFT_DEVIATED_POS = 145;
+    public static double RELAXED_POS = 190;
+    public static double VERTICAL_POS = 87.5;
     public static double CHAMBER_DEPOSIT_POS = 5;
 
     private final AxonServoWrapper deviatorServoWrapper;
@@ -43,7 +43,7 @@ public class DeviatorFSM {
 
     private int currentIndex = 0;
 
-    private final double[] deviations = {RELAXED_POS, 172.5, LEFT_DEVIATED_POS, 127.5, VERTICAL_POS, 70, RIGHT_DEVIATED_POS, 25, 0};
+    private final double[] deviations = {RELAXED_POS, 167.5, LEFT_DEVIATED_POS, 122.5, VERTICAL_POS, 65, RIGHT_DEVIATED_POS, 20, 0};
 
     public DeviatorFSM(HWMap hwMap, Logger logger) {
         deviatorServoWrapper = new AxonServoWrapper(hwMap.getWristDeviServo(), hwMap.getWristDeviEncoder(), false, false, 0); // check if you need to reverse axons
