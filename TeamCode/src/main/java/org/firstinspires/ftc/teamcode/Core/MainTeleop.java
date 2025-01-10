@@ -76,8 +76,9 @@ public class MainTeleop extends LinearOpMode {
             telemetry.update();
         }
         while (opModeInInit()) {
+           /* hwMap.clearCache();*/
             HWMap.initializeIMU();
-            monkeyPawFSM.updateState(false,false,false,false,false, false,false,false, false, false);
+            /*monkeyPawFSM.updateState(false,false,false,false,false, false,false,false);*/
         }
         waitForStart();
         while (opModeIsActive()) {

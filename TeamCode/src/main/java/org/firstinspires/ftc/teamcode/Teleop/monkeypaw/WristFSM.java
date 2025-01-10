@@ -69,6 +69,7 @@ public class WristFSM {
     private boolean sampleIntakeReady = false;
     private boolean sampleCapture = false;
     private boolean sampleRetract = false;
+    private boolean basketDeposit = false;
 
     private final ElbowFSM elbowFSM;
 
@@ -219,12 +220,11 @@ public class WristFSM {
 
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
-       /* if (sampleCapture || sampleControl) {*/
+        if (sampleCapture || elbowFSM.elbowHovering() || basketDeposit) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
-      //  } /*else {
-         //   encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
-
-       // }
+      } else {
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getSetCurrentAngle());
+        }
         if(encoderTargetAngle >= 320) {
             encoderTargetAngle = 320;
         }
@@ -242,6 +242,7 @@ public class WristFSM {
         sampleIntakeReady = true;   
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = false;
         PID_TOLERANCE = 8;
 
     }
@@ -253,6 +254,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = false;
         PID_TOLERANCE = 8;
 
     }
@@ -264,6 +266,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = true;
         sampleRetract = false;
+        basketDeposit = false;
         PID_TOLERANCE = 15;
 
     }
@@ -275,6 +278,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = true;
+        basketDeposit = false;
         PID_TOLERANCE = 12;
     }
 
@@ -285,7 +289,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
-
+        basketDeposit = false;
         PID_TOLERANCE = 12;
     }
 
@@ -297,6 +301,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = false;
 
     }
 
@@ -307,6 +312,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = true;
 
     }
 
@@ -317,6 +323,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = false;
 
     }
 
@@ -327,7 +334,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
-
+        basketDeposit = false;
     }
 
     private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowCurrentAngle) {

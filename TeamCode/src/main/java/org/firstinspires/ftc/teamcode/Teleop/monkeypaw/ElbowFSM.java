@@ -82,12 +82,22 @@ public class ElbowFSM {
 
     private double hoveringOffset = 9;
 
+    private double setCurrentAngle;
+
+    public static final double RELAXED_CURRENT_ANGLE = 80;
+    public static double SAMPLE_INTAKE_READY_POS_CURRENT_ANGLE = 130;
+    public static double SAMPLE_INTAKE_CONTROL_POS_CURRENT_ANGLE = 130;
+    public static final double INTAKE_RETRACTED_CURRENT_ANGLE = 80;
+    public static final double BASKET_CURRENT_ANGLE = 110;
+
+
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ENCODER_OFFSET); // check if you need to reverse axons
         //     pidController = new PIDController(P, I, D);
         this.logger = logger;
         targetAngle = RELAXED_POS;
         this.shoulderFSM = shoulderFSM;
+        setCurrentAngle = RELAXED_CURRENT_ANGLE;
     }
 
     @VisibleForTesting
@@ -241,11 +251,13 @@ public class ElbowFSM {
 
     public void flexToSampleIntakeReadyPos() {
         targetAngle = SAMPLE_INTAKE_READY_POS;
+        setCurrentAngle = SAMPLE_INTAKE_READY_POS_CURRENT_ANGLE;
         sampleControl = false;
     }
 
     public void flexToSampleIntakeControlPos() {
         targetAngle = SAMPLE_INTAKE_CONTROL_POS;
+        setCurrentAngle = SAMPLE_INTAKE_CONTROL_POS_CURRENT_ANGLE;
         sampleControl = true;
     }
 
@@ -255,6 +267,7 @@ public class ElbowFSM {
 
     public void flexToSampleIntakeRetractPos() {
         targetAngle = SAMPLE_INTAKE_RETRACT_POS;
+        setCurrentAngle = INTAKE_RETRACTED_CURRENT_ANGLE;
         relaxCalled = false;
     }
 
@@ -266,6 +279,7 @@ public class ElbowFSM {
 
     public void flexToBasketDepositFlexedPos() {
         targetAngle = BASKET_DEPOSIT_FLEXED_POS;
+        setCurrentAngle = BASKET_CURRENT_ANGLE;
     }
 
     public void flexToHighChamberDepositFlexedPos() {
@@ -274,6 +288,7 @@ public class ElbowFSM {
 
     public void relax() {
         targetAngle = RELAXED_POS;
+        setCurrentAngle = RELAXED_CURRENT_ANGLE;
         relaxCalled = true;
     }
 
@@ -358,6 +373,14 @@ public class ElbowFSM {
     public void decreaseEncoderOffset() {
         ENCODER_OFFSET -= 5;
         elbowServoWrapper.setEncoderOffset(ENCODER_OFFSET);
+    }
+
+    public double getSetCurrentAngle() {
+        return setCurrentAngle;
+    }
+
+    public boolean elbowHovering() {
+        return targetAngle == HOVERING_ANGLE + hoveringOffset;
     }
 
 }
