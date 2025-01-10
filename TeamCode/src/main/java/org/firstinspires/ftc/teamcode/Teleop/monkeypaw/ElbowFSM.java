@@ -80,7 +80,7 @@ public class ElbowFSM {
 
     public ShoulderFSM shoulderFSM;
 
-    private double hoveringOffset = 5;
+    private double hoveringOffset = -2;
 
     private double setCurrentAngle;
 

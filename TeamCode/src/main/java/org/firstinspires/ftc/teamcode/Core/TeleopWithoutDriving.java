@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 import java.util.concurrent.TimeUnit;
 
 @Config
-@TeleOp(name = "TeleopWithoutDriving V1.2.0")
+@TeleOp(name = "TeleopWithoutDriving V1.3.0")
 public class TeleopWithoutDriving extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;
