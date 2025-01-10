@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
-import androidx.annotation.VisibleForTesting;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
@@ -24,14 +22,12 @@ public class WristFSM {
         FLEXED,
         RELAXING,
         RELAXED,
-        FLEXED_TO_SPECIMEN_READY_POS,
-        FLEXING_TO_SPECIMEN__READY_POS,
+        FLEXED_TO_SPECIMEN_INTAKE_POS,
+        FLEXING_TO_SPECIMEN_INTAKE_POS,
         FLEXING_TO_HIGH_CHAMBER_DEPOSIT,
         FLEXED_TO_HIGH_CHAMBER_DEPOSIT,
-        FLEXING_TO_LOW_CHAMBER_DEPOSIT,
-        FLEXED_TO_LOW_CHAMBER_DEPOSIT,
-        RELAXING_FROM_CHAMBER_DEPOSIT,
-        RELAXED_FROM_CHAMBER_DEPOSIT,
+        SPECIMEN_INTAKE_RETRACTING,
+        SPECIMEN_INTAKE_RETRACTED,
         FLEXING_TO_HIGH_BASKET_DEPOSIT,
         FLEXED_TO_HIGH_BASKET_DEPOSIT,
         FLEXING_TO_LOW_BASKET_DEPOSIT,
@@ -43,40 +39,29 @@ public class WristFSM {
     private double globalTargetAngle;
     public static double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
-    //Robot CONSTANTS:
-    public static double P = 0.0075;
-    public static double I = 0;
-    public static double D = 0;
-    public static double F = 0.02;
-
-/*
-    //test bench
-    public static double P = 0.01;
-    public static double I = 0;
-    public static double D = 0;*/
-
     public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 280;
+    public static double SAMPLE_FLEXED_POS = 270;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_FLEX_POS = 110.224725;
+    public static double SPECIMEN_INTAKE_POS = 181;
+    public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 30;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 222;
-    public static double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 200;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 110;
+    //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
+
 
     public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 120;
-    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 120;
+    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 120.001;
 
     public static double BASKET_RELAXED_POS = 90;
 
 
-    private AxonServoWrapper wristServoWrapper;
-    private PIDController pidController;
+    private final AxonServoWrapper wristServoWrapper;
 
     private WristStates state;
-    private Logger logger;
+    private final Logger logger;
     private double encoderTargetAngle;
 
     private boolean relaxCalled = false;
@@ -84,11 +69,13 @@ public class WristFSM {
     private boolean sampleIntakeReady = false;
     private boolean sampleCapture = false;
     private boolean sampleRetract = false;
+    private boolean basketDeposit = false;
 
-    ElbowFSM elbowFSM;
+    private final ElbowFSM elbowFSM;
 
-    public static double ENCODER_OFFSET = -15;
-    private static final double TOLERANCE = 15;
+    public double compensation = -1;
+    public static double ENCODER_OFFSET = 0;
+    private static final double TOLERANCE = 100;
 
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
@@ -98,14 +85,6 @@ public class WristFSM {
         this.elbowFSM = elbowFSM;
         globalTargetAngle = RELAXED_POS;
         state = WristStates.RELAXING;
-    }
-
-    @VisibleForTesting
-    public WristFSM(AxonServoWrapper axonServoWrapper, Logger logger, PIDController pidController) {
-        wristServoWrapper = axonServoWrapper;
-        this.pidController = pidController;
-        this.logger = logger;
-        wristCurrentAngle = wristServoWrapper.getLastReadPos();
     }
 
     public void updateState() {
@@ -148,9 +127,15 @@ public class WristFSM {
             }
         } else if (isTargetAngleToSpecimenIntakeFlexPos()) {
             if (atPos(TOLERANCE)) {
-                state = WristStates.FLEXED_TO_SPECIMEN_READY_POS;
+                state = WristStates.FLEXED_TO_SPECIMEN_INTAKE_POS;
             } else {
-                state = WristStates.FLEXING_TO_SPECIMEN__READY_POS;
+                state = WristStates.FLEXING_TO_SPECIMEN_INTAKE_POS;
+            }
+        } else if (isTargetAngleToSpecimenIntakeRetractPos()) {
+            if (atPos(TOLERANCE)) {
+                state = WristStates.SPECIMEN_INTAKE_RETRACTED;
+            } else {
+                state = WristStates.SPECIMEN_INTAKE_RETRACTING;
             }
         } else if (isTargetAngleToHighChamberDepositFlexedPos()) {
             if (atPos(TOLERANCE)) {
@@ -158,23 +143,17 @@ public class WristFSM {
             } else {
                 state = WristStates.FLEXING_TO_HIGH_CHAMBER_DEPOSIT;
             }
-        } else if (isTargetAngleToLowChamberDepositFlexedPos()) {
+        } else if (isTargetAngleToLowBasketDepositFlexedPos()) {
             if (atPos(TOLERANCE)) {
-                state = WristStates.FLEXED_TO_LOW_CHAMBER_DEPOSIT;
+                state = WristStates.FLEXED_TO_LOW_BASKET_DEPOSIT;
             } else {
-                state = WristStates.FLEXING_TO_LOW_CHAMBER_DEPOSIT;
+                state = WristStates.FLEXING_TO_LOW_BASKET_DEPOSIT;
             }
         } else if (isTargetAngleToHighBasketDepositFlexedPos()) {
             if (atPos(TOLERANCE)) {
                 state = WristStates.FLEXED_TO_HIGH_BASKET_DEPOSIT;
             } else {
                 state = WristStates.FLEXING_TO_HIGH_BASKET_DEPOSIT;
-            }
-        } else if (isTargetAngleToLowBasketDepositFlexedPos()) {
-            if (atPos(TOLERANCE)) {
-                state = WristStates.FLEXED_TO_LOW_BASKET_DEPOSIT;
-            } else {
-                state = WristStates.FLEXING_TO_LOW_BASKET_DEPOSIT;
             }
         } else if (isTargetAngleToBasketRelax()) {
             if (atPos(TOLERANCE)) {
@@ -190,9 +169,6 @@ public class WristFSM {
         return globalTargetAngle == BASKET_RELAXED_POS;
     }
 
-    public boolean isTargetAngleToHighBasketDepositFlexedPos() {
-        return globalTargetAngle == HIGH_BASKET_DEPOSIT_FLEXED_POS;
-    }
 
     public boolean isTargetAngleToLowBasketDepositFlexedPos() {
         return globalTargetAngle == LOW_BASKET_DEPOSIT_FLEXED_POS;
@@ -225,7 +201,7 @@ public class WristFSM {
 
 
     public boolean isTargetAngleToSpecimenIntakeFlexPos() {
-        return globalTargetAngle == SPECIMEN_FLEX_POS;
+        return globalTargetAngle == SPECIMEN_INTAKE_POS;
     }
 
 
@@ -233,59 +209,40 @@ public class WristFSM {
         return globalTargetAngle == HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
     }
 
-    public boolean isTargetAngleToLowChamberDepositFlexedPos() {
-        return globalTargetAngle == LOW_CHAMBER_DEPOSIT_FLEXED_POS;
+
+    public boolean isTargetAngleToSpecimenIntakeRetractPos() {
+        return globalTargetAngle == SPECIMEN_INTAKE_RETRACT_POS;
     }
 
+    public boolean isTargetAngleToHighBasketDepositFlexedPos() {
+        return globalTargetAngle == HIGH_BASKET_DEPOSIT_FLEXED_POS;
+    }
 
     public void updatePID() { // This method is used to update position every loop.
-
         wristServoWrapper.readPos();
-        if (sampleControl ||sampleCapture) {
+        if (sampleCapture || elbowFSM.elbowHovering() || basketDeposit) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
-        } else {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getTargetAngle());
-
+      } else {
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getSetCurrentAngle());
         }
+        if(encoderTargetAngle >= 320) {
+            encoderTargetAngle = 320;
+        }
+        else if(encoderTargetAngle <= 140) {
+            encoderTargetAngle = 140;
+        }
+
         wristServoWrapper.set(encoderTargetAngle);
-//
-//        if(encoderTargetAngle < 62) {
-//            encoderTargetAngle = 62;
-//        }
-//        if(encoderTargetAngle > 310) {
-//            encoderTargetAngle = 310;
-//        }
-//
-//
-//        double angleDelta = angleDelta(wristServoWrapper.getLastReadPos(), encoderTargetAngle); // finds the minimum difference between current angle and target angle
-//        double sign = angleDeltaSign(wristServoWrapper.getLastReadPos(), encoderTargetAngle); // sets the direction of servo based on minimum difference
-//        double desiredSign = desiredSign(encoderTargetAngle);
-//
-//        if(!isActualSignEqualToDesiredSign(sign, desiredSign)) {
-//            sign = -sign;
-//            angleDelta = negateError(angleDelta);
-//        }
-
-//        double power = pidController.calculate(angleDelta*sign); // calculates the remaining error(PID)
-
-
-        //       wristServoWrapper.set((power + (F*(Math.cos(Math.toRadians(wristServoWrapper.getLastReadPos()))))));
-
-    }
-
-
-    public void flex() {
-        globalTargetAngle = SAMPLE_FLEXED_POS;
     }
 
     public void flexToSampleIntakeReadyPos() {
         globalTargetAngle = SAMPLE_INTAKE_READY_POS;
         relaxCalled = false;
         sampleControl = false;
-        sampleIntakeReady = true;
+        sampleIntakeReady = true;   
         sampleCapture = false;
         sampleRetract = false;
-        F = 0.001;
+        basketDeposit = false;
         PID_TOLERANCE = 8;
 
     }
@@ -297,7 +254,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
-        F = 0.001;
+        basketDeposit = false;
         PID_TOLERANCE = 8;
 
     }
@@ -309,7 +266,7 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = true;
         sampleRetract = false;
-        F = 0.001;
+        basketDeposit = false;
         PID_TOLERANCE = 15;
 
     }
@@ -321,9 +278,8 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = true;
-        F = 0.005;
+        basketDeposit = false;
         PID_TOLERANCE = 12;
-
     }
 
     public void relax() {
@@ -333,19 +289,19 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
-
-        F = 0.005;
+        basketDeposit = false;
         PID_TOLERANCE = 12;
     }
 
 
     public void flexToSpecimenIntakePos() {
-        globalTargetAngle = SPECIMEN_FLEX_POS;
+        globalTargetAngle = SPECIMEN_INTAKE_POS;
         sampleControl = false;
         relaxCalled = false;
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = false;
 
     }
 
@@ -356,95 +312,51 @@ public class WristFSM {
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = true;
 
     }
 
-    public void flexToLowBasketPos() {
-        globalTargetAngle = LOW_BASKET_DEPOSIT_FLEXED_POS;
+    public void flexToSpecimenRetractIntake() {
+        globalTargetAngle = SPECIMEN_INTAKE_RETRACT_POS;
         sampleControl = false;
         relaxCalled = false;
         sampleIntakeReady = false;
         sampleCapture = false;
         sampleRetract = false;
+        basketDeposit = false;
 
     }
 
-    // Finds the smallest distance between 2 angles, input and output in degrees
-    private double angleDelta(double angle1, double angle2) {
-        return Math.min(normalizeDegrees(angle1 - angle2), 360 - normalizeDegrees(angle1 - angle2));
-    }
-
-    // Finds the direction of the smallest distance between 2 angles
-    private double angleDeltaSign(double position, double target) {
-        return -(Math.signum(normalizeDegrees(target - position) - (360 - normalizeDegrees(target - position))));
-    }
-
-    // Takes input angle in degrees, returns that angle in the range of 0-360
-    //Prevents the servos from looping around
-    private static double normalizeDegrees(double angle) {
-        return (angle + 360) % 360;
-    }
-
-    private boolean isActualSignEqualToDesiredSign(double actualSign, double desiredSign) {
-        return actualSign == desiredSign;
-    }
-
-    private double desiredSign(double encoderTargetAngle) {
-        if (encoderTargetAngle > wristServoWrapper.getLastReadPos()) {
-            return 1;
-        } else if (encoderTargetAngle < wristServoWrapper.getLastReadPos()) {
-            return -1;
-        }
-        return 0;
-    }
-
-    private double negateError(double currentError) {
-        return 360 - Math.abs(currentError);
+    public void flexToSpecimenDepositReadyPos() {
+        globalTargetAngle = HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
+        sampleControl = false;
+        relaxCalled = false;
+        sampleIntakeReady = false;
+        sampleCapture = false;
+        sampleRetract = false;
+        basketDeposit = false;
     }
 
     private double convertGlobalAngleToEncoder(double globalWristAngle, double elbowCurrentAngle) {
-        return (globalWristAngle - elbowCurrentAngle - ENCODER_OFFSET) + 180;
-       /* if(elbowAngle > 180) {
-            return wristAngle + (360 -elbowAngle);
-        }
-        else if(elbowAngle < 180) {
-            return wristAngle - elbowAngle;
-        }*/
+        return ((globalWristAngle - elbowCurrentAngle) + 180) + compensation;
     }
 
     public boolean atPos(double tolerance) {
-        return (encoderTargetAngle + tolerance >= wristCurrentAngle) || (encoderTargetAngle - tolerance <= wristCurrentAngle);
-    }
-
-
-    public boolean FLEXED() {
-        return state == WristStates.FLEXED;
-    }
-
-    public boolean FLEXING() {
-        return state == WristStates.FLEXING;
+        return (encoderTargetAngle + tolerance >= wristCurrentAngle) && (encoderTargetAngle - tolerance <= wristCurrentAngle);
     }
 
     public boolean RELAXED() {
         return state == WristStates.RELAXED;
     }
 
-    public boolean RELAXING() {
-        return state == WristStates.RELAXING;
-    }
-
     public boolean FLEXED_TO_SPECIMEN_READY_POS() {
-        return state == WristStates.FLEXED_TO_SPECIMEN_READY_POS;
+        return state == WristStates.FLEXED_TO_SPECIMEN_INTAKE_POS;
 
     }
 
 
     public boolean FLEXED_TO_SAMPLE_INTAKE_READY_POS() {
         return state == WristStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
-    }
-
-    public boolean FLEXING_TO_SAMPLE_INTAKE_READY_POS() {
-        return state == WristStates.FLEXING_TO_SAMPLE_INTAKE_READY_POS;
     }
 
     public boolean FLEXED_TO_SAMPLE_INTAKE_CAPTURE_POS() {
@@ -463,22 +375,36 @@ public class WristFSM {
         return state == WristStates.FLEXED_TO_HIGH_BASKET_DEPOSIT;
     }
 
-
-    public boolean RELAXED_FROM_BASKET_DEPOSIT() {
-        return state == WristStates.RELAXED_FROM_BASKET_DEPOSIT;
+    public boolean FLEXED_TO_HIGH_CHAMBER_DEPOSIT() {
+        return state == WristStates.FLEXED_TO_HIGH_CHAMBER_DEPOSIT;
     }
+
+    public boolean SPECIMEN_INTAKE_RETRACTED() {
+        return state == WristStates.SPECIMEN_INTAKE_RETRACTED;
+    }
+
 
     public void setSampleCapture(boolean sampleCapture) {
         this.sampleCapture = sampleCapture;
     }
 
+    public void increaseCompensation() {
+        compensation++;
+    }
+
+    public void decreaseCompensation() {
+        compensation--;
+    }
+
     public void log() {
-        logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
+        logger.log("--------------Wrist Log---------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Wrist State", state, Logger.LogLevels.PRODUCTION);
-        logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.PRODUCTION);
-        logger.log("Real Target angle", encoderTargetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("Global Target Angle", globalTargetAngle, Logger.LogLevels.PRODUCTION);
-        logger.log("--------------Wrist-----------", "-", Logger.LogLevels.PRODUCTION);
+        logger.log("Current Angle", wristServoWrapper.getLastReadPos(), Logger.LogLevels.DEBUG);
+        logger.log("Real Target angle", encoderTargetAngle, Logger.LogLevels.DEBUG);
+        logger.log("Global Target angle", globalTargetAngle, Logger.LogLevels.DEBUG);
+        logger.log("wrist angle compensation", compensation, Logger.LogLevels.PRODUCTION);
+
+        logger.log("--------------Wrist Log---------------", "-", Logger.LogLevels.PRODUCTION);
     }
 
 }

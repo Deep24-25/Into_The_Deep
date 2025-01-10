@@ -8,21 +8,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 
 public class FingerServoWrapper {
-    private final ServoEx fingerServo;
+    private final Servo fingerServo;
 
     public FingerServoWrapper(HWMap hwMap) {
         fingerServo = hwMap.getFingerServo();
     }
 
     public void setAngle(double angle) {
-        fingerServo.turnToAngle(angle, AngleUnit.DEGREES);
+        fingerServo.setPosition(angle);
     }
 
     public double readAngle() {
-        return fingerServo.getAngle();
-    }
-
-    public double getPos() {
         return fingerServo.getPosition();
     }
+
 }

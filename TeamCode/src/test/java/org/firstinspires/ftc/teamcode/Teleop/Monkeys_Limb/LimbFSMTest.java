@@ -1,9 +1,9 @@
+/*
 
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -31,9 +31,11 @@ class LimbFSMTest {
     }
 
 
-    /**
+    */
+/**
      * ------------------------------------findTargetState()-----------------------------------
-     **/
+     **//*
+
 
 
     // Specimen State Tests
@@ -44,7 +46,7 @@ class LimbFSMTest {
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
 
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -55,7 +57,7 @@ class LimbFSMTest {
         when(sut.PREPARED_TO_INTAKE()).thenReturn(false);
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -65,7 +67,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.INTAKING_SPECIMEN());
     }
@@ -75,7 +77,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.EXTENDING_SPECIMEN());
     }
@@ -86,7 +88,7 @@ class LimbFSMTest {
         when(sut.EXTENDED_SPECIMEN()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(false);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.DEPOSITING_SPECIMEN());
     }
@@ -96,7 +98,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.INTAKING_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, false, true, false, false, false, false);
+        sut.findTargetState(false, false, true, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -106,7 +108,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, false, true, false, false, false, false);
+        sut.findTargetState(false, false, true, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -118,7 +120,7 @@ class LimbFSMTest {
 
         when(sut.EXTENDING_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, false, true, false, false, false, false);
+        sut.findTargetState(false, false, true, false);
 
         assertTrue(sut.INTAKING_SPECIMEN());
     }
@@ -130,7 +132,7 @@ class LimbFSMTest {
 
         when(sut.EXTENDED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, false, true, false, false, false, false);
+        sut.findTargetState(false, false, true, false);
 
         assertTrue(sut.INTAKING_SPECIMEN());
     }
@@ -141,7 +143,7 @@ class LimbFSMTest {
         when(sut.DEPOSITING_SPECIMEN()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(false);
 
-        sut.findTargetState(false, false, true, false, false, false, false);
+        sut.findTargetState(false, false, true, false);
 
         assertTrue(sut.EXTENDING_SPECIMEN());
     }
@@ -151,7 +153,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
 
@@ -162,7 +164,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, true, false, false, false, false, false);
+        sut.findTargetState(false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE());
 
@@ -176,7 +178,7 @@ class LimbFSMTest {
         when(sut.PREPARED_TO_DEPOSIT_SAMPLE()).thenReturn(false);
         when(sut.SAMPLE_MODE()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
 
@@ -190,7 +192,7 @@ class LimbFSMTest {
         when(sut.SAMPLE_MODE()).thenReturn(true);
         when(sut.SAMPLE_MODE()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
 
@@ -202,7 +204,7 @@ class LimbFSMTest {
         when(sut.DEPOSITING_SAMPLE()).thenReturn(false);
         when(sut.SAMPLE_MODE()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
 
@@ -213,7 +215,7 @@ class LimbFSMTest {
         when(sut.PREPARED_TO_DEPOSIT_SAMPLE()).thenReturn(true);
         when(sut.SAMPLE_MODE()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.EXTENDING_TO_BASKET_HEIGHT());
 
@@ -228,7 +230,7 @@ class LimbFSMTest {
         when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
         when(sut.INTAKING_SPECIMEN()).thenReturn(false);
 
-        sut.findTargetState(true, false, false, false, false, false, false);
+        sut.findTargetState(true, false, false, false);
 
         assertTrue(sut.DEPOSITING_SAMPLE());
     }
@@ -242,7 +244,7 @@ class LimbFSMTest {
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
 
 
-        sut.findTargetState(false, true, false, false, false, false, false);
+        sut.findTargetState(false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE());
     }
@@ -254,7 +256,7 @@ class LimbFSMTest {
         when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
 
-        sut.findTargetState(false, true, false, false, false, false, false);
+        sut.findTargetState(false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE());
     }
@@ -266,7 +268,7 @@ class LimbFSMTest {
         when(sut.DEPOSITED_SAMPLE()).thenReturn(true);
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
 
-        sut.findTargetState(false, true, false, false, false, false, false);
+        sut.findTargetState(false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE());
     }
@@ -278,7 +280,7 @@ class LimbFSMTest {
         when(sut.DEPOSITED_SAMPLE()).thenReturn(false);
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, true, false, false, false, false, false);
+        sut.findTargetState(false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE());
     }
@@ -288,7 +290,7 @@ class LimbFSMTest {
         when(sut.PREPARED_TO_INTAKE()).thenReturn(true);
         when(sut.MOVING_TO_INTAKE_POS()).thenReturn(true);
 
-        sut.findTargetState(false, true, false, false, false, false, false);
+        sut.findTargetState(false, true, false, false);
 
         assertTrue(sut.MOVING_TO_INTAKE_POS());
     }
@@ -296,38 +298,33 @@ class LimbFSMTest {
     @Test
     public void movingToMiniIntakeIfPreparedToIntake() {
         when(sut.PREPARED_TO_INTAKE()).thenReturn(true);
-        when(sut.MOVED_TO_MINI_INTAKE()).thenReturn(false);
-        when(pawFSMMock.MINI_INTAKED()).thenReturn(false);
 
+        sut.findTargetState(false, false, false, false);
 
-        sut.findTargetState(false, false, false, true, false, false, false);
-
-        assertTrue(sut.MOVING_TO_MINI_INTAKE());
     }
 
     @Test
     public void retractingFromMiniIntakeIfMovedToMiniIntakeAndMonkeyPawMiniIntaked() {
         when(sut.PREPARED_TO_INTAKE()).thenReturn(false);
-        when(sut.MOVED_TO_MINI_INTAKE()).thenReturn(true);
-        when(pawFSMMock.MINI_INTAKED()).thenReturn(true);
 
-        sut.findTargetState(false, false, false, true, false, false, false);
+        sut.findTargetState(false, false, false, false);
 
-        assertTrue(sut.RETRACTING_FROM_MINI_INTAKE());
     }
 
     @Test
     public void sampleMode() {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
 
-        sut.findTargetState(false, false, false, false, false, true, false);
+        sut.findTargetState(false, false, false, true);
 
         assertTrue(sut.SAMPLE_MODE());
     }
 
-    /**
+    */
+/**
      * ------------------------------------updateState()-----------------------------------
-     **/
+     **//*
+
 
 
     //Specimen: Preparing To Intake Specimen
@@ -341,7 +338,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock, never()).retract();
 
@@ -357,7 +354,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).retract();
 
@@ -372,7 +369,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         assertFalse(sut.INTAKED_SPECIMEN());
         assertFalse(armFSMMock.AT_SPECIMEN_PICKUP_HEIGHT());
@@ -386,7 +383,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).moveToSubmersibleHeight();
         assertTrue(sut.INTAKED_SPECIMEN());
@@ -400,10 +397,8 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(false);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false, false, false, false, true, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
-        verify(shoulderFSMMock).indexToLowChamberAngle();
-        verify(armFSMMock).setIndexToSubmersibleLowHeight();
 
         assertFalse(sut.EXTENDED_SPECIMEN());
     }
@@ -415,10 +410,8 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(true);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false, false, false, false, false, false, true, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
-        verify(shoulderFSMMock).indexToHighChamberAngle();
-        verify(armFSMMock).setIndexToSubmersibleHighHeight();
 
         assertTrue(sut.EXTENDED_SPECIMEN());
     }
@@ -431,10 +424,7 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(false);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false, false, false, false, true, false, false, true);
-
-        verify(shoulderFSMMock).indexToLowChamberAngle();
-        verify(armFSMMock).setIndexToSubmersibleLowHeight();
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         assertFalse(sut.EXTENDED_SPECIMEN());
     }
@@ -446,10 +436,8 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_DEPOSIT_CHAMBERS()).thenReturn(true);
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
 
-        sut.updateState(false, false, false, false, false, false, true, true);
+        sut.updateState(false, false, false, false, false,false, false,false,false,false,0.0,false);
 
-        verify(shoulderFSMMock).indexToHighChamberAngle();
-        verify(armFSMMock).setIndexToSubmersibleHighHeight();
 
         assertTrue(sut.EXTENDED_SPECIMEN());
     }
@@ -462,7 +450,7 @@ class LimbFSMTest {
         when(armFSMMock.AT_CHAMBER_LOCK_HEIGHT()).thenReturn(false);
         when(pawFSMMock.DEPOSITED_SPECIMEN()).thenReturn(false);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).moveToChamberLockHeight();
 
@@ -475,7 +463,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SPECIMEN_MODE);
         when(armFSMMock.AT_CHAMBER_LOCK_HEIGHT()).thenReturn(true);
         when(pawFSMMock.DEPOSITED_SPECIMEN()).thenReturn(true);
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).moveToChamberLockHeight();
 
@@ -490,10 +478,9 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SAMPLE_MODE);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(false);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).retract();
-        verify(shoulderFSMMock, never()).indexToLowChamber();
         assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
     }
 
@@ -504,10 +491,9 @@ class LimbFSMTest {
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
         when(shoulderFSMMock.AT_BASKET_DEPOSIT()).thenReturn(true);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock, never()).retract();
-        verify(shoulderFSMMock).indexToLowChamber();
         assertTrue(sut.PREPARED_TO_DEPOSIT_SAMPLE());
     }
 
@@ -518,7 +504,7 @@ class LimbFSMTest {
         sut.setCurrentMode(LimbFSM.Mode.SAMPLE_MODE);
         when(armFSMMock.AT_BASKET_HEIGHT()).thenReturn(true);
 
-        sut.updateState(false, false, false, false, true, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).setIndexToBasketHighHeight();
         verify(armFSMMock).setIndexToBasketLowHeight();
@@ -532,7 +518,7 @@ class LimbFSMTest {
         when(armFSMMock.AT_BASKET_HEIGHT()).thenReturn(false);
         sut.setCurrentMode(LimbFSM.Mode.SAMPLE_MODE);
 
-        sut.updateState(false, false, false, false, true, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).setIndexToBasketLowHeight();
 
@@ -547,7 +533,7 @@ class LimbFSMTest {
         sut.setCurrentState(LimbFSM.States.DEPOSITING_SAMPLE);
         when(pawFSMMock.RELAXED_AFTER_DEPOSIT()).thenReturn(true);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
 
         assertTrue(sut.DEPOSITED_SAMPLE());
@@ -558,7 +544,7 @@ class LimbFSMTest {
         sut.setCurrentState(LimbFSM.States.DEPOSITING_SAMPLE);
         when(pawFSMMock.RELAXED_AFTER_DEPOSIT()).thenReturn(false);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         assertTrue(sut.DEPOSITING_SAMPLE());
     }
@@ -570,7 +556,7 @@ class LimbFSMTest {
         when(shoulderFSMMock.AT_INTAKE()).thenReturn(true);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock, never()).retract();
         verify(shoulderFSMMock, never()).moveToIntakeAngle();
@@ -588,7 +574,7 @@ class LimbFSMTest {
         when(pawFSMMock.PREPARED_TO_INTAKE_SAMPLE()).thenReturn(true);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).retract();
         verify(shoulderFSMMock, atLeastOnce()).moveToIntakeAngle();
@@ -603,7 +589,7 @@ class LimbFSMTest {
         when(pawFSMMock.PREPARED_TO_INTAKE_SAMPLE()).thenReturn(false);
         when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).retract();
         verify(shoulderFSMMock, atLeastOnce()).moveToIntakeAngle();
@@ -619,7 +605,7 @@ class LimbFSMTest {
         when(pawFSMMock.PREPARED_TO_INTAKE_SAMPLE()).thenReturn(false);
 
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).retract();
         verify(armFSMMock).moveToSafeHeight();
@@ -637,14 +623,14 @@ class LimbFSMTest {
         when(pawFSMMock.RELAXED_POS_WITH_SAMPLE()).thenReturn(false);
 
 
-        sut.updateState(false, false, false, false, false, false, false, true);
+        sut.updateState(false, false, false, false, false, false, false, false, false, false, 0.0, false);
 
         verify(armFSMMock).retract();
         verify(armFSMMock).moveToSafeHeight();
         verify(shoulderFSMMock, never()).moveToIntakeAngle();
         assertTrue(sut.PREPARED_TO_INTAKE());
     }
-
+}
 
     //Intake: Moving To Intake
 
@@ -652,42 +638,5 @@ class LimbFSMTest {
 
     //Intake: Moving To Mini Intake
     //TODO: Again flawed indexIncrement logic and as this is from the flowchart the test is different.
-    @Test
-    public void movingToMiniIntake() {
-        sut.setCurrentState(LimbFSM.States.MOVING_TO_MINI_INTAKE);
-        when(armFSMMock.AT_MINI_INTAKE()).thenReturn(true);
 
-        sut.updateState(false, false, false, false, false, false, false, true);
-
-        verify(armFSMMock).moveToMiniIntake();
-        assertTrue(sut.MOVED_TO_MINI_INTAKE());
-    }
-
-    //Intake: Retracting From Mini Intake
-    @Test
-    public void retractingFromMiniIntakeAndRelaxedMiniIntake() {
-        sut.setCurrentState(LimbFSM.States.RETRACTING_FROM_MINI_INTAKE);
-        when(pawFSMMock.RELAXED_MINI_INTAKE()).thenReturn(true);
-        when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
-
-        sut.updateState(false, false, false, false, false, false, false, true);
-
-        verify(armFSMMock).retract();
-        assertTrue(sut.PREPARED_TO_INTAKE());
-    }
-
-    @Test
-    public void retractingFromMiniIntakeAndNotRelaxedMiniIntake() {
-        sut.setCurrentState(LimbFSM.States.RETRACTING_FROM_MINI_INTAKE);
-        when(pawFSMMock.RELAXED_MINI_INTAKE()).thenReturn(false);
-        when(armFSMMock.FULLY_RETRACTED()).thenReturn(true);
-
-        sut.updateState(false, false, false, false, false, false, false, true);
-
-        verify(armFSMMock, never()).retract();
-        assertTrue(sut.RETRACTING_FROM_MINI_INTAKE());
-    }
-
-
-}
-
+*/

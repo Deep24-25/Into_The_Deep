@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 
 public class ShoulderWrapper {
-    private final Motor shoulderMotor;
+    private final MotorEx shoulderMotor;
     private double lastReadAngle;
-    private static final int ENCODER_OFFSET = 360;
-    private double SLIDES_CPR;
+    private final double SLIDES_CPR;
 
     //ratio 24:41
     public ShoulderWrapper(HWMap hwMap) {
@@ -40,7 +39,12 @@ public class ShoulderWrapper {
     public double getLastReadAngle() {
         return lastReadAngle;
     }
-    public void resetEncoder(){
+
+    public void resetEncoder() {
         shoulderMotor.resetEncoder();
+    }
+
+    public double getCurrent() {
+        return shoulderMotor.motorEx.getCurrent(CurrentUnit.AMPS);
     }
 }

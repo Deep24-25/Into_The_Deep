@@ -18,11 +18,12 @@ public class ShoulderTuner extends LinearOpMode {
     private PIDFController pidfController;
 
     public static double targetAngle = 0;
+    private HWMap hwMap;
 
     @Override
     public void runOpMode() {
         try {
-            HWMap hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             shoulderWrapper = new ShoulderWrapper(hwMap);
             pidfController = new PIDFController(P, I, D, A);
@@ -33,6 +34,7 @@ public class ShoulderTuner extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
+            hwMap.clearCache();
             pidfController.setPIDF(P, I, D, A);
             double currentAngle = shoulderWrapper.readAngle();
             double error = targetAngle - currentAngle;

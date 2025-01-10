@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 import java.util.concurrent.TimeUnit;
 
 @Config
-@TeleOp(name = "Main Tele-op V1.2.0")
-public class MainTeleop extends LinearOpMode {
+@TeleOp(name = "TeleopWithoutDriving V1.2.0")
+public class TeleopWithoutDriving extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;
     private Logger logger;
@@ -107,7 +107,7 @@ public class MainTeleop extends LinearOpMode {
             }
 
             logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
-            fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
+            fieldCentricDrive.drive(0, 0, 0, 0);
             monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN));
             limbFSM.updateState(gamePad2.isDown(GamepadKeys.Button.DPAD_RIGHT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT), gamePad2.isDown(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_LEFT), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 

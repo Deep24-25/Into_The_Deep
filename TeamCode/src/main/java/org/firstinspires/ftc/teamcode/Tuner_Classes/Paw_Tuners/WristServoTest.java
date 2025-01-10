@@ -18,9 +18,10 @@ public class WristServoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false,false, WristFSM.ENCODER_OFFSET);
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false,false, 0);
         waitForStart();
         while (opModeIsActive()) {
+            hwMap.clearCache();
             wristServoWrapper.set(targetAngle);
             telemetry.addData("target angle", targetAngle);
             telemetry.addData("Current angle", wristServoWrapper.readPos());
