@@ -72,15 +72,16 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -35;
+    public static double ENCODER_OFFSET = 20;
 
     public static double CAPTURE_OFFSET = 57;
 
     public static double HOVER_TUNER = 30;
 
+
     public ShoulderFSM shoulderFSM;
 
-    private double hoveringOffset = 3;
+    private static double hoveringOffset = -1;
 
     private double setCurrentAngle;
 
