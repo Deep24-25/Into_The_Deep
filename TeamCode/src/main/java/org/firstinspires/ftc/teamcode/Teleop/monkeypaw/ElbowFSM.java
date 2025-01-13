@@ -78,9 +78,10 @@ public class ElbowFSM {
 
     public static double HOVER_TUNER = 30;
 
+
     public ShoulderFSM shoulderFSM;
 
-    private double hoveringOffset = 5;
+    private static double hoveringOffset = 5;
 
     private double setCurrentAngle;
 
@@ -348,6 +349,7 @@ public class ElbowFSM {
         logger.log("Elbow Current Position", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.DEBUG);
         logger.log("Elbow Target Pos", targetAngle, Logger.LogLevels.DEBUG);
         logger.log("Elbow Hovering Offset", hoveringOffset, Logger.LogLevels.PRODUCTION);
+        logger.log("Elbow Encoder Offset", ENCODER_OFFSET, Logger.LogLevels.PRODUCTION);
         logger.log("------------------------- ELBOW LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
 

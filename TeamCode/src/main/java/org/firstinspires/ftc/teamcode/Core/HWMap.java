@@ -5,8 +5,10 @@ import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap.DeviceMapping;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -18,7 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import java.util.List;
 
 public class HWMap {
-    private static PinpointPod pinpointIMU;
+  //  private static PinpointPod pinpointIMU;
+  private static IMU imu;
+    public static double imuAngle;
     private final MecanumDrive mecanumDrive;
     private final VoltageSensor voltageSensor;
 
@@ -47,7 +51,7 @@ public class HWMap {
     private final AnalogInput wristFlexEncoder;
     private final AnalogInput wristDeviEncoder;
 
-    private static Pose2D IMUpos;
+    //private static Pose2D IMUpos;
 
     List<LynxModule> hubs;
 
@@ -59,9 +63,9 @@ public class HWMap {
         backleftMotor = new MotorEx(hardwareMap, "LB", Motor.GoBILDA.RPM_312); //CH Port 2. The perpendicular odo pod accesses this motor's encoder port
         backRightMotor = new MotorEx(hardwareMap, "RB", Motor.GoBILDA.RPM_312);//CH Port 3. The left odo pod accesses this motor's encoder port.
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
-        pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
+        //pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
-
+        imu = hardwareMap.get(IMU.class, "imu");
         mecanumDrive.setRightSideInverted(false);
         backleftMotor.setInverted(true);
         frontLeftMotor.setInverted(true);
@@ -127,17 +131,25 @@ public class HWMap {
 
 
     public static double readFromIMU() {
-        pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
-        IMUpos = pinpointIMU.getPosition();
-        return IMUpos.getHeading(AngleUnit.DEGREES);
+        imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        return imuAngle;
+        //pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
+        //IMUpos = pinpointIMU.getPosition();
+        //return IMUpos.getHeading(AngleUnit.DEGREES);
+
     }
 
     public static double getIMUangle() {
-        return IMUpos.getHeading(AngleUnit.DEGREES);
+        return imuAngle;
+        //return IMUpos.getHeading(AngleUnit.DEGREES);
     }
 
     public static void initializeIMU() {
-        pinpointIMU.resetPosAndIMU();
+        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
+        imu.initialize(revParameters);
+        imu.resetYaw();
+       // pinpointIMU.resetPosAndIMU();
     }
 
     public Servo getWristDeviServo() {
