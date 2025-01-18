@@ -1,16 +1,18 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.constants;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.localization.*;
 import com.pedropathing.localization.constants.*;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Config
 public class LConstants {
     static {
-        PinpointConstants.forwardY = 7.75;
-        PinpointConstants.strafeX = 5.5;
+        PinpointConstants.forwardY = 5.5;
+        PinpointConstants.strafeX = 7.75;
         PinpointConstants.distanceUnit = DistanceUnit.INCH;
-        PinpointConstants.hardwareMapName = "PP";
+        PinpointConstants.hardwareMapName = "pinpoint";
         PinpointConstants.useYawScalar = false;
         PinpointConstants.yawScalar = 1.0;
         PinpointConstants.useCustomEncoderResolution = false;
