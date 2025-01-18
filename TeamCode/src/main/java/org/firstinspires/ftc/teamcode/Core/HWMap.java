@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Core;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -10,12 +9,10 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.HardwareMap.DeviceMapping;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.List;
 
@@ -55,7 +52,7 @@ public class HWMap {
 
     List<LynxModule> hubs;
 
-    public HWMap(HardwareMap hardwareMap) {
+    public HWMap(HardwareMap hardwareMap, boolean isAuto) {
         hubs = hardwareMap.getAll(LynxModule.class);
 
         frontRightMotor = new MotorEx(hardwareMap, "RF", Motor.GoBILDA.RPM_312);
@@ -95,9 +92,10 @@ public class HWMap {
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         brakingOff();
-
-        for (LynxModule hub : hubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        if(!isAuto) {
+            for (LynxModule hub : hubs) {
+                hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            }
         }
     }
 

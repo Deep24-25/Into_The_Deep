@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
-import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 
 @TeleOp
@@ -25,7 +24,7 @@ public class GlobalAngleDemo extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         try {
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-            hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap, false);
             elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ELBOW_ENCODER_OFFSET); // check if you need to reverse axons
             wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true, true, WristFSM.ENCODER_OFFSET); // check if you need to reverse axons
             wristGlobalTargetAngle = 180;

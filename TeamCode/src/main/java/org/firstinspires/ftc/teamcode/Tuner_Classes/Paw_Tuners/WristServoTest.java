@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
-import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
-import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 
 @TeleOp
 @Config
@@ -17,7 +15,7 @@ public class WristServoTest extends LinearOpMode {
     public static double targetAngle = 180;
     @Override
     public void runOpMode() throws InterruptedException {
-        hwMap = new HWMap(hardwareMap);
+        hwMap = new HWMap(hardwareMap, false);
         wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false,false, 0);
         waitForStart();
         while (opModeIsActive()) {

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Tuner_Classes.Paw_Tuners;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -17,7 +16,7 @@ public class ServoTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        hwMap = new HWMap(hardwareMap);
+        hwMap = new HWMap(hardwareMap, false);
         deviatorServo = hwMap.getFingerServo();
         waitForStart();
         while (opModeIsActive()) {

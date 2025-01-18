@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
-import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
-import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 
@@ -29,7 +27,7 @@ public class ArmTuner extends LinearOpMode {
     @Override
     public void runOpMode() {
         try {
-            HWMap hwMap = new HWMap(hardwareMap);
+            HWMap hwMap = new HWMap(hardwareMap, false);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             armMotorsWrapper = new ArmMotorsWrapper(hwMap);
             shoulderFSM = new ShoulderFSM(hwMap, new Logger(telemetry));

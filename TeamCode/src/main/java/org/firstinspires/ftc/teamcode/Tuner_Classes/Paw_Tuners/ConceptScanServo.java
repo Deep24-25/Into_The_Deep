@@ -7,15 +7,12 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
-import org.firstinspires.ftc.teamcode.Core.Logger;
 
 
 @Config
@@ -50,7 +47,7 @@ public class ConceptScanServo extends LinearOpMode {
         // Connect to servo (Assume Robot Left Hand)
         // Change the text in quotes to match any servo name on your robot.
         try {
-            hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap, false);
             WDS = hwMap.getWristDeviServo();
             WFS = hwMap.getWristFlexServo();
             ES = hwMap.getElbowServo();

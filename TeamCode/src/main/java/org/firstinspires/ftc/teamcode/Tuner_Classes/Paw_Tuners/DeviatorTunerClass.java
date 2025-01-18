@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
-import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonCRServoWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 
 @Config
@@ -25,7 +24,7 @@ public class DeviatorTunerClass extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        hwMap = new HWMap(hardwareMap);
+        hwMap = new HWMap(hardwareMap, false);
         logger = new Logger(telemetry);
         deviatorServoWrapper = new AxonServoWrapper(hwMap.getWristDeviServo(), hwMap.getWristDeviEncoder(), false,false, 0);
         pidController = new PIDController(P,I,D);

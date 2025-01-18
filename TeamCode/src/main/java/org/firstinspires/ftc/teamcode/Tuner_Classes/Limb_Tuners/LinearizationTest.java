@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
-import org.firstinspires.ftc.teamcode.Core.Logger;
-import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
@@ -37,7 +35,7 @@ public class LinearizationTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         try {
-            HWMap hwMap = new HWMap(hardwareMap);
+            HWMap hwMap = new HWMap(hardwareMap, false);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             armMotorsWrapper = new ArmMotorsWrapper(hwMap);
             elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ElbowFSM.ENCODER_OFFSET);

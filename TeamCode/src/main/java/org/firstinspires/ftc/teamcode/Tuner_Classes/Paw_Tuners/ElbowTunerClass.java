@@ -33,7 +33,7 @@ public class ElbowTunerClass extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        hwMap = new HWMap(hardwareMap);
+        hwMap = new HWMap(hardwareMap, false);
         logger = new Logger(telemetry);
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false,false, ElbowFSM.ENCODER_OFFSET);
         shoulderWrapper = new ShoulderWrapper(hwMap);

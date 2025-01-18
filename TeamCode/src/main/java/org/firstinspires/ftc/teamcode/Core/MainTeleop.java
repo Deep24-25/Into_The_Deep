@@ -55,7 +55,7 @@ public class MainTeleop extends LinearOpMode {
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             gamePad1 = new GamepadEx(gamepad1);
             gamePad2 = new GamepadEx(gamepad2);
-            hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap, false);
             logger = new Logger(telemetry);
             ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
             ElbowFSM elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
