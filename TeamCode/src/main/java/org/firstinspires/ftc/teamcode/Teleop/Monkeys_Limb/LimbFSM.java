@@ -400,4 +400,12 @@ public class LimbFSM {
         this.states = states;
     }
 
+    public States getStates() {
+        return states;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
 }

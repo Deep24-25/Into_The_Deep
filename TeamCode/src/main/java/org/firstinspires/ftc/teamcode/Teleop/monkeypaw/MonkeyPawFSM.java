@@ -263,7 +263,7 @@ public class MonkeyPawFSM {
                 armFSM.moveToSubmersibleHeight();
                 armFSM.moveToChamberLockHeight();
                 fingerFSM.releaseSpecimen();
-                if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
+                if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     state = States.DEPOSITED_SPECIMEN;
                 }
                 break;
@@ -343,6 +343,10 @@ public class MonkeyPawFSM {
 
     public void updatePID() {
         wristFSM.updatePID();
+    }
+
+    public States getState() {
+        return state;
     }
 
 }
