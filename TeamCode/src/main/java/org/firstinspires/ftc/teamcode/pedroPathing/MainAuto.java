@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -35,16 +36,19 @@ public class MainAuto extends LinearOpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(8, 55, Math.toRadians(180));  // Starting position
-    private final Pose preloadScorePose = new Pose(26, 65, Math.toRadians(180)); // Scoring position
+    private final Pose preloadScorePose = new Pose(27, 65, Math.toRadians(180)); // Scoring position
     private final Pose parkPose = new Pose(8,15,  Math.toRadians(180));
 
-    private Path scorePreload, park;
+    private PathChain scorePreload,park;
     public void buildPaths() {
-        scorePreload = new Path(new BezierCurve(new Point(startPose), new Point(preloadScorePose)));
-        scorePreload.setConstantHeadingInterpolation(startPose.getHeading());
-
-        park = new Path(new BezierCurve(new Point(preloadScorePose), new Point(parkPose)));
-        park.setConstantHeadingInterpolation(preloadScorePose.getHeading());
+        scorePreload = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(startPose), new Point(preloadScorePose)))
+                .setConstantHeadingInterpolation(startPose.getHeading())
+                .build();
+        park = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(preloadScorePose), new Point(parkPose)))
+                .setConstantHeadingInterpolation(preloadScorePose.getHeading())
+                .build();
     }
     public void updatePath() {
         monkeyPawFSM.updateState(false,false,false,false,false,false,false,false,false,false,true);
@@ -148,6 +152,9 @@ public class MainAuto extends LinearOpMode {
         while (opModeIsActive()) {
             follower.update();
             updatePath();
+            logger.log("x", follower.getPose().getX(), Logger.LogLevels.PRODUCTION);
+            logger.log("y", follower.getPose().getX(), Logger.LogLevels.PRODUCTION);
+            logger.log("heading", follower.getPose().getHeading(), Logger.LogLevels.PRODUCTION);
             logger.log("path state",pathState, Logger.LogLevels.PRODUCTION);
             logger.log("limb state", limbFSM.getStates(), Logger.LogLevels.PRODUCTION);
             logger.log("monkey paw state", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);

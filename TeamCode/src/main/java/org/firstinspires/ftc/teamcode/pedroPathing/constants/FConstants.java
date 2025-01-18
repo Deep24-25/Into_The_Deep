@@ -22,6 +22,7 @@ public class FConstants {
 
         FollowerConstants.mass = 11.79;
 
+        FollowerConstants.maxPower = 0.7;
         FollowerConstants.xMovement = 71.23071075842404; // default is 57.8741
         FollowerConstants.yMovement = 55.42764838008378; // default is 52.295
 
@@ -40,7 +41,7 @@ public class FConstants {
         FollowerConstants.useSecondaryDrivePID = false;
         FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0,0.6,0); // Not being used, @see useSecondaryDrivePID
 
-        FollowerConstants.zeroPowerAccelerationMultiplier = 4;
+        FollowerConstants.zeroPowerAccelerationMultiplier = 3;
         FollowerConstants.centripetalScaling = 0.0004;
 
         FollowerConstants.pathEndTimeoutConstraint = 500;
