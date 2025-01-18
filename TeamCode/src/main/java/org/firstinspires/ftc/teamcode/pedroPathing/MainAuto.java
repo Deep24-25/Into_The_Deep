@@ -34,8 +34,8 @@ public class MainAuto extends LinearOpMode {
     private Follower follower;
     private int pathState;
 
-    private final Pose startPose = new Pose(8, 55, Math.toRadians(0));  // Starting position
-    private final Pose preloadScorePose = new Pose(28, 65, Math.toRadians(0)); // Scoring position
+    private final Pose startPose = new Pose(8, 55, Math.toRadians(180));  // Starting position
+    private final Pose preloadScorePose = new Pose(30, 65, Math.toRadians(180)); // Scoring position
 
     private Path scorePreload, park;
     public void buildPaths() {
@@ -43,12 +43,49 @@ public class MainAuto extends LinearOpMode {
         scorePreload.setConstantHeadingInterpolation(startPose.getHeading());
     }
     public void updatePath() {
+        monkeyPawFSM.updateState(false,false,false,false,false,false,false,false,false,false,true);
+        limbFSM.updateState(false,false,false,false,false,false,false,false,false,false,0,false,true);
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
                 setPathState(1);
                 break;
             case 1:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+                    if(monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+                        setPathState(2);
+                    }
+                }
+                break;
+            case 2:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
+                    if (monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN() && limbFSM.EXTENDED_SPECIMEN()) {
+                        setPathState(3);
+                    }
+                }
+            case 3:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.DEPOSITING_SPECIMEN);
+                    if (limbFSM.DEPOSITED_SPECIMEN()) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SPECIMEN);
+                        if(monkeyPawFSM.DEPOSITED_SPECIMEN()) {
+                            setPathState(4);
+                        }
+                    }
+                }
+            case 4:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                    if(monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN() && limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                        setPathState(5);
+                    }
+                }
+            case 5:
                 if(!follower.isBusy()) {
                     setPathState(-1);
                 }
@@ -86,7 +123,8 @@ public class MainAuto extends LinearOpMode {
             telemetry.update();
         }
         while (opModeInInit()) {
-            monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false);
+            monkeyPawFSM.setState(MonkeyPawFSM.States.START);
+            monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false, true);
             monkeyPawFSM.updatePID();
         }
         waitForStart();

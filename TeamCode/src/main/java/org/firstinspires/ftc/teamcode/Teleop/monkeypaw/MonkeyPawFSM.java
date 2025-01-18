@@ -82,12 +82,14 @@ public class MonkeyPawFSM {
 
     }
 
-    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed, boolean dpadUp, boolean dpadDown, boolean dpadRight, boolean dpadLeft, boolean dpadUp2, boolean dpadDown2) {
+    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed, boolean dpadUp, boolean dpadDown, boolean dpadRight, boolean dpadLeft, boolean dpadUp2, boolean dpadDown2, boolean isAuto) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
-        findTargetState(xPressed);
+        if(!isAuto) {
+            findTargetState(xPressed);
+        }
         if (dpadRight) {
             wristFSM.increaseCompensation();
         }
@@ -110,7 +112,7 @@ public class MonkeyPawFSM {
                             if (fingerFSM.GRIPPED()) {
                                 state = States.READY_TO_START;
                             } else {
-                                fingerFSM.gripSample();
+                                fingerFSM.gripSpecimen();
                             }
                         } else {
                             deviatorFSM.relax();
@@ -323,7 +325,6 @@ public class MonkeyPawFSM {
     }
 
 
-    @VisibleForTesting
     public void setState(States state) {
         this.state = state;
     }
