@@ -36,4 +36,9 @@ dependencies {
     testImplementation "org.mockito:mockito-core:5.13.0"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     implementation 'org.ftclib.ftclib:core:2.1.1' // core
+    annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.4.21'
+
 }
+
