@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 import java.util.concurrent.TimeUnit;
 
 @Config
-@TeleOp(name = "Main Tele-op V1.3.0")
+@TeleOp(name = "Main Tele-op V1.4.1")
 public class MainTeleop extends LinearOpMode {
     private GamepadEx gamePad1;
     private GamepadEx gamePad2;
