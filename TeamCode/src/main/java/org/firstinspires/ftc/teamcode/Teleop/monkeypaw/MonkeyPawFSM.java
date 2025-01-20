@@ -59,6 +59,7 @@ public class MonkeyPawFSM {
 
     public void findTargetState(boolean xPressed) {
         if ((limbFSM.PREPARED_TO_INTAKE() || limbFSM.PREPARING_TO_INTAKE() || limbFSM.MOVING_TO_INTAKE_POS()) && (!PREPARED_TO_INTAKE_SAMPLE() && !RELAXING_WITH_SAMPLE() && !RELAXED_POS_WITH_SAMPLE() && !RETRACTING_INTAKE())) {
+            deviatorFSM.relax();
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         } else if (limbFSM.MOVED_TO_INTAKE_POS() && (PREPARED_TO_INTAKE_SAMPLE()) && !RELAXING_WITH_SAMPLE()) {
             state = States.INTAKING_SAMPLE;
@@ -231,9 +232,9 @@ public class MonkeyPawFSM {
             case PREPARING_TO_INTAKE_SPECIMEN:
                 elbowFSM.flexToSpecimenIntakePos();
                 wristFSM.flexToSpecimenIntakePos();
-                deviatorFSM.relax();
+                deviatorFSM.vertical();
                 fingerFSM.releaseSpecimen();
-                if (elbowFSM.FLEXED_TO_SPECIMEN_INTAKE() && wristFSM.FLEXED_TO_SPECIMEN_READY_POS() && deviatorFSM.RELAXED() && fingerFSM.RELEASED()) {
+                if (elbowFSM.FLEXED_TO_SPECIMEN_INTAKE() && wristFSM.FLEXED_TO_SPECIMEN_READY_POS() && deviatorFSM.VERTICALED() && fingerFSM.RELEASED()) {
                     state = States.PREPARED_TO_INTAKE_SPECIMEN;
                 }
                 break;

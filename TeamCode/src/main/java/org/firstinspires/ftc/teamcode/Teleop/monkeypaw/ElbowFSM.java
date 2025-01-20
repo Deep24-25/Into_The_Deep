@@ -44,14 +44,13 @@ public class ElbowFSM {
     public static double TOLERANCE = 100;
 
     public static double RELAXED_POS = 65;
-    public static double SAMPLE_INTAKE_READY_POS = 120; //140.47-118.736
-    public static double HOVERING_LOWER_LIMIT = 121;
-    public static double HOVERING_UPPER_LIMIT = 128;
+    public static double SAMPLE_INTAKE_READY_POS = 190; //140.47-118.736
+    public static double HOVERING_LOWER_LIMIT = 195;
+    public static double HOVERING_UPPER_LIMIT = 205;
     public static double HOVERING_ANGLE = HOVERING_LOWER_LIMIT;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 155;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 210;
     public static double SAMPLE_INTAKE_CONTROL_POS = 120;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-
 
     public static double SPECIMEN_INTAKE_FLEXED_POS = 66;
     public static double SPECIMEN_INTAKE_RELAX_POS = 70;
@@ -72,7 +71,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -20;
+    public static double ENCODER_OFFSET = 10;
 
     public static double CAPTURE_OFFSET = 57;
 
@@ -81,7 +80,7 @@ public class ElbowFSM {
 
     public ShoulderFSM shoulderFSM;
 
-    private static double hoveringOffset = 19;
+    private static double hoveringOffset = 0;
 
     private double setCurrentAngle;
 
@@ -90,10 +89,11 @@ public class ElbowFSM {
     public static double SAMPLE_INTAKE_CONTROL_POS_CURRENT_ANGLE = 130;
     public static final double INTAKE_RETRACTED_CURRENT_ANGLE = 80;
     public static final double BASKET_CURRENT_ANGLE = 110;
+    private static final double RATIO = 26.0/16;
 
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ENCODER_OFFSET); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, true, ENCODER_OFFSET,1); // check if you need to reverse axons
         //     pidController = new PIDController(P, I, D);
         this.logger = logger;
         targetAngle = RELAXED_POS;
