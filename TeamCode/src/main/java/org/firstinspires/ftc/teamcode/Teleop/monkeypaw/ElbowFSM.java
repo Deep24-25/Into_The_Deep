@@ -72,7 +72,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -20;
+    public static double ENCODER_OFFSET = -20; //10 V2
 
     public static double CAPTURE_OFFSET = 57;
 
