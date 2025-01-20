@@ -79,6 +79,9 @@ public class MonkeyPawFSM {
         if (xPressed && (RELAXED_POS_WITH_SAMPLE() || PREPARED_TO_INTAKE_SAMPLE())) {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         }
+        if (xPressed && (INTAKED_SPECIMEN())) {
+            state = States.PREPARING_TO_INTAKE_SPECIMEN ;
+        }
 
     }
 
@@ -259,10 +262,8 @@ public class MonkeyPawFSM {
                     state = States.READY_TO_DEPOSIT_SPECIMEN;
                 break;
             case DEPOSITING_SPECIMEN:
-                armFSM.moveToSubmersibleHeight();
-                armFSM.moveToChamberLockHeight();
                 fingerFSM.releaseSpecimen();
-                if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
+                if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     state = States.DEPOSITED_SPECIMEN;
                 }
                 break;
