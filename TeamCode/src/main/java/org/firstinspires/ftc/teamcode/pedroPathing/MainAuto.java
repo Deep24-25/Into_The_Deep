@@ -35,8 +35,8 @@ public class MainAuto extends LinearOpMode {
     private Follower follower;
     private int pathState;
 
-    private final Pose startPose = new Pose(8, 55, Math.toRadians(180));  // Starting position
-    private final Pose preloadScorePose = new Pose(27, 65, Math.toRadians(180)); // Scoring position
+    private final Pose startPose = new Pose(7, 55, Math.toRadians(180));  // Starting position
+    private final Pose preloadScorePose = new Pose(28.5, 65, Math.toRadians(180)); // Scoring position
     private final Pose parkPose = new Pose(8,15,  Math.toRadians(180));
 
     private PathChain scorePreload,park;
@@ -144,9 +144,11 @@ public class MainAuto extends LinearOpMode {
             telemetry.update();
         }
         while (opModeInInit()) {
-            monkeyPawFSM.setState(MonkeyPawFSM.States.START);
+            monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
             monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false, true);
             monkeyPawFSM.updatePID();
+            logger.log("Monkey Paw State", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
+            logger.print();
         }
         waitForStart();
         while (opModeIsActive()) {
