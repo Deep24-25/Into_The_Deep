@@ -56,7 +56,7 @@ public class ElbowFSM {
     public static double SPECIMEN_INTAKE_FLEXED_POS = 66;
     public static double SPECIMEN_INTAKE_RELAX_POS = 70;
     public static double BASKET_DEPOSIT_FLEXED_POS = 110;
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 90;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 30;
     public static double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 135;
 
     public static double BASKET_RELAX_POS = 90;
@@ -72,7 +72,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -30;
+    public static double ENCODER_OFFSET = -20;
 
     public static double CAPTURE_OFFSET = 57;
 
@@ -81,7 +81,7 @@ public class ElbowFSM {
 
     public ShoulderFSM shoulderFSM;
 
-    private static double hoveringOffset = 5;
+    private static double hoveringOffset = 19;
 
     private double setCurrentAngle;
 

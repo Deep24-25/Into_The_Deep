@@ -33,7 +33,7 @@ public class FingerFSM {
     private final Logger logger;
     private final Timing.Timer timer;
 
-    public static long OFFSET = 10;
+    public static long OFFSET = 500;
 
 
     public FingerFSM(HWMap hwMap, Logger logger) {
@@ -59,15 +59,15 @@ public class FingerFSM {
             }
 
         } else if (isTargetAngleToRelease()) {
+            if (!(state == FingerStates.RELEASED)) {
+                state = FingerStates.RELEASING;
+            }
             if (!timer.isTimerOn()) {
                 timer.start();
             }
             if (timer.done()) {
                 timer.pause();
                 state = FingerStates.RELEASED;
-            }
-            if (!(state == FingerStates.RELEASED)) {
-                state = FingerStates.RELEASING;
             }
 
         }
