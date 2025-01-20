@@ -4,6 +4,9 @@ repositories {
     }
     mavenCentral()
     google() // Needed for androidx
+
+    maven {url = "https://maven.brott.dev/"}
+    maven {url = "https://maven.pedropathing.com/"}
 }
 
 
@@ -22,6 +25,7 @@ dependencies {
     implementation 'com.opencsv:opencsv:5.8'
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
     implementation 'org.apache.commons:commons-lang3:3.13.0'
+    implementation 'com.pedropathing:pedro:1.0.6'
 
 }
 
