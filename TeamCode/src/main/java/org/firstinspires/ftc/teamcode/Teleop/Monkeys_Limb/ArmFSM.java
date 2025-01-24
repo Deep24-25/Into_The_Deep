@@ -23,7 +23,7 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     private static final double BASKET_LOW = 40;
     private static final double BASKET_HIGH = 78;
-    public static double SUBMERSIBLE_HIGH = 39.9;
+    public static double SUBMERSIBLE_HIGH = 35;
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
@@ -31,7 +31,7 @@ public class ArmFSM {
     private static final double SPECIMEN_PICKUP = 2;
 
     private double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 0; // 2.1734 cm
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 15;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 16.5;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 

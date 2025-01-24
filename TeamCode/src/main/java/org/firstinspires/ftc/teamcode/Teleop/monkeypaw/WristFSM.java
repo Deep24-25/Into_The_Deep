@@ -32,20 +32,20 @@ public class WristFSM {
         FLEXED_TO_HIGH_BASKET_DEPOSIT,
         FLEXING_TO_LOW_BASKET_DEPOSIT,
         FLEXED_TO_LOW_BASKET_DEPOSIT,
-        RELAXING_FROM_BASKET_DEPOSIT,
-        RELAXED_FROM_BASKET_DEPOSIT,
+        RELAXING_FOR_AUTO,
+        RELAXED_FOR_AUTO,
     }
 
     private double globalTargetAngle;
     public static double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
-    public static double RELAXED_POS = 180;
+    public static double RELAXED_POS = 160;
     public static double SAMPLE_FLEXED_POS = 270;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 210;
+    public static double SPECIMEN_INTAKE_POS = 160;
     public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 50;
 
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 130;
@@ -55,7 +55,7 @@ public class WristFSM {
     public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 120;
     public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 120.001;
 
-    public static double BASKET_RELAXED_POS = 90;
+    public static double AUTO_RELAXED_POS = 70;
 
 
     private final AxonServoWrapper wristServoWrapper;
@@ -155,20 +155,19 @@ public class WristFSM {
             } else {
                 state = WristStates.FLEXING_TO_HIGH_BASKET_DEPOSIT;
             }
-        } else if (isTargetAngleToBasketRelax()) {
+        } else if (isTargetAngleToAutoRelax()) {
             if (atPos(TOLERANCE)) {
-                state = WristStates.RELAXED_FROM_BASKET_DEPOSIT;
+                state = WristStates.RELAXED_FOR_AUTO;
             } else {
-                state = WristStates.RELAXING_FROM_BASKET_DEPOSIT;
+                state = WristStates.RELAXING_FOR_AUTO;
             }
         }
 
     }
 
-    public boolean isTargetAngleToBasketRelax() {
-        return globalTargetAngle == BASKET_RELAXED_POS;
+    public boolean isTargetAngleToAutoRelax() {
+        return globalTargetAngle == AUTO_RELAXED_POS;
     }
-
 
     public boolean isTargetAngleToLowBasketDepositFlexedPos() {
         return globalTargetAngle == LOW_BASKET_DEPOSIT_FLEXED_POS;
@@ -223,7 +222,7 @@ public class WristFSM {
         if (sampleCapture || elbowFSM.elbowHovering() || basketDeposit) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
       } else {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getSetCurrentAngle());
+            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
         }
         if(encoderTargetAngle >= 320) {
             encoderTargetAngle = 320;
@@ -394,6 +393,20 @@ public class WristFSM {
 
     public void decreaseCompensation() {
         compensation--;
+    }
+
+    public void relaxForAuto() {
+        globalTargetAngle = AUTO_RELAXED_POS;
+        sampleControl = false;
+        relaxCalled = false;
+        sampleIntakeReady = false;
+        sampleCapture = false;
+        sampleRetract = false;
+        basketDeposit = false;
+    }
+
+    public boolean RELAXED_FOR_AUTO() {
+        return state == WristStates.RELAXED_FOR_AUTO;
     }
 
     public void log() {

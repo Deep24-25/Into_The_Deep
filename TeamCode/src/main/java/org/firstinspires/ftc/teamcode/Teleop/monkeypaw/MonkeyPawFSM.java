@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
-import androidx.annotation.VisibleForTesting;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.util.Timing;
 
@@ -17,7 +15,7 @@ public class MonkeyPawFSM {
 
 
     public enum States {
-        START, READY_TO_START,
+        START, READY_TO_START, AUTO_START,
         // Intake states
         PREPARING_TO_INTAKE_SAMPLE, PREPARED_TO_INTAKE_SAMPLE, INTAKING_SAMPLE, RELAXING_WITH_SAMPLE, RELAXED_POS_WITH_SAMPLE, RETRACTING_INTAKE, RETRACTED_INTAKE, DEPOSITING_SAMPLE_TO_HP, DEPOSITED_SAMPLE_TO_HP,
 
@@ -115,7 +113,7 @@ public class MonkeyPawFSM {
                             if (fingerFSM.GRIPPED()) {
                                 state = States.READY_TO_START;
                             } else {
-                                fingerFSM.gripSpecimen();
+                                fingerFSM.releaseSample();
                             }
                         } else {
                             deviatorFSM.relax();
@@ -127,6 +125,26 @@ public class MonkeyPawFSM {
                     elbowFSM.relax();
                 }
                 break;
+            case AUTO_START:
+                if (elbowFSM.RELAXED()) {
+                    if (wristFSM.RELAXED_FOR_AUTO()) {
+                        if (deviatorFSM.RELAXED()) {
+                            if (fingerFSM.GRIPPED()) {
+                                state = States.READY_TO_START;
+                            } else {
+                                fingerFSM.gripSpecimen();
+                            }
+                        } else {
+                            deviatorFSM.relax();
+                        }
+                    } else {
+                        wristFSM.relaxForAuto();
+                    }
+                } else {
+                    elbowFSM.relax();
+                }
+                break;
+
             case PREPARING_TO_INTAKE_SAMPLE:
                 if (rightTrigger) {
                     if (deviatorFSM.RELAXED() || deviatorFSM.RELAXING()) {
