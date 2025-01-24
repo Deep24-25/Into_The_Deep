@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 
+import androidx.annotation.VisibleForTesting;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.util.Timing;
@@ -44,8 +46,8 @@ public class ArmFSM {
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
-    private final ShoulderFSM shoulderFSM;
-    private final ElbowFSM elbowFSM;
+    private ShoulderFSM shoulderFSM;
+    private ElbowFSM elbowFSM;
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
@@ -53,9 +55,9 @@ public class ArmFSM {
 
     private static double TOLERANCE = 2.0;
 
-    private final Logger logger;
-    private final Timing.Timer timer;
-    private final HWMap hwMap;
+    private Logger logger;
+    private Timing.Timer timer;
+    private HWMap hwMap;
     private double rightY = 0;
     private double prevRightY = 0;
     private double currentFeedrate = 0;
@@ -72,6 +74,14 @@ public class ArmFSM {
         this.shoulderFSM = shoulderFSM;
         this.elbowFSM = elbowFSM;
         timer = new Timing.Timer(300000000, TimeUnit.MILLISECONDS);
+    }
+
+    @VisibleForTesting
+    public ArmFSM(ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController, Timing.Timer timer, ShoulderFSM shoulderFSM) {
+        this.armMotorsWrapper = armMotorsWrapper;
+        this.pidfController = pidfController;
+        this.timer = timer;
+        this.shoulderFSM = shoulderFSM;
     }
 
 
@@ -172,7 +182,7 @@ public class ArmFSM {
     public void updatePIDF() {
         armMotorsWrapper.readPositionInCM();
         if (shouldPID) {
-            hwMap.brakingOff();
+           // hwMap.brakingOff();
             measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
             double power = pidfController.calculate(measuredPosition, targetPosition);
             power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
@@ -266,7 +276,7 @@ public class ArmFSM {
         currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2) * Math.signum(rightY);
 
         if (targetPosition >= (MAX_HEIGHT - 2)) {
-            hwMap.brakingOn();
+           // hwMap.brakingOn();
             if (rightY < 0)
                 currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
             else
@@ -275,10 +285,10 @@ public class ArmFSM {
         } else {
             //Protects the arm from over-extending and over-retracting
             if (targetPosition <= (MAX_HEIGHT - 2) && targetPosition >= 0) {
-                hwMap.brakingOff();
+             //   hwMap.brakingOff();
                 currentFeedrate = Math.max(Math.min(currentFeedrate, 1), -1);
             } else {
-                hwMap.brakingOff();
+             //   hwMap.brakingOff();
                 currentFeedrate = Math.max(currentFeedrate, 0);
             }
 
@@ -339,6 +349,10 @@ public class ArmFSM {
 
     public void setShouldPID(boolean setShouldPID) {
         this.shouldPID = setShouldPID;
+    }
+
+    public double getCurrentFeedrate() {
+        return currentFeedrate;
     }
 
 }
