@@ -54,8 +54,8 @@ public class LimbFSM {
 
     private States states = States.START;
     private Mode mode = Mode.SAMPLE_MODE;
-    private final Logger logger;
-    private final HWMap hwMap;
+    private Logger logger;
+    private HWMap hwMap;
     private double rightY;
 
     public LimbFSM(HWMap hwMap, ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
@@ -67,6 +67,12 @@ public class LimbFSM {
 
     }
 
+    @VisibleForTesting
+    public LimbFSM(ArmFSM armFSM, ShoulderFSM shoulderFSM, MonkeyPawFSM monkeyPawFSM) {
+        this.armFSM = armFSM;
+        this.shoulderFSM = shoulderFSM;
+        this.monkeyPawFSM = monkeyPawFSM;
+    }
 
     public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean leftBumperPressed) {
         if (yPressed && SPECIMEN_MODE()) {
@@ -394,5 +400,14 @@ public class LimbFSM {
         this.monkeyPawFSM = monkeyPawFSM;
     }
 
+    @VisibleForTesting
+    public void setCurrentState(States states) {
+        this.states = states;
+    }
+
+    @VisibleForTesting
+    public void setCurrentMode(Mode mode) {
+        this.mode = mode;
+    }
 
 }
