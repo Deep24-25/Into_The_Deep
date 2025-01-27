@@ -22,17 +22,31 @@ class ArmFSMTest {
     private PIDFController pidfController = mock();
     private Timing.Timer timer = mock();
     private ShoulderFSM shoulderFSM = mock();
+
     @BeforeEach
-    public void setup(){
-        sut = spy(new ArmFSM(armMotorsWrapperMock,pidfController,timer, shoulderFSM));
+    public void setup() {
+        sut = spy(new ArmFSM(armMotorsWrapperMock, pidfController, timer, shoulderFSM));
     }
 
-/**---------------------------updateState()---------------------------------**/
+    /**
+     * ---------------------------updateState()---------------------------------
+     **/
     @Test
     public void feedrateTest() {
         sut.updateState(0);
         sut.feed();
-        assertTrue(sut.getCurrentFeedrate() == 0);
+        assertEquals(0, sut.getCurrentFeedrate());
+    }
+
+    @Test
+    public void feedrateTestWithValuePoint5() {
+        sut.updateState(0.5);
+        sut.setTargetPosition(5);
+
+        sut.feed();
+
+        double feed = ArmFSM.getMaxFeedrate() * Math.pow(0.5, 2);
+        assertEquals(feed, sut.getCurrentFeedrate());
     }
 /*
 

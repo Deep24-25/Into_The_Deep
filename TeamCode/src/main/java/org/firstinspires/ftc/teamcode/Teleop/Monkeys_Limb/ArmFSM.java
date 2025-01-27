@@ -275,7 +275,7 @@ public class ArmFSM {
         shouldPID = false;
         currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2) * Math.signum(rightY);
 
-        if (targetPosition >= (MAX_HEIGHT - 2)) {
+        if (targetPosition > (MAX_HEIGHT - 2)) {
            // hwMap.brakingOn();
             if (rightY < 0)
                 currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
@@ -353,6 +353,23 @@ public class ArmFSM {
 
     public double getCurrentFeedrate() {
         return currentFeedrate;
+    }
+
+    public static double getMaxFeedrate() {
+        return MAX_FEEDRATE;
+    }
+
+    @VisibleForTesting
+    public void setTargetPosition(double targetPosition) {
+        this.targetPosition = targetPosition;
+    }
+
+    public static double getMaxHeight() {
+        return MAX_HEIGHT;
+    }
+
+    public boolean getShouldPID(){
+        return shouldPID;
     }
 
 }
