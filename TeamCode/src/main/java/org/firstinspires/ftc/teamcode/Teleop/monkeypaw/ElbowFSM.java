@@ -41,7 +41,7 @@ public class ElbowFSM {
     }
 
     private double targetAngle;
-    public static double TOLERANCE = 100;
+    public static double TOLERANCE = 360;
 
     public static double RELAXED_POS = 65;
     public static double SAMPLE_INTAKE_READY_POS = 120; //140.47-118.736
