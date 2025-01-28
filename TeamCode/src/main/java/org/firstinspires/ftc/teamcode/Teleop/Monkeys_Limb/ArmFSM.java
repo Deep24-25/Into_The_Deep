@@ -273,7 +273,7 @@ public class ArmFSM {
         //35368.421 cpr of motor per one rotation
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
         shouldPID = false;
-        currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2) * Math.signum(rightY);
+        currentFeedrate = MAX_FEEDRATE * rightY * Math.signum(rightY);
 
         if (targetPosition > (MAX_HEIGHT - 2)) {
            // hwMap.brakingOn();

@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 
 @Config
@@ -40,15 +41,16 @@ public class WristFSM {
     public static double PID_TOLERANCE = 5;
     private double wristCurrentAngle;
     public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 270;
+    public static double SAMPLE_FLEXED_POS = 230
+            ;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 270;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 210;
+    public static double SPECIMEN_INTAKE_POS = 130;
     public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 50;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 130;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 100;
     //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
 
 
@@ -73,13 +75,14 @@ public class WristFSM {
 
     private final ElbowFSM elbowFSM;
 
-    public static double compensation = 13;
+    public static double compensation = 0;
     public static double ENCODER_OFFSET = 0;
     private static final double TOLERANCE = 100;
 
+    private static final double RATIO = (30.0/20) * (12.0/15);
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true, true, ENCODER_OFFSET); // check if you need to reverse axons
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true, true, ENCODER_OFFSET, 1); // check if you need to reverse axons
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
         this.elbowFSM = elbowFSM;
@@ -220,7 +223,7 @@ public class WristFSM {
 
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
-        if (sampleCapture || elbowFSM.elbowHovering() || basketDeposit) {
+        if (sampleCapture || basketDeposit) {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
       } else {
             encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getSetCurrentAngle());

@@ -72,7 +72,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -20; //10 V2
+    public static double ENCODER_OFFSET = 10;
 
     public static double CAPTURE_OFFSET = 57;
 
@@ -90,10 +90,11 @@ public class ElbowFSM {
     public static double SAMPLE_INTAKE_CONTROL_POS_CURRENT_ANGLE = 130;
     public static final double INTAKE_RETRACTED_CURRENT_ANGLE = 80;
     public static final double BASKET_CURRENT_ANGLE = 110;
+    private static final double RATIO = 26.0/16;
 
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ENCODER_OFFSET); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, true, ENCODER_OFFSET,1); // check if you need to reverse axons
         //     pidController = new PIDController(P, I, D);
         this.logger = logger;
         targetAngle = RELAXED_POS;
