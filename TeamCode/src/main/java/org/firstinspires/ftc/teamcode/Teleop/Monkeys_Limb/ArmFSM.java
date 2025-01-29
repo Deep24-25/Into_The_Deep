@@ -23,21 +23,20 @@ public class ArmFSM {
     }
 
     private static final double SAFE_HEIGHT = 1;
-    private static final double BASKET_LOW = 40;
-    private static final double BASKET_HIGH = 78;
-    public static double SUBMERSIBLE_HIGH = 39.9;
+    public static double BASKET_LOW = 40;
+    public static  double BASKET_HIGH = 63;
+    public static double SUBMERSIBLE_HIGH = 28.9;
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 38;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
 
-    private double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 0; // 2.1734 cm
     public static double chamberLockHeight = SUBMERSIBLE_HIGH + 15;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
-    public static double MAX_FEEDRATE = 0.4; // cm/sec
+    public static double MAX_FEEDRATE = 0.5; // cm/sec
 
     public static double PHorizontal = 0.12, IHorizontal = 0.1, DHorizontal = 0.004, FHorizontal = 0;
     public static double PVertical = 0.12, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
@@ -46,8 +45,7 @@ public class ArmFSM {
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
-    private ShoulderFSM shoulderFSM;
-    private ElbowFSM elbowFSM;
+    private final ShoulderFSM shoulderFSM;
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
@@ -56,23 +54,19 @@ public class ArmFSM {
     private static double TOLERANCE = 2.0;
 
     private Logger logger;
-    private Timing.Timer timer;
-    private HWMap hwMap;
+    private final Timing.Timer timer;
     private double rightY = 0;
-    private double prevRightY = 0;
     private double currentFeedrate = 0;
 
     private boolean shouldPID = true;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
-        this.hwMap = hwMap;
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);
         this.logger = logger;
         this.shoulderFSM = shoulderFSM;
-        this.elbowFSM = elbowFSM;
         timer = new Timing.Timer(300000000, TimeUnit.MILLISECONDS);
     }
 
@@ -251,20 +245,9 @@ public class ArmFSM {
     public void goToBasketHeight() {
         targetPosition = basketHeights[basketIndex];
     }
-
-    public void linearizeIntakePos() {
-        SAMPLE_PICKUP_LINEARIZATION_OFFSET = Math.abs(((15.5 * Math.cos(Math.toRadians(180 - elbowFSM.getElbowCurrentAngle())))) - ((15.5 * Math.cos(Math.toRadians(Math.toRadians(180 - elbowFSM.getIntakeReadyAngle()))))));
-    }
-
-
     public void retract() {
         targetPosition = FULLY_RETRACTED;
     }
-
-    public void moveToSafeHeight() {
-        targetPosition = SAFE_HEIGHT;
-    }
-
     public void setTolerance(double tolerance) {
         TOLERANCE = tolerance;
     }
@@ -273,7 +256,7 @@ public class ArmFSM {
         //35368.421 cpr of motor per one rotation
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
         shouldPID = false;
-        currentFeedrate = MAX_FEEDRATE * rightY * Math.signum(rightY);
+        currentFeedrate = MAX_FEEDRATE * rightY;
 
         if (targetPosition > (MAX_HEIGHT - 2)) {
            // hwMap.brakingOn();
@@ -362,14 +345,6 @@ public class ArmFSM {
     @VisibleForTesting
     public void setTargetPosition(double targetPosition) {
         this.targetPosition = targetPosition;
-    }
-
-    public static double getMaxHeight() {
-        return MAX_HEIGHT;
-    }
-
-    public boolean getShouldPID(){
-        return shouldPID;
     }
 
 }

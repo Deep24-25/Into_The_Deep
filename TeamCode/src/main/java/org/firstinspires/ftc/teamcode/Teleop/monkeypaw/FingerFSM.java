@@ -22,10 +22,10 @@ public class FingerFSM {
     private double targetAngle;
 
 
-    public static double SAMPLE_GRIPPED_POS = 1;
-    public static double SPECIMEN_GRIPPED_POS = 0.01;
-    public static double SAMPLE_RELEASED_POS = 0.05;
-    public static double SPECIMEN_RELEASED_POS = 0.23;
+    public static double SAMPLE_GRIPPED_POS = 0.01;
+    public static double SPECIMEN_GRIPPED_POS = 0;
+    public static double SAMPLE_RELEASED_POS = 0.99;
+    public static double SPECIMEN_RELEASED_POS = 1;
 
     private final FingerServoWrapper fingerServoWrapper;
 
@@ -80,11 +80,6 @@ public class FingerFSM {
     public boolean isTargetAngleToGrip() {
         return targetAngle == SAMPLE_GRIPPED_POS || targetAngle == SPECIMEN_GRIPPED_POS;
     }
-
-    public boolean isTargetAngleSpecimenGrip() {
-        return targetAngle == SPECIMEN_GRIPPED_POS;
-    }
-
     public boolean isTargetAngleSampleRelease() {
         return targetAngle == SAMPLE_RELEASED_POS;
     }
@@ -116,10 +111,6 @@ public class FingerFSM {
 
     public boolean RELEASED() {
         return state == FingerStates.RELEASED;
-    }
-
-    public double getTargetAngle() {
-        return targetAngle;
     }
 
     public void log() {
