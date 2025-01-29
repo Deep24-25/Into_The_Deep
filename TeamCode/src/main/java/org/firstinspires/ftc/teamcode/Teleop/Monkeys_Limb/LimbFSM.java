@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
-import androidx.annotation.VisibleForTesting;
-
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 public class LimbFSM {
     public enum States {
-        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE
+        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE, AUTO_SPEC_INTAKING, AUTO_SPEC_INTAKED, RETRACTING_FOR_AUTO, RETRACTED_FOR_AUTO
     }
 
     public enum Mode {
@@ -268,7 +266,17 @@ public class LimbFSM {
                     states = States.DEPOSITED_SAMPLE;
                 }
                 break;
-
+            case AUTO_SPEC_INTAKING:
+                armFSM.setAutoSpecIntakePos();
+                if(armFSM.MOVED_TO_AUTO_SPEC_INTAKE()) {
+                    states = States.AUTO_SPEC_INTAKED;
+                }
+                break;
+            case RETRACTING_FOR_AUTO:
+                armFSM.retract();
+                if(armFSM.FULLY_RETRACTED()) {
+                    states = States.RETRACTED_FOR_AUTO;
+                }
         }
     }
 
@@ -371,6 +379,14 @@ public class LimbFSM {
         return states == States.STARTED;
     }
 
+    public boolean AUTO_SPEC_INTAKED() {
+        return states == States.AUTO_SPEC_INTAKED;
+    }
+
+    public boolean RETRACTED_FOR_AUTO() {
+        return states == States.RETRACTED_FOR_AUTO;
+    }
+
     public boolean SAMPLE_MODE() {
         return mode == Mode.SAMPLE_MODE;
     }
@@ -407,5 +423,6 @@ public class LimbFSM {
     public void setMode(Mode mode) {
         this.mode = mode;
     }
+
 
 }

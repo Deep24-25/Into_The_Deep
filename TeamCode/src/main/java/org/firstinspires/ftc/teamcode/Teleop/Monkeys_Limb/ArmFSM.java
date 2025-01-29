@@ -17,7 +17,7 @@ public class ArmFSM {
 
 
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDED
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDED,MOVED_TO_AUTO_SPEC_INTAKE
     }
 
     private static final double SAFE_HEIGHT = 1;
@@ -29,6 +29,7 @@ public class ArmFSM {
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 38;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
+    private static final double AUTO_SPEC_INTAKE = 23;
 
     private double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 0; // 2.1734 cm
     public static double chamberLockHeight = SUBMERSIBLE_HIGH + 16.5;
@@ -84,7 +85,7 @@ public class ArmFSM {
             setVerticalPID();
             setTolerance(TOLERANCE);
         } else if (shoulderFSM.AT_INTAKE() || shoulderFSM.GOING_TO_INTAKE()) {
-            if (isTargetPosAtFullyRetractedHeight()) {
+            if (isTargetPosAtFullyRetractedHeight() || isTargetPosAtAutoSpecimenIntake()) {
                 setHorizontalPID();
                 setTolerance(TOLERANCE);
             } else {
@@ -94,7 +95,7 @@ public class ArmFSM {
             }
         }
 
-        if (pidfController.atSetPoint()) {
+        if (pidfController.atSetPoint()  && !isTargetPosAtAutoSpecimenIntake()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
             else if (isTargetPosAtBasketHeight())
@@ -107,11 +108,16 @@ public class ArmFSM {
                 currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             } else if (isTargetPosMiniIntakeHeight()) {
                 currentState = States.AT_MINI_INTAKE;
-            } else {
+            }
+            else {
                 currentState = States.EXTENDED;
             }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
+        } else if (isTargetPosAtAutoSpecimenIntake()) {
+            if(pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
+                currentState = States.MOVED_TO_AUTO_SPEC_INTAKE;
+            }
         } else {
             if (isTargetPosAboveSafeHeight())
                 currentState = States.MOVING_ABOVE_SAFE_HEIGHT;
@@ -163,6 +169,10 @@ public class ArmFSM {
         return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
     }
 
+    public boolean MOVED_TO_AUTO_SPEC_INTAKE() {
+        return currentState == States.MOVED_TO_AUTO_SPEC_INTAKE;
+    }
+
 
     public boolean AT_MINI_INTAKE() {
         return currentState == States.AT_MINI_INTAKE;
@@ -180,6 +190,9 @@ public class ArmFSM {
         }
 
 
+    }
+    public boolean isTargetPosAtAutoSpecimenIntake() {
+        return targetPosition == AUTO_SPEC_INTAKE;
     }
 
     public boolean isTargetPosAboveSafeHeight() {
@@ -339,6 +352,10 @@ public class ArmFSM {
 
     public void setShouldPID(boolean setShouldPID) {
         this.shouldPID = setShouldPID;
+    }
+
+    public void setAutoSpecIntakePos() {
+        targetPosition = AUTO_SPEC_INTAKE;
     }
 
 }
