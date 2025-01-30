@@ -38,24 +38,23 @@ public class WristFSM {
     }
 
     private double globalTargetAngle;
-    public static double PID_TOLERANCE = 5;
+    public static double PID_TOLERANCE = 10;
     private double wristCurrentAngle;
-    public static double RELAXED_POS = 180;
-    public static double SAMPLE_FLEXED_POS = 230
-            ;
+    public static double RELAXED_POS = 100;
+    public static double SAMPLE_FLEXED_POS = 210;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 270;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 225;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 130;
-    public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 50;
+    public static double SPECIMEN_INTAKE_POS = 105;
+    public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 20;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 100;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 30;
     //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
 
 
-    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 120;
-    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 120.001;
+    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 45;
+    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 45.001;
 
     public static double BASKET_RELAXED_POS = 90;
 
@@ -79,7 +78,8 @@ public class WristFSM {
     public static double ENCODER_OFFSET = 0;
     public static double TOLERANCE = 360;
 
-    private static final double RATIO = (30.0/20) * (12.0/15);
+
+    private static final double RATIO = (30.0 / 20) * (12.0 / 15);
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
         wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true, true, ENCODER_OFFSET, 1); // check if you need to reverse axons
@@ -223,16 +223,11 @@ public class WristFSM {
 
     public void updatePID() { // This method is used to update position every loop.
         wristServoWrapper.readPos();
-        if (sampleCapture || basketDeposit) {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
-      } else {
-            encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getSetCurrentAngle());
-        }
-        if(encoderTargetAngle >= 320) {
+        encoderTargetAngle = convertGlobalAngleToEncoder(globalTargetAngle, elbowFSM.getElbowCurrentAngle());
+        if (encoderTargetAngle >= 320) {
             encoderTargetAngle = 320;
-        }
-        else if(encoderTargetAngle <= 140) {
-            encoderTargetAngle = 140;
+        } else if (encoderTargetAngle <= 100) {
+            encoderTargetAngle = 100;
         }
 
         wristServoWrapper.set(encoderTargetAngle);
@@ -242,7 +237,7 @@ public class WristFSM {
         globalTargetAngle = SAMPLE_INTAKE_READY_POS;
         relaxCalled = false;
         sampleControl = false;
-        sampleIntakeReady = true;   
+        sampleIntakeReady = true;
         sampleCapture = false;
         sampleRetract = false;
         basketDeposit = false;

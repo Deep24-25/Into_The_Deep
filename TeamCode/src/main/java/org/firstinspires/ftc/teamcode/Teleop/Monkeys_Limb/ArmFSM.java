@@ -19,20 +19,20 @@ public class ArmFSM {
 
 
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDED
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDING_TO_INTAKE_SPECiMEN, EXTENDED_TO_INTAKE_SPECiMEN, EXTENDED
     }
 
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
-    public static  double BASKET_HIGH = 63;
-    public static double SUBMERSIBLE_HIGH = 28.9;
+    public static double BASKET_HIGH = 68;
+    public static double SUBMERSIBLE_HIGH = 34;
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final double MAX_HEIGHT = 38;//102 cm is physical max
+    private static final double MAX_HEIGHT = 37;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 15;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
@@ -50,7 +50,7 @@ public class ArmFSM {
     private double measuredPosition;
     private States currentState;
     private double slidePowerCap = 0.6;
-
+    public static double extendingToIntakeSpecimenHeight = 15.0;
     private static double TOLERANCE = 2.0;
 
     private Logger logger;
@@ -111,6 +111,8 @@ public class ArmFSM {
                 currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             } else if (isTargetPosMiniIntakeHeight()) {
                 currentState = States.AT_MINI_INTAKE;
+            } else if (isTargetPosAtExtendingToIntakeSpecimenHeight()) {
+                currentState = States.EXTENDED_TO_INTAKE_SPECiMEN;
             } else {
                 currentState = States.EXTENDED;
             }
@@ -160,10 +162,14 @@ public class ArmFSM {
 
     public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
         return currentState == States.AT_SPECIMEN_PICKUP;
+    }
+    public boolean EXTENDED_TO_INTAKE_SPECiMEN() {
+        return currentState == States.EXTENDED_TO_INTAKE_SPECiMEN;
 
     }
 
     public boolean AT_CHAMBER_LOCK_HEIGHT() {
+
         return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
     }
 
@@ -172,11 +178,14 @@ public class ArmFSM {
         return currentState == States.AT_MINI_INTAKE;
     }
 
+    public void moveToExtendingToIntakeSpecimen(){
+        targetPosition = extendingToIntakeSpecimenHeight;
+    }
 
     public void updatePIDF() {
         armMotorsWrapper.readPositionInCM();
         if (shouldPID) {
-           // hwMap.brakingOff();
+            // hwMap.brakingOff();
             measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
             double power = pidfController.calculate(measuredPosition, targetPosition);
             power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
@@ -198,6 +207,10 @@ public class ArmFSM {
         return targetPosition == FULLY_RETRACTED;
     }
 
+    public boolean isTargetPosAtExtendingToIntakeSpecimenHeight() {
+        return targetPosition == extendingToIntakeSpecimenHeight;
+    }
+
     public boolean isTargetPosAtBasketHeight() {
         return targetPosition == BASKET_HIGH || targetPosition == BASKET_LOW;
     }
@@ -211,6 +224,7 @@ public class ArmFSM {
     }
 
     public boolean isTargetPosChamberLockHeight() {
+
         return targetPosition == chamberLockHeight;
     }
 
@@ -245,9 +259,11 @@ public class ArmFSM {
     public void goToBasketHeight() {
         targetPosition = basketHeights[basketIndex];
     }
+
     public void retract() {
         targetPosition = FULLY_RETRACTED;
     }
+
     public void setTolerance(double tolerance) {
         TOLERANCE = tolerance;
     }
@@ -259,7 +275,7 @@ public class ArmFSM {
         currentFeedrate = MAX_FEEDRATE * rightY;
 
         if (targetPosition > (MAX_HEIGHT - 2)) {
-           // hwMap.brakingOn();
+            // hwMap.brakingOn();
             if (rightY < 0)
                 currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
             else
@@ -268,10 +284,10 @@ public class ArmFSM {
         } else {
             //Protects the arm from over-extending and over-retracting
             if (targetPosition <= (MAX_HEIGHT - 2) && targetPosition >= 0) {
-             //   hwMap.brakingOff();
+                //   hwMap.brakingOff();
                 currentFeedrate = Math.max(Math.min(currentFeedrate, 1), -1);
             } else {
-             //   hwMap.brakingOff();
+                //   hwMap.brakingOff();
                 currentFeedrate = Math.max(currentFeedrate, 0);
             }
 

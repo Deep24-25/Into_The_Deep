@@ -103,9 +103,9 @@ public class MainTeleop extends LinearOpMode {
                 } else {
                     rightX = gamePad1.getRightX();
                 }
-                strafeMultiplierWhileMovingIntake = 0.5;
-                forwardMultiplierWhileMovingIntake = 0.5;
-                turningMultiplierWhileMovingIntake = 0.5;
+                strafeMultiplierWhileMovingIntake = 0.7;
+                forwardMultiplierWhileMovingIntake = 0.7;
+                turningMultiplierWhileMovingIntake = 0.7;
             } else {
                 rightX = gamePad1.getRightX();
                 strafeMultiplierWhileMovingIntake = 1;

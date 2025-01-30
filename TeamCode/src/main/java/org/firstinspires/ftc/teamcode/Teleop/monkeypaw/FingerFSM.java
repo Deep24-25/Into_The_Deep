@@ -24,8 +24,8 @@ public class FingerFSM {
 
     public static double SAMPLE_GRIPPED_POS = 0.01;
     public static double SPECIMEN_GRIPPED_POS = 0;
-    public static double SAMPLE_RELEASED_POS = 0.99;
-    public static double SPECIMEN_RELEASED_POS = 1;
+    public static double SAMPLE_RELEASED_POS = 0.7;
+    public static double SPECIMEN_RELEASED_POS = 0.71;
 
     private final FingerServoWrapper fingerServoWrapper;
 
@@ -33,7 +33,7 @@ public class FingerFSM {
     private final Logger logger;
     private final Timing.Timer timer;
 
-    public static long OFFSET = 500;
+    public static long OFFSET = 25;
 
 
     public FingerFSM(HWMap hwMap, Logger logger) {

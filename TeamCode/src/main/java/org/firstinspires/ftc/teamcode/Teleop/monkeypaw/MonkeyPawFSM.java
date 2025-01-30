@@ -39,9 +39,9 @@ public class MonkeyPawFSM {
     private States state;
     private final Timing.Timer timer;
     private final Timing.Timer specimenTimer;
-    public static long TIMER_LENGTH = 750;
+    public static long TIMER_LENGTH = 250;
 
-    public static long SPECIMEN_TIMER_LENGTH = 500;
+    public static long SPECIMEN_TIMER_LENGTH = 250;
     private boolean grippedSpecimen = false;
 
     public MonkeyPawFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, ElbowFSM elbowFSM, DeviatorFSM deviatorFSM, WristFSM wristFSM, ArmFSM armFSM) {
@@ -81,7 +81,7 @@ public class MonkeyPawFSM {
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         }
         if (xPressed && (INTAKED_SPECIMEN())) {
-            state = States.PREPARING_TO_INTAKE_SPECIMEN ;
+            state = States.PREPARING_TO_INTAKE_SPECIMEN;
         }
 
     }
