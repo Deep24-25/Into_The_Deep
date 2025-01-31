@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 public class LimbFSM {
     public enum States {
-        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE, , AUTO_SPEC_INTAKING, AUTO_SPEC_INTAKED, RETRACTING_FOR_AUTO, RETRACTED_FOR_AUTO, , EXTENDING_TO_INTAKE_SPECIMEN, EXTENDED_TO_INTAKE_SPECIMEN
+        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE, AUTO_SPEC_INTAKING, AUTO_SPEC_INTAKED, RETRACTING_FOR_AUTO, RETRACTED_FOR_AUTO, EXTENDING_TO_INTAKE_SPECIMEN, EXTENDED_TO_INTAKE_SPECIMEN
     }
 
     public enum Mode {
@@ -128,7 +128,7 @@ public class LimbFSM {
     }
 
     public void updateState(boolean dPadRightIsDown, boolean dPadRightWasJustReleased, boolean dpadLeftIsDown, boolean dpadLeftWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test, boolean auto) {
-        updateLowLevelFSMStates();
+        updateLowLevelFSMStates(auto);
         shoulderFSM.resetShoulder(dPadRightIsDown, dPadRightWasJustReleased);
         armFSM.resetArm(dpadLeftIsDown, dpadLeftWasJustReleased);
         this.rightY = rightY;
@@ -306,9 +306,9 @@ public class LimbFSM {
     }
 
 
-    public void updateLowLevelFSMStates() {
-        armFSM.updateState(rightY);
-        shoulderFSM.updateState();
+    public void updateLowLevelFSMStates(boolean isAuto) {
+        armFSM.updateState(rightY, isAuto);
+        shoulderFSM.updateState(isAuto);
     }
 
 
@@ -427,7 +427,7 @@ public class LimbFSM {
         return PREPARING_TO_INTAKE_SPECIMEN() || PREPARED_TO_INTAKE_SPECIMEN() || INTAKING_SPECIMEN() || INTAKED_SPECIMEN() || EXTENDING_SPECIMEN() || EXTENDED_SPECIMEN() || DEPOSITING_SPECIMEN() || DEPOSITED_SPECIMEN();
     }
 
-    public void updatePID() {
+    public void updatePID(boolean isAuto) {
         armFSM.updatePIDF();
         shoulderFSM.updatePID();
     }
@@ -445,6 +445,10 @@ public class LimbFSM {
 
     public void setMode(Mode mode) {
         this.mode = mode;
+    }
+
+    public void setArmPowerCap(double powerCap) {
+        armFSM.setMaxPower(powerCap);
     }
 
 

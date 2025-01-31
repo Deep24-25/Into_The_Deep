@@ -26,7 +26,7 @@ public class DeviatorTunerClass extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap, false);
         logger = new Logger(telemetry);
-        deviatorServoWrapper = new AxonServoWrapper(hwMap.getWristDeviServo(), hwMap.getWristDeviEncoder(), false,false, 0);
+        deviatorServoWrapper = new AxonServoWrapper(hwMap.getWristDeviServo(), hwMap.getWristDeviEncoder(), false,false, 0,1);
         pidController = new PIDController(P,I,D);
         waitForStart();
         while (opModeIsActive()) {

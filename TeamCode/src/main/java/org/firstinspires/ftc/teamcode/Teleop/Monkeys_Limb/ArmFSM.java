@@ -25,7 +25,7 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 68;
-    public static double SUBMERSIBLE_HIGH = 34;
+    public static double SUBMERSIBLE_HIGH = 32; // 34 in teleop
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
@@ -61,6 +61,7 @@ public class ArmFSM {
 
     private boolean shouldPID = true;
 
+
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
@@ -80,7 +81,7 @@ public class ArmFSM {
     }
 
 
-    public void updateState(double rightY) {
+    public void updateState(double rightY, boolean isAuto) {
         updatePIDF();
         this.rightY = rightY;
         armMotorsWrapper.readPositionInCM();
@@ -203,6 +204,11 @@ public class ArmFSM {
 
 
     }
+
+    public void setMaxPower(double maxPower) {
+        slidePowerCap = maxPower;
+    }
+
     public boolean isTargetPosAtAutoSpecimenIntake() {
         return targetPosition == AUTO_SPEC_INTAKE;
     }
