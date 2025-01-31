@@ -1,23 +1,23 @@
 package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
-import com.arcrobotics.ftclib.hardware.ServoEx;
-import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class AxonServoWrapper {
-    private Servo axon;
-    private AnalogInput encoder;
+    private final Servo axon;
+    private final AnalogInput encoder;
     private double lastReadPosition;
-    private double sign = 1;
     private double encoderOffset;
     private double inverseEncoderOffset;
 
-    public AxonServoWrapper(Servo axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder, double encoderOffset) {
+    private final double ratio;
+
+    public AxonServoWrapper(Servo axon, AnalogInput encoder, boolean inversePower, boolean inverseEncoder, double encoderOffset, double ratio) {
         this.axon = axon;
+        this.ratio = ratio;
         this.encoder = encoder;
         if (inversePower) {
-            sign = -1;
+            double sign = -1;
         }
         if (inverseEncoder) {
             inverseEncoderOffset = 360;
@@ -36,14 +36,14 @@ public class AxonServoWrapper {
 */
 
     public void set(double pos) {
-        axon.setPosition((pos - encoderOffset) / 360.0);
+        axon.setPosition((((pos/ratio) - encoderOffset) / 360.0));
     }
 
     public double readPos() {
 
         lastReadPosition = (Math.abs(inverseEncoderOffset - (((encoder.getVoltage() / 3.3 * 360) + encoderOffset)))) % 360;
 
-        return lastReadPosition;
+        return lastReadPosition * ratio;
     }
 
     public double getVoltage() {

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 
+import androidx.annotation.VisibleForTesting;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.util.Timing;
@@ -17,26 +19,25 @@ public class ArmFSM {
 
 
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDED,MOVED_TO_AUTO_SPEC_INTAKE
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDED, MOVED_TO_AUTO_SPEC_INTAKE, EXTENDING_TO_INTAKE_SPECiMEN, EXTENDED_TO_INTAKE_SPECiMEN
     }
 
     private static final double SAFE_HEIGHT = 1;
-    private static final double BASKET_LOW = 40;
-    private static final double BASKET_HIGH = 78;
-    public static double SUBMERSIBLE_HIGH = 35;
+    public static double BASKET_LOW = 40;
+    public static double BASKET_HIGH = 68;
+    public static double SUBMERSIBLE_HIGH = 34;
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final double MAX_HEIGHT = 38;//102 cm is physical max
+    private static final double MAX_HEIGHT = 37;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
     private static final double AUTO_SPEC_INTAKE = 23;
 
-    private double SAMPLE_PICKUP_LINEARIZATION_OFFSET = 0; // 2.1734 cm
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 16.5;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
-    public static double MAX_FEEDRATE = 0.4; // cm/sec
+    public static double MAX_FEEDRATE = 0.5; // cm/sec
 
     public static double PHorizontal = 0.12, IHorizontal = 0.1, DHorizontal = 0.004, FHorizontal = 0;
     public static double PVertical = 0.12, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
@@ -46,33 +47,36 @@ public class ArmFSM {
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
     private final ShoulderFSM shoulderFSM;
-    private final ElbowFSM elbowFSM;
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
     private double slidePowerCap = 0.6;
-
+    public static double extendingToIntakeSpecimenHeight = 15.0;
     private static double TOLERANCE = 2.0;
 
-    private final Logger logger;
+    private Logger logger;
     private final Timing.Timer timer;
-    private final HWMap hwMap;
     private double rightY = 0;
-    private double prevRightY = 0;
     private double currentFeedrate = 0;
 
     private boolean shouldPID = true;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
-        this.hwMap = hwMap;
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);
         this.logger = logger;
         this.shoulderFSM = shoulderFSM;
-        this.elbowFSM = elbowFSM;
         timer = new Timing.Timer(300000000, TimeUnit.MILLISECONDS);
+    }
+
+    @VisibleForTesting
+    public ArmFSM(ArmMotorsWrapper armMotorsWrapper, PIDFController pidfController, Timing.Timer timer, ShoulderFSM shoulderFSM) {
+        this.armMotorsWrapper = armMotorsWrapper;
+        this.pidfController = pidfController;
+        this.timer = timer;
+        this.shoulderFSM = shoulderFSM;
     }
 
 
@@ -108,8 +112,9 @@ public class ArmFSM {
                 currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             } else if (isTargetPosMiniIntakeHeight()) {
                 currentState = States.AT_MINI_INTAKE;
-            }
-            else {
+            } else if (isTargetPosAtExtendingToIntakeSpecimenHeight()) {
+                currentState = States.EXTENDED_TO_INTAKE_SPECiMEN;
+            } else {
                 currentState = States.EXTENDED;
             }
         } else if (isFullyExtended()) {
@@ -162,10 +167,14 @@ public class ArmFSM {
 
     public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
         return currentState == States.AT_SPECIMEN_PICKUP;
+    }
+    public boolean EXTENDED_TO_INTAKE_SPECiMEN() {
+        return currentState == States.EXTENDED_TO_INTAKE_SPECiMEN;
 
     }
 
     public boolean AT_CHAMBER_LOCK_HEIGHT() {
+
         return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
     }
 
@@ -178,11 +187,14 @@ public class ArmFSM {
         return currentState == States.AT_MINI_INTAKE;
     }
 
+    public void moveToExtendingToIntakeSpecimen(){
+        targetPosition = extendingToIntakeSpecimenHeight;
+    }
 
     public void updatePIDF() {
         armMotorsWrapper.readPositionInCM();
         if (shouldPID) {
-            hwMap.brakingOff();
+            // hwMap.brakingOff();
             measuredPosition = armMotorsWrapper.getLastReadPositionInCM();
             double power = pidfController.calculate(measuredPosition, targetPosition);
             power = Math.min(Math.abs(power), Math.abs(slidePowerCap)) * Math.signum(power);
@@ -207,6 +219,10 @@ public class ArmFSM {
         return targetPosition == FULLY_RETRACTED;
     }
 
+    public boolean isTargetPosAtExtendingToIntakeSpecimenHeight() {
+        return targetPosition == extendingToIntakeSpecimenHeight;
+    }
+
     public boolean isTargetPosAtBasketHeight() {
         return targetPosition == BASKET_HIGH || targetPosition == BASKET_LOW;
     }
@@ -220,6 +236,7 @@ public class ArmFSM {
     }
 
     public boolean isTargetPosChamberLockHeight() {
+
         return targetPosition == chamberLockHeight;
     }
 
@@ -255,17 +272,8 @@ public class ArmFSM {
         targetPosition = basketHeights[basketIndex];
     }
 
-    public void linearizeIntakePos() {
-        SAMPLE_PICKUP_LINEARIZATION_OFFSET = Math.abs(((15.5 * Math.cos(Math.toRadians(180 - elbowFSM.getElbowCurrentAngle())))) - ((15.5 * Math.cos(Math.toRadians(Math.toRadians(180 - elbowFSM.getIntakeReadyAngle()))))));
-    }
-
-
     public void retract() {
         targetPosition = FULLY_RETRACTED;
-    }
-
-    public void moveToSafeHeight() {
-        targetPosition = SAFE_HEIGHT;
     }
 
     public void setTolerance(double tolerance) {
@@ -276,10 +284,10 @@ public class ArmFSM {
         //35368.421 cpr of motor per one rotation
         targetPosition = armMotorsWrapper.getLastReadPositionInCM();
         shouldPID = false;
-        currentFeedrate = MAX_FEEDRATE * Math.pow(rightY, 2) * Math.signum(rightY);
+        currentFeedrate = MAX_FEEDRATE * rightY;
 
-        if (targetPosition >= (MAX_HEIGHT - 2)) {
-            hwMap.brakingOn();
+        if (targetPosition > (MAX_HEIGHT - 2)) {
+            // hwMap.brakingOn();
             if (rightY < 0)
                 currentFeedrate = Math.max(Math.min(currentFeedrate, 0), -1);
             else
@@ -288,10 +296,10 @@ public class ArmFSM {
         } else {
             //Protects the arm from over-extending and over-retracting
             if (targetPosition <= (MAX_HEIGHT - 2) && targetPosition >= 0) {
-                hwMap.brakingOff();
+                //   hwMap.brakingOff();
                 currentFeedrate = Math.max(Math.min(currentFeedrate, 1), -1);
             } else {
-                hwMap.brakingOff();
+                //   hwMap.brakingOff();
                 currentFeedrate = Math.max(currentFeedrate, 0);
             }
 
@@ -356,6 +364,19 @@ public class ArmFSM {
 
     public void setAutoSpecIntakePos() {
         targetPosition = AUTO_SPEC_INTAKE;
+    }
+
+    public double getCurrentFeedrate() {
+        return currentFeedrate;
+    }
+
+    public static double getMaxFeedrate() {
+        return MAX_FEEDRATE;
+    }
+
+    @VisibleForTesting
+    public void setTargetPosition(double targetPosition) {
+        this.targetPosition = targetPosition;
     }
 
 }
