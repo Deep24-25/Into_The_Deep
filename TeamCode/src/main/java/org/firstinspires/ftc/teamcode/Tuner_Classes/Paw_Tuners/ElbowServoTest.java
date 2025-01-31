@@ -20,7 +20,7 @@ public class ElbowServoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap);
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false,0);
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false,0,1);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         while (opModeIsActive()) {
@@ -28,7 +28,7 @@ public class ElbowServoTest extends LinearOpMode {
             elbowServoWrapper.readPos();
             elbowServoWrapper.set(targetAngle);
             telemetry.addData("target angle", targetAngle);
-            telemetry.addData("Current angle", elbowServoWrapper.getLastReadPos());
+            telemetry.addData("Current angle", elbowServoWrapper.readPos());
             telemetry.addData("voltage", elbowServoWrapper.getVoltage());
             telemetry.addData("Raw pos", elbowServoWrapper.getRawPos());
             telemetry.update();

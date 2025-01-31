@@ -46,6 +46,10 @@ public class MainTeleop extends LinearOpMode {
     private boolean prevXPressed;
     private boolean prevLeftBumperPressed;
     public static double MULTIPLIER = 0.4;
+    public static double strafeMultiplierWhileMovingIntake = 1;
+    public static double forwardMultiplierWhileMovingIntake = 1;
+    public static double turningMultiplierWhileMovingIntake = 1;
+
     private Timing.Timer loopTimer;
 
 
@@ -94,20 +98,26 @@ public class MainTeleop extends LinearOpMode {
 
             double rightX;
             if (limbFSM.MOVING_TO_INTAKE_POS()) {
-                if (-gamePad1.getRightY() > 0.3 || -gamePad1.getRightY() < -0.3) {
+                if (-gamePad1.getRightY() > 0.15 || -gamePad1.getRightY() < -0.15) {
                     rightX = 0;
                 } else {
                     rightX = gamePad1.getRightX();
                 }
+                strafeMultiplierWhileMovingIntake = 0.7;
+                forwardMultiplierWhileMovingIntake = 0.7;
+                turningMultiplierWhileMovingIntake = 0.7;
             } else {
                 rightX = gamePad1.getRightX();
+                strafeMultiplierWhileMovingIntake = 1;
+                forwardMultiplierWhileMovingIntake = 1;
+                turningMultiplierWhileMovingIntake = 1;
             }
             if (gamePad2.wasJustPressed(GamepadKeys.Button.Y)) {
                 HWMap.initializeIMU();
             }
 
             logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
-            fieldCentricDrive.drive(gamePad1.getLeftX(), gamePad1.getLeftY(), rightX * MULTIPLIER, HWMap.readFromIMU());
+            fieldCentricDrive.drive(gamePad1.getLeftX() * strafeMultiplierWhileMovingIntake, gamePad1.getLeftY() *forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER) * turningMultiplierWhileMovingIntake, HWMap.readFromIMU());
             monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN));
             limbFSM.updateState(gamePad2.isDown(GamepadKeys.Button.DPAD_RIGHT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT), gamePad2.isDown(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_LEFT), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
 

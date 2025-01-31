@@ -1,4 +1,4 @@
-/*
+
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,6 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.util.Timing;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
@@ -19,12 +20,36 @@ class ArmFSMTest {
     private ArmFSM sut;
     private ArmMotorsWrapper armMotorsWrapperMock = mock();
     private PIDFController pidfController = mock();
+    private Timing.Timer timer = mock();
+    private ShoulderFSM shoulderFSM = mock();
+
     @BeforeEach
-    public void setup(){
-        sut = spy(new ArmFSM(armMotorsWrapperMock,pidfController));
+    public void setup() {
+        sut = spy(new ArmFSM(armMotorsWrapperMock, pidfController, timer, shoulderFSM));
     }
-    */
-/**---------------------------updateState()---------------------------------**//*
+
+    /**
+     * ---------------------------updateState()---------------------------------
+     **/
+    @Test
+    public void feedrateTest() {
+        sut.updateState(0);
+        sut.feed();
+        assertEquals(0, sut.getCurrentFeedrate());
+    }
+
+    @Test
+    public void feedrateTestWithValuePoint5() {
+        sut.updateState(0.5);
+        sut.setTargetPosition(5);
+
+        sut.feed();
+
+        double feed = ArmFSM.getMaxFeedrate() * Math.pow(0.5, 2);
+        assertEquals(feed, sut.getCurrentFeedrate());
+    }
+/*
+
 
     @Test
     public void FULLY_RETRACTED(){
@@ -99,5 +124,6 @@ class ArmFSMTest {
         verify(armMotorsWrapperMock).getLastReadPositionInCM();
         assertTrue(sut.MOVING_BELOW_SAFE_HEIGHT());
     }
+    */
 }
-*/
+
