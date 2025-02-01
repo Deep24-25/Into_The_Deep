@@ -53,7 +53,7 @@ public class ElbowFSM {
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
-    public static double SPECIMEN_INTAKE_FLEXED_POS = 110;
+    public static double SPECIMEN_INTAKE_FLEXED_POS = 120;
     public static double SPECIMEN_INTAKE_RELAX_POS = 140;
     public static double BASKET_DEPOSIT_FLEXED_POS = 150;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 90;
@@ -94,6 +94,7 @@ public class ElbowFSM {
     public static final double INTAKE_RETRACTED_CURRENT_ANGLE = 80;
     public static final double BASKET_CURRENT_ANGLE = 110;
     private static final double RATIO = 26.0 / 16;
+    private boolean isAuto = false;
 
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
@@ -113,6 +114,11 @@ public class ElbowFSM {
 
     public void updateState() {
         updatePos();
+        if(isAuto){
+            HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
+        }else{
+            HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE;
+        }
         if (isTargetAngleToRelax() && relaxCalled) {
             if (atSetPoint()) {
                 state = ElbowStates.RELAXED;
@@ -389,4 +395,7 @@ public class ElbowFSM {
         return targetAngle == HOVERING_ANGLE + hoveringOffset;
     }
 
+    public void setIsAuto(boolean isAuto) {
+        this.isAuto = isAuto;
+    }
 }

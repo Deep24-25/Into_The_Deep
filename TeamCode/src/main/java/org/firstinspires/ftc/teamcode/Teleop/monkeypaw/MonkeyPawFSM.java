@@ -89,7 +89,11 @@ public class MonkeyPawFSM {
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
-        if(!isAuto) {
+
+        elbowFSM.setIsAuto(isAuto);
+        wristFSM.setIsAuto(isAuto);
+
+        if (!isAuto) {
             findTargetState(xPressed);
         }
         if (dpadRight) {
@@ -262,7 +266,7 @@ public class MonkeyPawFSM {
                 break;
             case INTAKING_SPECIMEN:
                 fingerFSM.gripSpecimen();
-               if (fingerFSM.GRIPPED() && !grippedSpecimen) {
+                if (fingerFSM.GRIPPED() && !grippedSpecimen) {
                     if (!specimenTimer.isTimerOn()) {
                         specimenTimer.start();
                     }
@@ -272,7 +276,7 @@ public class MonkeyPawFSM {
                         grippedSpecimen = true;
 
                     }
-               }
+                }
                 if (wristFSM.SPECIMEN_INTAKE_RETRACTED()) {
                     grippedSpecimen = false;
                     state = States.INTAKED_SPECIMEN;
@@ -286,7 +290,7 @@ public class MonkeyPawFSM {
                 break;
             case DEPOSITING_SPECIMEN:
                 fingerFSM.releaseSpecimen();
-                if(isAuto && fingerFSM.RELEASED()) {
+                if (isAuto && fingerFSM.RELEASED()) {
                     state = States.DEPOSITED_SPECIMEN;
                 }
                 if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {

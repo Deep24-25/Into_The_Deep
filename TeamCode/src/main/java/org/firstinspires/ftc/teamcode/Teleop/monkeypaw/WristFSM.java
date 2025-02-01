@@ -45,10 +45,17 @@ public class WristFSM {
     public static double SAMPLE_INTAKE_CAPTURE_POS = 225;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 105;
+    public static double SPECIMEN_INTAKE_POS_AUTO = 120;
+    public static double SPECIMEN_INTAKE_POS_TELE = 105;
+    public static double SPECIMEN_INTAKE_POS = SPECIMEN_INTAKE_POS_AUTO;
+
     public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 20.001;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 20;
+
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO = 30;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 20;
+
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
     //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
 
 
@@ -74,14 +81,14 @@ public class WristFSM {
     private final ElbowFSM elbowFSM;
 
     public static double compensation = 0;
-    public static double ENCODER_OFFSET = -20;
+    public static double ENCODER_OFFSET_AUTO = 0;
+    public static double ENCODER_OFFSET_TELE = -20;
     public static double TOLERANCE = 360;
-
-
     private static final double RATIO = (30.0 / 20) * (12.0 / 15);
+    private boolean isAuto = false;
 
     public WristFSM(HWMap hwMap, Logger logger, ElbowFSM elbowFSM) {
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true, true, ENCODER_OFFSET, 1); // check if you need to reverse axons
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), true, true, ENCODER_OFFSET_AUTO, 1); // check if you need to reverse axons
         this.logger = logger;
         wristCurrentAngle = wristServoWrapper.getLastReadPos();
         this.elbowFSM = elbowFSM;
@@ -90,6 +97,18 @@ public class WristFSM {
     }
 
     public void updateState() {
+        if(isAuto){
+            SPECIMEN_INTAKE_POS = SPECIMEN_INTAKE_POS_AUTO;
+            HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
+            wristServoWrapper.setEncoderOffset(ENCODER_OFFSET_AUTO);
+        }else{
+            SPECIMEN_INTAKE_POS = SPECIMEN_INTAKE_POS_TELE;
+            HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE;
+            wristServoWrapper.setEncoderOffset(ENCODER_OFFSET_TELE);
+
+        }
+        SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 20.001;
+
         wristCurrentAngle = wristServoWrapper.readPos();
         if (isTargetAngleToRelax() && relaxCalled) {
             if (atPos(TOLERANCE)) {
@@ -415,6 +434,10 @@ public class WristFSM {
         logger.log("wrist angle compensation", compensation, Logger.LogLevels.PRODUCTION);
 
         logger.log("--------------Wrist Log---------------", "-", Logger.LogLevels.PRODUCTION);
+    }
+
+    public void setIsAuto(boolean isAuto){
+        this.isAuto = isAuto;
     }
 
 }
