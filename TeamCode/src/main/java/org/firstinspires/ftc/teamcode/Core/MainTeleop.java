@@ -82,7 +82,7 @@ public class MainTeleop extends LinearOpMode {
         loopTimer.start();
         while (opModeInInit()) {
             hwMap.clearCache();
-            HWMap.initializeIMU();
+          //  HWMap.initializeIMU();
             monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false, false);
             monkeyPawFSM.updatePID();
             logger.log("loop timer",loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
@@ -117,7 +117,7 @@ public class MainTeleop extends LinearOpMode {
             }
 
             logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
-            fieldCentricDrive.drive(gamePad1.getLeftX()*strafeMultiplierWhileMovingIntake, gamePad1.getLeftY()*forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER)*turningMultiplierWhileMovingIntake, HWMap.readFromIMU());
+            fieldCentricDrive.drive(gamePad1.getLeftX()*strafeMultiplierWhileMovingIntake, gamePad1.getLeftY()*forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER)*turningMultiplierWhileMovingIntake, -(180 - Math.abs(HWMap.readFromIMU())));
             monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), false);
             limbFSM.updateState(gamePad2.isDown(GamepadKeys.Button.DPAD_RIGHT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT), gamePad2.isDown(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_LEFT), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false, false);
 

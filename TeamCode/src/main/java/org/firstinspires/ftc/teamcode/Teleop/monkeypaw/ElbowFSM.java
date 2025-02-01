@@ -225,7 +225,7 @@ public class ElbowFSM {
     }
 
     public boolean isTargetAngleToHighChamberDepositFlexedPos() {
-        return targetAngle == HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
+        return targetAngle == HIGH_CHAMBER_DEPOSIT_FLEXED_POS || targetAngle == HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
     }
 
     public boolean isTargetAngleToLowChamberDepositFlexedPos() {
@@ -287,6 +287,10 @@ public class ElbowFSM {
 
     public void flexToHighChamberDepositFlexedPos() {
         targetAngle = HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
+    }
+
+    public void flexToHighChamberDepositFlexedPosAuto() {
+        targetAngle = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
     }
 
     public void relax() {

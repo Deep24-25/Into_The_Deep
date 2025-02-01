@@ -25,7 +25,7 @@ public class ShoulderFSM {
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE = 100;
+    private static final double CHAMBER_ANGLE = 95; // 100
     private static final double BASKET_ANGLE = 100;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 0;
@@ -77,7 +77,7 @@ public class ShoulderFSM {
         if (pidfController.atSetPoint()) {
             if (isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE() && isAuto) {
                 counter++;
-                if (counter == 10) {
+                if (counter == 50) {
                     currentState = States.AT_DEPOSIT_CHAMBERS;
                     counter = 0;
                 }
