@@ -25,7 +25,7 @@ public class ShoulderFSM {
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE = 100;
+    private static final double CHAMBER_ANGLE = 95; // 100
     private static final double BASKET_ANGLE = 100;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 0;
@@ -44,6 +44,7 @@ public class ShoulderFSM {
     private LimbFSM limbFSM;
 
     private int counter = 0;
+    private double TOLERANCE = 7.5;
 
     public ShoulderFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
@@ -64,18 +65,25 @@ public class ShoulderFSM {
     }
 
     public void updateState(boolean isAuto) {
-        double TOLERANCE = 7.5;
         pidfController.setTolerance(TOLERANCE);
         updatePID();
-
+        if(isShoulderTargetPosDepositChamberAngle() && isAuto && limbFSM.SPECIMEN_MODE()) {
+            TOLERANCE = 2.5;
+        }
+        else {
+            TOLERANCE = 7.5;
+        }
 
         if (pidfController.atSetPoint()) {
             if (isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE() && isAuto) {
                 counter++;
-                if (counter == 10) {
+                if (counter == 50) {
                     currentState = States.AT_DEPOSIT_CHAMBERS;
                     counter = 0;
                 }
+            }
+            if(!(isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE() && isAuto)) {
+                counter = 0;
             }
             if (isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE()) {
                     currentState = States.AT_DEPOSIT_CHAMBERS;

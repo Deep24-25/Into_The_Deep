@@ -218,6 +218,7 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_INTAKE_SPECIMEN:
+                armFSM.setShouldPID(true);
                 armFSM.moveToExtendingToIntakeSpecimen();
                 if (armFSM.EXTENDED_TO_INTAKE_SPECiMEN()){
                     states = States.EXTENDED_TO_INTAKE_SPECIMEN;
@@ -226,7 +227,7 @@ public class LimbFSM {
             case EXTENDING_SPECIMEN:
                 /*hwMap.brakingOff();*/
                 shoulderFSM.setChamberTargetAngle();
-                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                if (shoulderFSM.AT_DEPOSIT_CHAMBERS() && monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN()) {
                     armFSM.moveToSubmersibleHeight();
                 }
                 if (armFSM.AT_SUBMERSIBLE_HEIGHT() && shoulderFSM.AT_DEPOSIT_CHAMBERS()) {

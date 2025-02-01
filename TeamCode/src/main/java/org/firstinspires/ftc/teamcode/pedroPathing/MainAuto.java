@@ -141,7 +141,7 @@ public class MainAuto extends LinearOpMode {
                     depositSpec(2);
                 }
                 break;
-        /*    case 2:
+            case 2:
                 setDepositSpecState(0);
                 if(!follower.isBusy()) {
                    // if(monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN() && limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
@@ -186,7 +186,7 @@ public class MainAuto extends LinearOpMode {
                     //}
                 }
                 break;
-        */    case 8:
+            case 8:
                 if(!follower.isBusy()) {
                     setPathState(-1);
                 }

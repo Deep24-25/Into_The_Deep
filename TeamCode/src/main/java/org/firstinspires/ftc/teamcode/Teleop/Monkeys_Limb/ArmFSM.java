@@ -26,7 +26,7 @@ public class ArmFSM {
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 68;
     public static double SUBMERSIBLE_HIGH_TELE = 34; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 25; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 29; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
@@ -111,7 +111,7 @@ public class ArmFSM {
             }
         }
 
-        if (pidfController.atSetPoint() && !isTargetPosAtAutoSpecimenIntake()) {
+        if (pidfController.atSetPoint()  && !isTargetPosAtAutoSpecimenIntake()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
             else if (isTargetPosAtBasketHeight())
@@ -180,7 +180,6 @@ public class ArmFSM {
     public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
         return currentState == States.AT_SPECIMEN_PICKUP;
     }
-
     public boolean EXTENDED_TO_INTAKE_SPECiMEN() {
         return currentState == States.EXTENDED_TO_INTAKE_SPECiMEN;
 
@@ -200,7 +199,7 @@ public class ArmFSM {
         return currentState == States.AT_MINI_INTAKE;
     }
 
-    public void moveToExtendingToIntakeSpecimen() {
+    public void moveToExtendingToIntakeSpecimen(){
         targetPosition = extendingToIntakeSpecimenHeight;
     }
 

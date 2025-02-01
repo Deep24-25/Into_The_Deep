@@ -63,7 +63,7 @@ public class HWMap {
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
         //pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
-        imu = hardwareMap.get(IMU.class, "imu");
+
         mecanumDrive.setRightSideInverted(false);
         backleftMotor.setInverted(true);
         frontLeftMotor.setInverted(true);
@@ -93,7 +93,13 @@ public class HWMap {
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         brakingOff();
-        if(!isAuto) {
+        if(isAuto) {
+            imu = hardwareMap.get(IMU.class, "imu");
+            initializeIMU();
+            armMotorOne.resetEncoder();
+            pivotMotor.resetEncoder();
+        }
+        else {
             for (LynxModule hub : hubs) {
                 hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
             }

@@ -23,7 +23,7 @@ public class DeviatorFSM {
     }
 
     private double targetAngle;
-    public static double TOLERANCE = 60;
+    public static double TOLERANCE = 360;
     //Robot CONSTANTS:
     public static double P = 0.005;
     public static double I = 0;
