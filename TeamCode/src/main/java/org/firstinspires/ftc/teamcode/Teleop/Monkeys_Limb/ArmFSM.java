@@ -25,7 +25,7 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 68;
-    public static double SUBMERSIBLE_HIGH = 25; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH = 30; // 34 in teleop
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
