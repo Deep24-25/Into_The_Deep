@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -27,6 +29,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 public class MainAuto extends LinearOpMode {
     HWMap hwMap;
     Logger logger;
+    GamepadEx gamePad1;
     private LimbFSM limbFSM;
     private MonkeyPawFSM monkeyPawFSM;
 
@@ -137,7 +140,7 @@ public class MainAuto extends LinearOpMode {
                     depositSpec(2);
                 }
                 break;
-            case 2:
+        /*    case 2:
                 setDepositSpecState(0);
                 if(!follower.isBusy()) {
                    // if(monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN() && limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
@@ -182,7 +185,7 @@ public class MainAuto extends LinearOpMode {
                     //}
                 }
                 break;
-            case 8:
+        */    case 8:
                 if(!follower.isBusy()) {
                     setPathState(-1);
                 }
@@ -234,6 +237,7 @@ public class MainAuto extends LinearOpMode {
         try{
             hwMap = new HWMap(hardwareMap, true);
             logger = new Logger(telemetry);
+            gamePad1 = new GamepadEx(gamepad1);
             ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
             ElbowFSM elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
             ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM);
@@ -268,11 +272,13 @@ public class MainAuto extends LinearOpMode {
         }
         waitForStart();
         while (opModeIsActive()) {
+            gamePad1.readButtons();
             follower.setMaxPower(0.7);
 
            // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
             follower.update();
             updatePath();
+            logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
 
 
             logger.log("voltage", hardwareMap.voltageSensor.iterator().next().getVoltage(), Logger.LogLevels.PRODUCTION);
