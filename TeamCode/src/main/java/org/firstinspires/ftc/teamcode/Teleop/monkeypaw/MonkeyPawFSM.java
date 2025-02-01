@@ -91,7 +91,6 @@ public class MonkeyPawFSM {
         elbowFSM.updateState();
 
         elbowFSM.setIsAuto(isAuto);
-        wristFSM.setIsAuto(isAuto);
 
         if (!isAuto) {
             findTargetState(xPressed);
@@ -284,12 +283,7 @@ public class MonkeyPawFSM {
                 }
                 break;
             case GETTING_READY_TO_DEPOSIT_SPECIMEN:
-                if(isAuto) {
-                    elbowFSM.flexToHighChamberDepositFlexedPosAuto();
-                }
-                else {
-                    elbowFSM.flexToHighChamberDepositFlexedPos();
-                }
+                elbowFSM.flexToHighChamberDepositFlexedPos();
                 wristFSM.flexToSpecimenDepositReadyPos();
                 if (elbowFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT())
                     state = States.READY_TO_DEPOSIT_SPECIMEN;
