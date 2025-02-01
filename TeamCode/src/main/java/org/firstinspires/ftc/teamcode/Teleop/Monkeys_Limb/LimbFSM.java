@@ -218,6 +218,7 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_INTAKE_SPECIMEN:
+                armFSM.setShouldPID(true);
                 armFSM.moveToExtendingToIntakeSpecimen();
                 if (armFSM.EXTENDED_TO_INTAKE_SPECiMEN()){
                     states = States.EXTENDED_TO_INTAKE_SPECIMEN;
