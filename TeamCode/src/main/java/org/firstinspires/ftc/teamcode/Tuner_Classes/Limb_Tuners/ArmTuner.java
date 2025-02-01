@@ -29,7 +29,7 @@ public class ArmTuner extends LinearOpMode {
         try {
             HWMap hwMap = new HWMap(hardwareMap, false);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-            armMotorsWrapper = new ArmMotorsWrapper(hwMap);
+            armMotorsWrapper = new ArmMotorsWrapper(hwMap, true);
             shoulderFSM = new ShoulderFSM(hwMap, new Logger(telemetry));
 
             pidfController = new PIDFController(P, I, D, A);

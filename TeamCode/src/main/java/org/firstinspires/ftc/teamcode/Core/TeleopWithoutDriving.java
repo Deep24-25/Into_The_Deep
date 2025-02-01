@@ -59,7 +59,7 @@ public class TeleopWithoutDriving extends LinearOpMode {
             logger = new Logger(telemetry);
             ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
             ElbowFSM elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
-            ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM);
+            ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM, false);
             DeviatorFSM deviatorFSM = new DeviatorFSM(hwMap, logger);
             WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(hwMap, shoulderFSM, armFSM, monkeyPawFSM, logger);

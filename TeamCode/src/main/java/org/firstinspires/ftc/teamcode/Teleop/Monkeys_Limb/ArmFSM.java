@@ -62,8 +62,8 @@ public class ArmFSM {
     private boolean shouldPID = true;
 
 
-    public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM) {
-        this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
+    public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, boolean reset) {
+        this.armMotorsWrapper = new ArmMotorsWrapper(hwMap, reset);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);

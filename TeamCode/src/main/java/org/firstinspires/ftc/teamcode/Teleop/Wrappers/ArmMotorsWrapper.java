@@ -16,13 +16,13 @@ public class ArmMotorsWrapper {
     //spool 24:36
 
 
-    public ArmMotorsWrapper(HWMap hwMap) {
+    public ArmMotorsWrapper(HWMap hwMap, boolean reset) {
         armMoterOne = hwMap.getArmMotorOne();
         armMoterTwo = hwMap.getArmMotorTwo();
         armMoterThree = hwMap.getArmMotorThree();
-
-        armMoterOne.resetEncoder();
-
+        if (reset) {
+            armMoterOne.resetEncoder();
+        }
         SLIDES_CPR = armMoterOne.getCPR();
     }
 
