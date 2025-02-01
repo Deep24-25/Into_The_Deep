@@ -38,8 +38,9 @@ public class MainAuto extends LinearOpMode {
     private int pathState;
     private int depositSpecState;
 
+    public static int y = 64;
     private final Pose startPose = new Pose(7, 55, Math.toRadians(180));  // Starting position
-    private final Pose preloadScorePose = new Pose(42, 69, Math.toRadians(180)); // Scoring position
+    private final Pose preloadScorePose = new Pose(42, y, Math.toRadians(180)); // Scoring position
 
     private final Pose pushSampleIntermediatary = new Pose(34,36,Math.toRadians(180));
     private final Pose pushSampleIntermediatary2 = new Pose(60,36,Math.toRadians(180));

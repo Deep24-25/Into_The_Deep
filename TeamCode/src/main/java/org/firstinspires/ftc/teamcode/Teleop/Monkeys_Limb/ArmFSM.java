@@ -36,7 +36,7 @@ public class ArmFSM {
     private static final double SPECIMEN_PICKUP = 2;
     private static final double AUTO_SPEC_INTAKE = 23;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 14;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 16;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
@@ -90,11 +90,12 @@ public class ArmFSM {
         armMotorsWrapper.readPositionInCM();
         timer.start();
 
-        if(isAuto){
+        if (isAuto) {
             SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO;
-        }else{
+        } else {
             SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_TELE;
         }
+        chamberLockHeight = SUBMERSIBLE_HIGH + 14;
 
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
@@ -110,7 +111,7 @@ public class ArmFSM {
             }
         }
 
-        if (pidfController.atSetPoint()  && !isTargetPosAtAutoSpecimenIntake()) {
+        if (pidfController.atSetPoint() && !isTargetPosAtAutoSpecimenIntake()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
             else if (isTargetPosAtBasketHeight())
@@ -131,7 +132,7 @@ public class ArmFSM {
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
         } else if (isTargetPosAtAutoSpecimenIntake()) {
-            if(pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
+            if (pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
                 currentState = States.MOVED_TO_AUTO_SPEC_INTAKE;
             }
         } else {
@@ -179,6 +180,7 @@ public class ArmFSM {
     public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
         return currentState == States.AT_SPECIMEN_PICKUP;
     }
+
     public boolean EXTENDED_TO_INTAKE_SPECiMEN() {
         return currentState == States.EXTENDED_TO_INTAKE_SPECiMEN;
 
@@ -198,7 +200,7 @@ public class ArmFSM {
         return currentState == States.AT_MINI_INTAKE;
     }
 
-    public void moveToExtendingToIntakeSpecimen(){
+    public void moveToExtendingToIntakeSpecimen() {
         targetPosition = extendingToIntakeSpecimenHeight;
     }
 
