@@ -32,7 +32,7 @@ public class ArmFSM {
     private static final double MAX_HEIGHT = 37;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 13;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
