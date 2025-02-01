@@ -50,6 +50,7 @@ public class HWMap {
 
     //private static Pose2D IMUpos;
 
+    public static boolean initialized = false;
     List<LynxModule> hubs;
 
     public HWMap(HardwareMap hardwareMap, boolean isAuto) {
@@ -147,6 +148,7 @@ public class HWMap {
         IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
         imu.initialize(revParameters);
         imu.resetYaw();
+        initialized = true;
        // pinpointIMU.resetPosAndIMU();
     }
 

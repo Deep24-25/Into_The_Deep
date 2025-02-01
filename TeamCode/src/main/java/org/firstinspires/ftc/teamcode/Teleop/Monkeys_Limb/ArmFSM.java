@@ -25,7 +25,10 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 68;
-    public static double SUBMERSIBLE_HIGH = 25; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_TELE = 34; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 25; // 34 in teleop
+
+    public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
@@ -33,7 +36,7 @@ public class ArmFSM {
     private static final double SPECIMEN_PICKUP = 2;
     private static final double AUTO_SPEC_INTAKE = 23;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 14;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
@@ -86,6 +89,13 @@ public class ArmFSM {
         this.rightY = rightY;
         armMotorsWrapper.readPositionInCM();
         timer.start();
+
+        if(isAuto){
+            SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO;
+        }else{
+            SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_TELE;
+        }
+
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
             setTolerance(TOLERANCE);
