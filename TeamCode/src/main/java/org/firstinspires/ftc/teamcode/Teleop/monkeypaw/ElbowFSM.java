@@ -56,7 +56,10 @@ public class ElbowFSM {
     public static double SPECIMEN_INTAKE_FLEXED_POS = 110;
     public static double SPECIMEN_INTAKE_RELAX_POS = 140;
     public static double BASKET_DEPOSIT_FLEXED_POS = 150;
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 210;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 90;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO = 210;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
+
     public static double LOW_CHAMBER_DEPOSIT_FLEXED_POS = 135;
 
     public static double BASKET_RELAX_POS = 90;
@@ -90,11 +93,11 @@ public class ElbowFSM {
     public static double SAMPLE_INTAKE_CONTROL_POS_CURRENT_ANGLE = 130;
     public static final double INTAKE_RETRACTED_CURRENT_ANGLE = 80;
     public static final double BASKET_CURRENT_ANGLE = 110;
-    private static final double RATIO = 26.0/16;
+    private static final double RATIO = 26.0 / 16;
 
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, true, ENCODER_OFFSET,1); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, true, ENCODER_OFFSET, 1); // check if you need to reverse axons
         //     pidController = new PIDController(P, I, D);
         this.logger = logger;
         targetAngle = RELAXED_POS;
