@@ -137,6 +137,7 @@ public class HWMap {
 
     public static double readFromIMU() {
         imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        initialized = true;
         return imuAngle;
         //pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
         //IMUpos = pinpointIMU.getPosition();
