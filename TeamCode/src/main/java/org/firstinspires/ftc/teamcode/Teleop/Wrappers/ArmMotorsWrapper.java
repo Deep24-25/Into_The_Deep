@@ -56,6 +56,14 @@ public class ArmMotorsWrapper {
         return lastReadPositionInCM;
     }
 
+    public double getArmMotor2Angle() {
+        return armMoterTwo.getCurrentPosition();
+    }
+
+    public double getArmMotor3Angle() {
+        return armMoterThree.getCurrentPosition();
+    }
+
     public void resetEncoder() {
         armMoterOne.resetEncoder();
     }

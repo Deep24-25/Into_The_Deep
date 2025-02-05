@@ -25,7 +25,7 @@ public class ShoulderFSM {
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE = 90; // 100
+    private static final double CHAMBER_ANGLE = 100; // 100
     private static final double BASKET_ANGLE = 100;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 0;
@@ -236,6 +236,7 @@ public class ShoulderFSM {
         logger.log("Shoulder target Angle: ", targetAngle, Logger.LogLevels.PRODUCTION);
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("Shoulder power", shoulderWrapper.get(), Logger.LogLevels.DEBUG);
+        logger.log("Counter", counter, Logger.LogLevels.PRODUCTION);
         logger.log("---------------------SHOULDER LOG----------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }

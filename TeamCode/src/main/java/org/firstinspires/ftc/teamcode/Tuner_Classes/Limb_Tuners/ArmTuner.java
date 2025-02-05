@@ -57,6 +57,9 @@ public class ArmTuner extends LinearOpMode {
 
             telemetry.addData("target pos: ", targetPos);
             telemetry.addData("current pos: ", armMotorsWrapper.getLastReadPositionInCM());
+            telemetry.addData("arm motor 2 pos: ", armMotorsWrapper.getArmMotor2Angle());
+            telemetry.addData("arm motor 3 pos: ", armMotorsWrapper.getArmMotor3Angle());
+
             telemetry.update();
 
         }

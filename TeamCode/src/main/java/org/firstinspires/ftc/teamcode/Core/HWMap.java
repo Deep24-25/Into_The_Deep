@@ -96,7 +96,6 @@ public class HWMap {
         if(isAuto) {
             imu = hardwareMap.get(IMU.class, "imu");
             initializeIMU();
-            armMotorOne.resetEncoder();
             pivotMotor.resetEncoder();
         }
         else {
@@ -138,11 +137,24 @@ public class HWMap {
     public static double readFromIMU() {
         imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         initialized = true;
-        return imuAngle;
+        return inverseIMU(imuAngle);
         //pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
         //IMUpos = pinpointIMU.getPosition();
         //return IMUpos.getHeading(AngleUnit.DEGREES);
 
+    }
+    public static double inverseIMU(double imuAngle) {
+        double sign = Math.signum(imuAngle);
+        if(sign < 0) {
+            return (180 - Math.abs(imuAngle));
+        }
+        else if(sign > 0) {
+            return -(180 - Math.abs(imuAngle));
+        }
+        else if(imuAngle == 0) {
+            return 180;
+        }
+        return 0;
     }
 
     public static double getIMUangle() {

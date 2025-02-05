@@ -14,7 +14,6 @@ public class ShoulderWrapper {
     //ratio 24:41
     public ShoulderWrapper(HWMap hwMap) {
         shoulderMotor = hwMap.getPivotMotor();
-        shoulderMotor.resetEncoder();
         SLIDES_CPR = shoulderMotor.getCPR();
 
     }

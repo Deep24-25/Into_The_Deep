@@ -226,9 +226,9 @@ public class LimbFSM {
                 break;
             case EXTENDING_SPECIMEN:
                 /*hwMap.brakingOff();*/
-                armFSM.moveToSubmersibleHeight();
-                if (armFSM.AT_SUBMERSIBLE_HEIGHT() && monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN()) {
-                    shoulderFSM.setChamberTargetAngle();
+                shoulderFSM.setChamberTargetAngle();
+                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                    armFSM.moveToSubmersibleHeight();
                 }
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
                     states = States.EXTENDED_SPECIMEN;

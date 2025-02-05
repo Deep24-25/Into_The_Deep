@@ -26,7 +26,7 @@ public class ArmFSM {
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 66;
     public static double SUBMERSIBLE_HIGH_TELE = 31; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 29; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 31; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
@@ -34,7 +34,7 @@ public class ArmFSM {
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 37;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
-    private static final double AUTO_SPEC_INTAKE = 23;
+    private static final double AUTO_SPEC_INTAKE = 21;
 
     public static double chamberLockHeight = SUBMERSIBLE_HIGH + 16;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
