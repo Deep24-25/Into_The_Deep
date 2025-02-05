@@ -46,15 +46,16 @@ public class ShoulderFSM {
     private int counter = 0;
     private double TOLERANCE = 7.5;
 
-    public ShoulderFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
+    public ShoulderFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, boolean reset) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
-        shoulderWrapper = new ShoulderWrapper(hwMap);
+        shoulderWrapper = new ShoulderWrapper(hwMap, reset);
         this.logger = logger;
         this.limbFSM = limbFSM;
     }
-    public ShoulderFSM(HWMap hwMap, Logger logger) {
+
+    public ShoulderFSM(HWMap hwMap, Logger logger, boolean reset) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
-        shoulderWrapper = new ShoulderWrapper(hwMap);
+        shoulderWrapper = new ShoulderWrapper(hwMap, reset);
         this.logger = logger;
     }
 
@@ -67,10 +68,9 @@ public class ShoulderFSM {
     public void updateState(boolean isAuto) {
         pidfController.setTolerance(TOLERANCE);
         updatePID();
-        if(isShoulderTargetPosDepositChamberAngle() && isAuto && limbFSM.SPECIMEN_MODE()) {
+        if (isShoulderTargetPosDepositChamberAngle() && isAuto && limbFSM.SPECIMEN_MODE()) {
             TOLERANCE = 2.5;
-        }
-        else {
+        } else {
             TOLERANCE = 7.5;
         }
 
@@ -82,12 +82,12 @@ public class ShoulderFSM {
                     counter = 0;
                 }
             }
-            if(!(isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE() && isAuto)) {
+            if (!(isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE() && isAuto)) {
                 counter = 0;
             }
             if (isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE()) {
-                    currentState = States.AT_DEPOSIT_CHAMBERS;
-        } else if (isShoulderTargetPosDepositBasketAngle() && limbFSM.SAMPLE_MODE()) {
+                currentState = States.AT_DEPOSIT_CHAMBERS;
+            } else if (isShoulderTargetPosDepositBasketAngle() && limbFSM.SAMPLE_MODE()) {
                 currentState = States.AT_BASKET_DEPOSIT;
             } else if (isShoulderTargetPosSpecimenIntakeAngle() && limbFSM.SPECIMEN_MODE()) {
                 currentState = States.AT_SPECIMEN_INTAKE;

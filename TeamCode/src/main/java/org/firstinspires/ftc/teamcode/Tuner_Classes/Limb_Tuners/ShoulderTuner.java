@@ -25,7 +25,7 @@ public class ShoulderTuner extends LinearOpMode {
         try {
             hwMap = new HWMap(hardwareMap, false);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-            shoulderWrapper = new ShoulderWrapper(hwMap);
+            shoulderWrapper = new ShoulderWrapper(hwMap, true);
             pidfController = new PIDFController(P, I, D, A);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());

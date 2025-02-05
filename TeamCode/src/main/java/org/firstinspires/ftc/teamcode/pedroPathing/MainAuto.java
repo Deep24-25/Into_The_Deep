@@ -259,7 +259,7 @@ public class MainAuto extends LinearOpMode {
             hwMap = new HWMap(hardwareMap, true);
             logger = new Logger(telemetry);
             gamePad1 = new GamepadEx(gamepad1);
-            ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
+            ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM, true);
             ElbowFSM elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
             ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM, true);
             DeviatorFSM deviatorFSM = new DeviatorFSM(hwMap, logger);
