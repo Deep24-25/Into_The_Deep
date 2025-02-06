@@ -45,6 +45,8 @@ public class ShoulderFSM {
 
     private int counter = 0;
     private double TOLERANCE = 7.5;
+    public static double STALL_LIMIT = 3.5;
+    public static double RETRACT_POWER = -0.7;
 
     public ShoulderFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, boolean reset) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
@@ -89,7 +91,7 @@ public class ShoulderFSM {
                 currentState = States.AT_DEPOSIT_CHAMBERS;
             } else if (isShoulderTargetPosDepositBasketAngle() && limbFSM.SAMPLE_MODE()) {
                 currentState = States.AT_BASKET_DEPOSIT;
-            } else if (isShoulderTargetPosSpecimenIntakeAngle() && limbFSM.SPECIMEN_MODE()) {
+            } else if ((isShoulderTargetPosSpecimenIntakeAngle() && limbFSM.SPECIMEN_MODE() && shouldPID)) {
                 currentState = States.AT_SPECIMEN_INTAKE;
             } else if (isShoulderTargetPosSampleIntakeAngle() && limbFSM.SAMPLE_MODE()) {
                 currentState = States.AT_INTAKE;
@@ -135,6 +137,16 @@ public class ShoulderFSM {
     public void moveToIntakeAngle() {
         targetAngle = SAMPLE_INTAKE_ANGLE;
     }
+/*
+    public void moveToIntakeAngle() {
+        shouldPID = false;
+        shoulderWrapper.set(RETRACT_POWER);
+        targetAngle = SAMPLE_INTAKE_ANGLE;
+        if (shoulderWrapper.getCurrent() > STALL_LIMIT) {
+            shoulderWrapper.resetEncoder();
+            shouldPID = true;
+        }
+    }*/
 
     public boolean isShoulderTargetPosSampleIntakeAngle() {
         return targetAngle == SAMPLE_INTAKE_ANGLE;
