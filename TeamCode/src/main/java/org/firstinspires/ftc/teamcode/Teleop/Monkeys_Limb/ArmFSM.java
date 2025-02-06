@@ -32,7 +32,7 @@ public class ArmFSM {
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final double MAX_HEIGHT = 37;//102 cm is physical max
+    private static final double MAX_HEIGHT = 46;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
     private static final double AUTO_SPEC_INTAKE = 21;
 
@@ -53,7 +53,7 @@ public class ArmFSM {
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
-    public static double slidePowerCap = 1;
+    public static double slidePowerCap = 0.8;
     public static double extendingToIntakeSpecimenHeight = 15.0;
     private static double TOLERANCE = 2.0;
 

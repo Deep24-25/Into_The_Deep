@@ -66,6 +66,7 @@ public class MonkeyPawFSM {
         } else if (limbFSM.EXTENDED_TO_BASKET_HEIGHT() && !RELAXING_AFTER_DEPOSIT() && !RELAXED_AFTER_DEPOSIT()) {
             state = States.DEPOSITING_SAMPLE;
         } else if (limbFSM.PREPARING_TO_INTAKE_SPECIMEN() && !PREPARED_TO_INTAKE_SPECIMEN() && !INTAKED_SPECIMEN()) {
+            elbowFSM.resetCounter();
             state = States.PREPARING_TO_INTAKE_SPECIMEN;
         } else if (limbFSM.INTAKING_SPECIMEN() && (PREPARED_TO_INTAKE_SPECIMEN() || limbFSM.STARTED()) && !INTAKED_SPECIMEN()) {
             state = States.INTAKING_SPECIMEN;
@@ -265,6 +266,7 @@ public class MonkeyPawFSM {
                 }
                 break;
             case INTAKING_SPECIMEN:
+                elbowFSM.resetCounter();
                 fingerFSM.gripSpecimen();
                 if (fingerFSM.GRIPPED() && !grippedSpecimen) {
                     if (!specimenTimer.isTimerOn()) {
@@ -379,4 +381,7 @@ public class MonkeyPawFSM {
         return state;
     }
 
+    public boolean automatedSpecimenPickup() {
+        return elbowFSM.specimenPickup();
+    }
 }

@@ -15,9 +15,8 @@ public class ShoulderWrapper {
     public ShoulderWrapper(HWMap hwMap, boolean reset) {
         shoulderMotor = hwMap.getPivotMotor();
         SLIDES_CPR = shoulderMotor.getCPR();
-        if (reset) {
-            shoulderMotor.resetEncoder();
-        }
+        shoulderMotor.resetEncoder();
+
 
     }
 

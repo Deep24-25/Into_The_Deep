@@ -75,7 +75,7 @@ public class WristFSM {
 
     public static double compensation = 0;
     public static double ENCODER_OFFSET = 0;
-    public static double TOLERANCE = 360;
+    public static double TOLERANCE = 60;
 
 
     private static final double RATIO = (30.0 / 20) * (12.0 / 15);

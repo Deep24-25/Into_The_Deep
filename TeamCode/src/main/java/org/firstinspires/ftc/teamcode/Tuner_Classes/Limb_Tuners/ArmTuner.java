@@ -23,15 +23,17 @@ public class ArmTuner extends LinearOpMode {
     public static double targetPos = 0;
 
     public static double pivotShoulder = 0;
+    private HWMap hwMap;
 
     @Override
     public void runOpMode() {
         try {
-            HWMap hwMap = new HWMap(hardwareMap, false);
+            hwMap = new HWMap(hardwareMap, false);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             armMotorsWrapper = new ArmMotorsWrapper(hwMap, true);
             shoulderFSM = new ShoulderFSM(hwMap, new Logger(telemetry), true);
 
+            hwMap.clearCache();
             pidfController = new PIDFController(P, I, D, A);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
@@ -40,6 +42,7 @@ public class ArmTuner extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
+            hwMap.clearCache();
             pidfController.setPIDF(P, I, D, A);
             if (pivotShoulder == 0) {
                 shoulderFSM.moveToIntakeAngle();

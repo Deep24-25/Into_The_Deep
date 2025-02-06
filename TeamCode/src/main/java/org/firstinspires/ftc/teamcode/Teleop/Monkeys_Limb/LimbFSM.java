@@ -93,6 +93,8 @@ public class LimbFSM {
             } else if (EXTENDED_TO_BASKET_HEIGHT()) {
                 states = States.DEPOSITING_SAMPLE;
             }
+        } else if (monkeyPawFSM.automatedSpecimenPickup() && SPECIMEN_MODE() && PREPARED_TO_INTAKE_SPECIMEN()) {
+            states = States.INTAKING_SPECIMEN;
         }
         if (xPressed && SPECIMEN_MODE()) {
             if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()) {
@@ -220,7 +222,7 @@ public class LimbFSM {
             case EXTENDING_TO_INTAKE_SPECIMEN:
                 armFSM.setShouldPID(true);
                 armFSM.moveToExtendingToIntakeSpecimen();
-                if (armFSM.EXTENDED_TO_INTAKE_SPECiMEN()){
+                if (armFSM.EXTENDED_TO_INTAKE_SPECiMEN()) {
                     states = States.EXTENDED_TO_INTAKE_SPECIMEN;
                 }
                 break;
@@ -284,13 +286,13 @@ public class LimbFSM {
                 break;
             case AUTO_SPEC_INTAKING:
                 armFSM.setAutoSpecIntakePos();
-                if(armFSM.MOVED_TO_AUTO_SPEC_INTAKE()) {
+                if (armFSM.MOVED_TO_AUTO_SPEC_INTAKE()) {
                     states = States.AUTO_SPEC_INTAKED;
                 }
                 break;
             case RETRACTING_FOR_AUTO:
                 armFSM.retract();
-                if(armFSM.FULLY_RETRACTED()) {
+                if (armFSM.FULLY_RETRACTED()) {
                     states = States.RETRACTED_FOR_AUTO;
                 }
         }
@@ -432,6 +434,7 @@ public class LimbFSM {
         armFSM.updatePIDF();
         shoulderFSM.updatePID();
     }
+
     public void setMonkeyPawFSM(MonkeyPawFSM monkeyPawFSM) {
         this.monkeyPawFSM = monkeyPawFSM;
     }

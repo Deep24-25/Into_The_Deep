@@ -53,8 +53,8 @@ public class ElbowFSM {
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
-    public static double SPECIMEN_INTAKE_FLEXED_POS = 120;
-    public static double SPECIMEN_INTAKE_RELAX_POS = 140;
+    public static double SPECIMEN_INTAKE_FLEXED_POS = 119;
+    public static double SPECIMEN_INTAKE_RELAX_POS = 120;
     public static double BASKET_DEPOSIT_FLEXED_POS = 150;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 101;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO = 101; // 210
@@ -95,7 +95,8 @@ public class ElbowFSM {
     public static final double BASKET_CURRENT_ANGLE = 110;
     private static final double RATIO = 26.0 / 16;
     private boolean isAuto = false;
-
+    private int counter = 0;
+    public static int COUNTER_LIMIT = 3;
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
         elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, true, ENCODER_OFFSET, 1); // check if you need to reverse axons
@@ -114,9 +115,9 @@ public class ElbowFSM {
 
     public void updateState() {
         updatePos();
-        if(isAuto){
+        if (isAuto) {
             HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
-        }else{
+        } else {
             HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE;
         }
         if (isTargetAngleToRelax() && relaxCalled) {
@@ -358,6 +359,8 @@ public class ElbowFSM {
         logger.log("Elbow State", state, Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Current Position", elbowServoWrapper.getLastReadPos(), Logger.LogLevels.DEBUG);
         logger.log("Elbow Target Pos", targetAngle, Logger.LogLevels.DEBUG);
+        logger.log("Elbow counter", counter, Logger.LogLevels.DEBUG);
+        logger.log("Elbow counter limit", COUNTER_LIMIT, Logger.LogLevels.DEBUG);
         logger.log("Elbow Hovering Offset", hoveringOffset, Logger.LogLevels.PRODUCTION);
         logger.log("Elbow Encoder Offset", ENCODER_OFFSET, Logger.LogLevels.PRODUCTION);
         logger.log("------------------------- ELBOW LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
@@ -387,6 +390,17 @@ public class ElbowFSM {
         elbowServoWrapper.setEncoderOffset(ENCODER_OFFSET);
     }
 
+    public boolean specimenPickup() {
+        //160, 163, 158, 142, 142, 142
+
+        if (elbowServoWrapper.getLastReadPos() < (SPECIMEN_INTAKE_RELAX_POS - 8)) {
+            counter++;
+        } else {
+            counter = 0;
+        }
+        return counter >= COUNTER_LIMIT;
+    }
+
     public double getSetCurrentAngle() {
         return setCurrentAngle;
     }
@@ -394,8 +408,10 @@ public class ElbowFSM {
     public boolean elbowHovering() {
         return targetAngle == HOVERING_ANGLE + hoveringOffset;
     }
-
     public void setIsAuto(boolean isAuto) {
         this.isAuto = isAuto;
+    }
+    public void resetCounter(){
+        counter = 0;
     }
 }

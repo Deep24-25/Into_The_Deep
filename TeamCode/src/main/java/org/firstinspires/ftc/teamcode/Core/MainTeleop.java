@@ -84,9 +84,9 @@ public class MainTeleop extends LinearOpMode {
             hwMap.clearCache();
             if (!HWMap.initialized) {
                 HWMap.initializeIMU();
+                monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, false);
+                monkeyPawFSM.updatePID();
             }
-            monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, false);
-            monkeyPawFSM.updatePID();
             logger.log("loop timer", loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
             logger.print();
         }
