@@ -25,8 +25,8 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 66;
-    public static double SUBMERSIBLE_HIGH_TELE = 28.5; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 29; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_TELE = 29.5; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 29.5; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
@@ -34,7 +34,7 @@ public class ArmFSM {
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 46;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
-    private static final double AUTO_SPEC_INTAKE = 21;
+    private static final double AUTO_SPEC_INTAKE = 20;
 
     public static double chamberLockHeight = SUBMERSIBLE_HIGH + 16;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -353,6 +353,8 @@ public class ArmFSM {
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("power cap", slidePowerCap, Logger.LogLevels.DEBUG);
         logger.log("Current power", armMotorsWrapper.get(), Logger.LogLevels.DEBUG);
+        logger.log("Should PID", shouldPID, Logger.LogLevels.DEBUG);
+
         logger.log("rightY", rightY, Logger.LogLevels.DEBUG);
 
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);

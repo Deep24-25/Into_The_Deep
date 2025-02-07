@@ -93,9 +93,10 @@ public class LimbFSM {
             } else if (EXTENDED_TO_BASKET_HEIGHT()) {
                 states = States.DEPOSITING_SAMPLE;
             }
-        } else if (monkeyPawFSM.automatedSpecimenPickup() && SPECIMEN_MODE() && PREPARED_TO_INTAKE_SPECIMEN()) {
-            states = States.INTAKING_SPECIMEN;
         }
+        /*else if (monkeyPawFSM.automatedSpecimenPickup() && SPECIMEN_MODE() && PREPARED_TO_INTAKE_SPECIMEN()) {
+            states = States.INTAKING_SPECIMEN;
+        }*/
         if (xPressed && SPECIMEN_MODE()) {
             if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()) {
                 states = States.PREPARING_TO_INTAKE_SPECIMEN;
@@ -228,6 +229,7 @@ public class LimbFSM {
                 break;
             case EXTENDING_SPECIMEN:
                 /*hwMap.brakingOff();*/
+                armFSM.setShouldPID(true);
                 shoulderFSM.setChamberTargetAngle();
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     armFSM.moveToSubmersibleHeight();

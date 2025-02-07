@@ -293,27 +293,32 @@ public class MainAuto extends LinearOpMode {
         }
         waitForStart();
         while (opModeIsActive()) {
-            gamePad1.readButtons();
-            follower.setMaxPower(0.7);
+            try {
+                gamePad1.readButtons();
+                follower.setMaxPower(0.7);
 
-           // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
-            follower.update();
-            updatePathNewSlamming();
-            logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
+                // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
+                follower.update();
+                updatePathNewSlamming();
+                logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
 
 
-            logger.log("voltage", hardwareMap.voltageSensor.iterator().next().getVoltage(), Logger.LogLevels.PRODUCTION);
-            logger.log("x", follower.getPose().getX(), Logger.LogLevels.PRODUCTION);
-            logger.log("y", follower.getPose().getY(), Logger.LogLevels.PRODUCTION);
-            logger.log("heading", follower.getPose().getHeading(), Logger.LogLevels.PRODUCTION);
-            logger.log("path state",pathState, Logger.LogLevels.PRODUCTION);
-            logger.log("limb state", limbFSM.getStates(), Logger.LogLevels.PRODUCTION);
-            logger.log("monkey paw state", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
-            logger.log("Deposit Specimen State", depositSpecState, Logger.LogLevels.PRODUCTION);
-            logger.log("Robot at pos", !follower.isBusy(), Logger.LogLevels.PRODUCTION);
-            monkeyPawFSM.log();
-            limbFSM.log();
-            logger.print();
+                logger.log("voltage", hardwareMap.voltageSensor.iterator().next().getVoltage(), Logger.LogLevels.PRODUCTION);
+                logger.log("x", follower.getPose().getX(), Logger.LogLevels.PRODUCTION);
+                logger.log("y", follower.getPose().getY(), Logger.LogLevels.PRODUCTION);
+                logger.log("heading", follower.getPose().getHeading(), Logger.LogLevels.PRODUCTION);
+                logger.log("path state", pathState, Logger.LogLevels.PRODUCTION);
+                logger.log("limb state", limbFSM.getStates(), Logger.LogLevels.PRODUCTION);
+                logger.log("monkey paw state", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
+                logger.log("Deposit Specimen State", depositSpecState, Logger.LogLevels.PRODUCTION);
+                logger.log("Robot at pos", !follower.isBusy(), Logger.LogLevels.PRODUCTION);
+                monkeyPawFSM.log();
+                limbFSM.log();
+                logger.print();
+            } catch (Exception e) {
+                telemetry.addData("-", e.getMessage());
+                telemetry.update();
+            }
         }
 
     }
