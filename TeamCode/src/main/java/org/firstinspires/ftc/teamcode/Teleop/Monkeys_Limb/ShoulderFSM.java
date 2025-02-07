@@ -120,6 +120,7 @@ public class ShoulderFSM {
     }
 
     public void setChamberTargetAngle() {
+        shouldPID = true;
         setExtendPIDF();
         targetAngle = CHAMBER_ANGLE;
     }
@@ -130,24 +131,23 @@ public class ShoulderFSM {
     }
 
     public void setBasketTargetAngle() {
+        shouldPID = true;
         setExtendPIDF();
         targetAngle = BASKET_ANGLE;
     }
-
     public void moveToIntakeAngle() {
         targetAngle = SAMPLE_INTAKE_ANGLE;
     }
-/*
-    public void moveToIntakeAngle() {
+    /*public void moveToIntakeAngle() {
         shouldPID = false;
         shoulderWrapper.set(RETRACT_POWER);
         targetAngle = SAMPLE_INTAKE_ANGLE;
         if (shoulderWrapper.getCurrent() > STALL_LIMIT) {
             shoulderWrapper.resetEncoder();
-            shouldPID = true;
-        }
-    }*/
 
+        }
+    }
+*/
     public boolean isShoulderTargetPosSampleIntakeAngle() {
         return targetAngle == SAMPLE_INTAKE_ANGLE;
     }
@@ -249,6 +249,8 @@ public class ShoulderFSM {
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("Shoulder power", shoulderWrapper.get(), Logger.LogLevels.DEBUG);
         logger.log("Counter", counter, Logger.LogLevels.PRODUCTION);
+        logger.log("shoulder current", shoulderWrapper.getCurrent(), Logger.LogLevels.PRODUCTION);
+        logger.log("should PID", shouldPID, Logger.LogLevels.PRODUCTION);
         logger.log("---------------------SHOULDER LOG----------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
