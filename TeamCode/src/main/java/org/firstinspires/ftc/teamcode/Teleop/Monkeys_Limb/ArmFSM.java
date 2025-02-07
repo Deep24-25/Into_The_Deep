@@ -25,8 +25,8 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 66;
-    public static double SUBMERSIBLE_HIGH_TELE = 29.5; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 29.5; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_TELE = 28.5; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 28; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
@@ -54,7 +54,7 @@ public class ArmFSM {
     private double measuredPosition;
     private States currentState;
     public static double slidePowerCap = 0.8;
-    public static double extendingToIntakeSpecimenHeight = 15.0;
+    public static double extendingToIntakeSpecimenHeight = 14.5;
     private static double TOLERANCE = 2.0;
 
     private Logger logger;
