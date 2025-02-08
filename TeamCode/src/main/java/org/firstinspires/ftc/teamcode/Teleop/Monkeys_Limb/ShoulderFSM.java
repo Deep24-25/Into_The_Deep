@@ -71,9 +71,9 @@ public class ShoulderFSM {
         pidfController.setTolerance(TOLERANCE);
         updatePID();
         if (isShoulderTargetPosDepositChamberAngle() && isAuto && limbFSM.SPECIMEN_MODE()) {
-            TOLERANCE = 2.5;
+            TOLERANCE = 4.5;
         } else {
-            TOLERANCE = 7.5;
+            TOLERANCE = 4.5;
         }
 
         if (pidfController.atSetPoint()) {
