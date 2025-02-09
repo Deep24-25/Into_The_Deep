@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
-import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 
 @TeleOp
 @Config
@@ -19,8 +18,8 @@ public class ElbowServoTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        hwMap = new HWMap(hardwareMap);
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false,0,1);
+        hwMap = new HWMap(hardwareMap, false);
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false,0, 1);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         while (opModeIsActive()) {

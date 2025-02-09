@@ -45,7 +45,7 @@ public class MainTeleop extends LinearOpMode {
     private boolean prevAPressed;
     private boolean prevXPressed;
     private boolean prevLeftBumperPressed;
-    public static double MULTIPLIER = 0.4;
+    public static double MULTIPLIER = 0.7;
     public static double strafeMultiplierWhileMovingIntake = 1;
     public static double forwardMultiplierWhileMovingIntake = 1;
     public static double turningMultiplierWhileMovingIntake = 1;
@@ -59,11 +59,11 @@ public class MainTeleop extends LinearOpMode {
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             gamePad1 = new GamepadEx(gamepad1);
             gamePad2 = new GamepadEx(gamepad2);
-            hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap, false);
             logger = new Logger(telemetry);
-            ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM);
+            ShoulderFSM shoulderFSM = new ShoulderFSM(hwMap, logger, limbFSM, false);
             ElbowFSM elbowFSM = new ElbowFSM(hwMap, logger, shoulderFSM);
-            ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM);
+            ArmFSM armFSM = new ArmFSM(hwMap, logger, shoulderFSM, elbowFSM, false);
             DeviatorFSM deviatorFSM = new DeviatorFSM(hwMap, logger);
             WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(hwMap, shoulderFSM, armFSM, monkeyPawFSM, logger);
@@ -82,10 +82,12 @@ public class MainTeleop extends LinearOpMode {
         loopTimer.start();
         while (opModeInInit()) {
             hwMap.clearCache();
-            HWMap.initializeIMU();
-            monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false);
-            monkeyPawFSM.updatePID();
-            logger.log("loop timer",loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
+            if (!HWMap.initialized) {
+                HWMap.initializeIMU();
+                monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, false);
+                monkeyPawFSM.updatePID();
+            }
+            logger.log("loop timer", loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
             logger.print();
         }
         waitForStart();
@@ -117,9 +119,10 @@ public class MainTeleop extends LinearOpMode {
             }
 
             logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
-            fieldCentricDrive.drive(gamePad1.getLeftX() * strafeMultiplierWhileMovingIntake, gamePad1.getLeftY() *forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER) * turningMultiplierWhileMovingIntake, HWMap.readFromIMU());
-            monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN));
-            limbFSM.updateState(gamePad2.isDown(GamepadKeys.Button.DPAD_RIGHT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT), gamePad2.isDown(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_LEFT), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false);
+            fieldCentricDrive.drive(gamePad1.getLeftX() * strafeMultiplierWhileMovingIntake, gamePad1.getLeftY() * forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER) * turningMultiplierWhileMovingIntake, HWMap.readFromIMU());
+            fieldCentricDrive.drive(gamePad1.getLeftX() * strafeMultiplierWhileMovingIntake, gamePad1.getLeftY() * forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER) * turningMultiplierWhileMovingIntake, HWMap.readFromIMU());
+            monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT), false, false, false);
+            limbFSM.updateState(gamePad2.isDown(GamepadKeys.Button.DPAD_RIGHT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT), gamePad2.isDown(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_LEFT), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false, false, gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP));
 
 
             updatePID();
@@ -157,6 +160,6 @@ public class MainTeleop extends LinearOpMode {
     }
 
     public void updatePID() {
-        limbFSM.updatePID();
+        limbFSM.updatePID(false);
     }
 }

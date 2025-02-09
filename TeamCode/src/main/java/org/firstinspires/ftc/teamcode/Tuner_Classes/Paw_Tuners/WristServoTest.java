@@ -5,10 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
-import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
-import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
-import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
 
 @TeleOp
 @Config
@@ -19,7 +16,7 @@ public class WristServoTest extends LinearOpMode {
     private static final double RATIO = (30.0/20)*(12.0/15);
     @Override
     public void runOpMode() throws InterruptedException {
-        hwMap = new HWMap(hardwareMap);
+        hwMap = new HWMap(hardwareMap, false);
         wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false,false, 0, RATIO);
         waitForStart();
         while (opModeIsActive()) {

@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
-import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.AxonServoWrapper;
 
 @Config
@@ -33,30 +32,30 @@ public class WristFSM {
         FLEXED_TO_HIGH_BASKET_DEPOSIT,
         FLEXING_TO_LOW_BASKET_DEPOSIT,
         FLEXED_TO_LOW_BASKET_DEPOSIT,
-        RELAXING_FROM_BASKET_DEPOSIT,
-        RELAXED_FROM_BASKET_DEPOSIT,
+        RELAXING_FOR_AUTO,
+        RELAXED_FOR_AUTO,
     }
 
     private double globalTargetAngle;
     public static double PID_TOLERANCE = 10;
     private double wristCurrentAngle;
-    public static double RELAXED_POS = 100;
-    public static double SAMPLE_FLEXED_POS = 210;
+    public static double RELAXED_POS = 90;
+    public static double SAMPLE_FLEXED_POS = 200;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 225;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 105;
-    public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 20;
+    public static double SPECIMEN_INTAKE_POS = 90;
+    public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 40.001;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 20;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 30;
     //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
 
 
-    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 45;
-    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 45.001;
+    public static double HIGH_BASKET_DEPOSIT_FLEXED_POS = 1;
+    public static double LOW_BASKET_DEPOSIT_FLEXED_POS = 1.001;
 
-    public static double BASKET_RELAXED_POS = 90;
+    public static double AUTO_RELAXED_POS = 70;
 
 
     private final AxonServoWrapper wristServoWrapper;
@@ -75,8 +74,8 @@ public class WristFSM {
     private final ElbowFSM elbowFSM;
 
     public static double compensation = 0;
-    public static double ENCODER_OFFSET = -20;
-    public static double TOLERANCE = 360;
+    public static double ENCODER_OFFSET = 0;
+    public static double TOLERANCE = 60;
 
 
     private static final double RATIO = (30.0 / 20) * (12.0 / 15);
@@ -158,20 +157,19 @@ public class WristFSM {
             } else {
                 state = WristStates.FLEXING_TO_HIGH_BASKET_DEPOSIT;
             }
-        } else if (isTargetAngleToBasketRelax()) {
+        } else if (isTargetAngleToAutoRelax()) {
             if (atPos(TOLERANCE)) {
-                state = WristStates.RELAXED_FROM_BASKET_DEPOSIT;
+                state = WristStates.RELAXED_FOR_AUTO;
             } else {
-                state = WristStates.RELAXING_FROM_BASKET_DEPOSIT;
+                state = WristStates.RELAXING_FOR_AUTO;
             }
         }
 
     }
 
-    public boolean isTargetAngleToBasketRelax() {
-        return globalTargetAngle == BASKET_RELAXED_POS;
+    public boolean isTargetAngleToAutoRelax() {
+        return globalTargetAngle == AUTO_RELAXED_POS;
     }
-
 
     public boolean isTargetAngleToLowBasketDepositFlexedPos() {
         return globalTargetAngle == LOW_BASKET_DEPOSIT_FLEXED_POS;
@@ -392,6 +390,20 @@ public class WristFSM {
 
     public void decreaseCompensation() {
         compensation--;
+    }
+
+    public void relaxForAuto() {
+        globalTargetAngle = AUTO_RELAXED_POS;
+        sampleControl = false;
+        relaxCalled = false;
+        sampleIntakeReady = false;
+        sampleCapture = false;
+        sampleRetract = false;
+        basketDeposit = false;
+    }
+
+    public boolean RELAXED_FOR_AUTO() {
+        return state == WristStates.RELAXED_FOR_AUTO;
     }
 
     public void log() {

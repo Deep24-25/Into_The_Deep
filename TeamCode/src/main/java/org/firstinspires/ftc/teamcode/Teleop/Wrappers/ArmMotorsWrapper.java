@@ -16,13 +16,13 @@ public class ArmMotorsWrapper {
     //spool 24:36
 
 
-    public ArmMotorsWrapper(HWMap hwMap) {
+    public ArmMotorsWrapper(HWMap hwMap, boolean reset) {
         armMoterOne = hwMap.getArmMotorOne();
         armMoterTwo = hwMap.getArmMotorTwo();
         armMoterThree = hwMap.getArmMotorThree();
-
-        armMoterOne.resetEncoder();
-
+        if (reset) {
+            armMoterOne.resetEncoder();
+        }
         SLIDES_CPR = armMoterOne.getCPR();
     }
 
@@ -54,6 +54,14 @@ public class ArmMotorsWrapper {
      */
     public double getLastReadPositionInCM() {
         return lastReadPositionInCM;
+    }
+
+    public double getArmMotor2Angle() {
+        return armMoterTwo.getCurrentPosition();
+    }
+
+    public double getArmMotor3Angle() {
+        return armMoterThree.getCurrentPosition();
     }
 
     public void resetEncoder() {

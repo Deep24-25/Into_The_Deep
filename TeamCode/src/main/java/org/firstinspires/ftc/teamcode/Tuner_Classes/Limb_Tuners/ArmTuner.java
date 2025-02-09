@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
-import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
-import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ShoulderFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Wrappers.ArmMotorsWrapper;
 
@@ -25,15 +23,17 @@ public class ArmTuner extends LinearOpMode {
     public static double targetPos = 0;
 
     public static double pivotShoulder = 0;
+    private HWMap hwMap;
 
     @Override
     public void runOpMode() {
         try {
-            HWMap hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap, false);
             this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-            armMotorsWrapper = new ArmMotorsWrapper(hwMap);
-            shoulderFSM = new ShoulderFSM(hwMap, new Logger(telemetry));
+            armMotorsWrapper = new ArmMotorsWrapper(hwMap, true);
+            shoulderFSM = new ShoulderFSM(hwMap, new Logger(telemetry), true);
 
+            hwMap.clearCache();
             pidfController = new PIDFController(P, I, D, A);
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
@@ -42,6 +42,7 @@ public class ArmTuner extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
+            hwMap.clearCache();
             pidfController.setPIDF(P, I, D, A);
             if (pivotShoulder == 0) {
                 shoulderFSM.moveToIntakeAngle();
@@ -59,6 +60,9 @@ public class ArmTuner extends LinearOpMode {
 
             telemetry.addData("target pos: ", targetPos);
             telemetry.addData("current pos: ", armMotorsWrapper.getLastReadPositionInCM());
+            telemetry.addData("arm motor 2 pos: ", armMotorsWrapper.getArmMotor2Angle());
+            telemetry.addData("arm motor 3 pos: ", armMotorsWrapper.getArmMotor3Angle());
+
             telemetry.update();
 
         }

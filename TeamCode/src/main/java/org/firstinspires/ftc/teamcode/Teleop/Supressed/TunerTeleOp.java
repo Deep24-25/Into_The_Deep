@@ -24,7 +24,7 @@ public class TunerTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         try {
-            hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap, false);
             gamepadEx = new GamepadEx(gamepad1);
             //tuner = new ColorSensorCSVTuner(telemetry, hwMap.getColorSensor1(), hwMap.getColorSensor2(), gamepadEx);
             tuner = new ColorSensorCSVTuner(telemetry, colorSensorV3Left, colorSensorV3Right, gamepadEx);

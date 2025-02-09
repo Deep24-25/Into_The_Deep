@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Core;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -10,12 +9,10 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.HardwareMap.DeviceMapping;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.List;
 
@@ -53,9 +50,10 @@ public class HWMap {
 
     //private static Pose2D IMUpos;
 
+    public static boolean initialized = false;
     List<LynxModule> hubs;
 
-    public HWMap(HardwareMap hardwareMap) {
+    public HWMap(HardwareMap hardwareMap, boolean isAuto) {
         hubs = hardwareMap.getAll(LynxModule.class);
 
         frontRightMotor = new MotorEx(hardwareMap, "RF", Motor.GoBILDA.RPM_312);
@@ -65,7 +63,7 @@ public class HWMap {
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
         //pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
-        imu = hardwareMap.get(IMU.class, "imu");
+
         mecanumDrive.setRightSideInverted(false);
         backleftMotor.setInverted(true);
         frontLeftMotor.setInverted(true);
@@ -95,9 +93,15 @@ public class HWMap {
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         brakingOff();
-
-        for (LynxModule hub : hubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        if(isAuto) {
+            imu = hardwareMap.get(IMU.class, "imu");
+            initializeIMU();
+            pivotMotor.resetEncoder();
+        }
+        else {
+            for (LynxModule hub : hubs) {
+                hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            }
         }
     }
 
@@ -132,11 +136,25 @@ public class HWMap {
 
     public static double readFromIMU() {
         imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        return imuAngle;
+        initialized = true;
+        return inverseIMU(imuAngle);
         //pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
         //IMUpos = pinpointIMU.getPosition();
         //return IMUpos.getHeading(AngleUnit.DEGREES);
 
+    }
+    public static double inverseIMU(double imuAngle) {
+        double sign = Math.signum(imuAngle);
+        if(sign < 0) {
+            return (180 - Math.abs(imuAngle));
+        }
+        else if(sign > 0) {
+            return -(180 - Math.abs(imuAngle));
+        }
+        else if(imuAngle == 0) {
+            return 180;
+        }
+        return 0;
     }
 
     public static double getIMUangle() {
@@ -149,6 +167,7 @@ public class HWMap {
         IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
         imu.initialize(revParameters);
         imu.resetYaw();
+        initialized = true;
        // pinpointIMU.resetPosAndIMU();
     }
 
@@ -200,5 +219,7 @@ public class HWMap {
             hub.clearBulkCache();
         }
     }
+
+
 
 }

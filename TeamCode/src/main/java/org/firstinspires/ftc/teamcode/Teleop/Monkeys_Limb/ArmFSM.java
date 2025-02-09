@@ -19,20 +19,24 @@ public class ArmFSM {
 
 
     private enum States {
-        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDING_TO_INTAKE_SPECiMEN, EXTENDED_TO_INTAKE_SPECiMEN, EXTENDED
+        AT_BASKET_HEIGHT, AT_SUBMERSIBLE_HEIGHT, AT_SPECIMEN_PICKUP, AT_CHAMBER_LOCK_HEIGHT, AT_MINI_INTAKE, FULLY_RETRACTED, FULLY_EXTENDED, MOVING_ABOVE_SAFE_HEIGHT, MOVING_BELOW_SAFE_HEIGHT, EXTENDED, MOVED_TO_AUTO_SPEC_INTAKE, EXTENDING_TO_INTAKE_SPECiMEN, EXTENDED_TO_INTAKE_SPECiMEN
     }
 
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 68;
-    public static double SUBMERSIBLE_HIGH = 34;
+    public static double SUBMERSIBLE_HIGH_TELE = 30; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 30; // 34 in teleop
+
+    public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final double MAX_HEIGHT = 37;//102 cm is physical max
+    private static final double MAX_HEIGHT = 42;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
+    public static final double AUTO_SPEC_INTAKE = 21;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 13;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
@@ -43,15 +47,17 @@ public class ArmFSM {
     public static double P_E_Horizontal = 0.12, I_E_Horizontal = 0.1, D_E_Horizontal = 0.004, F_E_Horizontal = 0;
     public static double PLinearizing = 0.12, ILinearizing = 0.1, DLinearizing = 0.004, FLinearizing = 0;
 
+    public static double PChamberLock = 0.18;
+
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
     private final ShoulderFSM shoulderFSM;
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
-    private double slidePowerCap = 0.6;
-    public static double extendingToIntakeSpecimenHeight = 15.0;
-    private static double TOLERANCE = 2.0;
+    public static double slidePowerCap = 0.8;
+    public static double extendingToIntakeSpecimenHeight = 14.5;
+    public static double TOLERANCE = 6.0;
 
     private Logger logger;
     private final Timing.Timer timer;
@@ -60,8 +66,10 @@ public class ArmFSM {
 
     private boolean shouldPID = true;
 
-    public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM) {
-        this.armMotorsWrapper = new ArmMotorsWrapper(hwMap);
+    private boolean lockHeightChange = false;
+
+    public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, boolean reset) {
+        this.armMotorsWrapper = new ArmMotorsWrapper(hwMap, reset);
         pidfController = new PIDFController(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
         targetPosition = FULLY_RETRACTED;
         pidfController.setTolerance(TOLERANCE);
@@ -79,16 +87,31 @@ public class ArmFSM {
     }
 
 
-    public void updateState(double rightY) {
+    public void updateState(double rightY, boolean isAuto, boolean dpadDown, boolean dpadUp) {
         updatePIDF();
         this.rightY = rightY;
         armMotorsWrapper.readPositionInCM();
         timer.start();
+        lockHeightChange = false;
+        if (isAuto) {
+            SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO;
+        } else {
+            SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_TELE;
+        }
+        if(dpadDown){
+            SUBMERSIBLE_HIGH_TELE -= 0.5;
+            lockHeightChange = true;
+        }else if(dpadUp){
+            SUBMERSIBLE_HIGH_TELE += 0.5;
+            lockHeightChange = true;
+        }
+        chamberLockHeight = SUBMERSIBLE_HIGH + 14;
+
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
             setTolerance(TOLERANCE);
         } else if (shoulderFSM.AT_INTAKE() || shoulderFSM.GOING_TO_INTAKE()) {
-            if (isTargetPosAtFullyRetractedHeight()) {
+            if (isTargetPosAtFullyRetractedHeight() || isTargetPosAtAutoSpecimenIntake()) {
                 setHorizontalPID();
                 setTolerance(TOLERANCE);
             } else {
@@ -98,16 +121,19 @@ public class ArmFSM {
             }
         }
 
-        if (pidfController.atSetPoint()) {
+        if (pidfController.atSetPoint()  && !isTargetPosAtAutoSpecimenIntake()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
-            else if (isTargetPosAtBasketHeight())
+            else if (isTargetPosAtBasketHeight()) {
+                pidfController.setP(PVertical);
                 currentState = States.AT_BASKET_HEIGHT;
+            }
             else if (isTargetPosAtSubmersibleHeight())
                 currentState = States.AT_SUBMERSIBLE_HEIGHT;
             else if (isTargetPosSpecimenPickUpHeight()) {
                 currentState = States.AT_SPECIMEN_PICKUP;
             } else if (isTargetPosChamberLockHeight()) {
+                pidfController.setP(PVertical);
                 currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             } else if (isTargetPosMiniIntakeHeight()) {
                 currentState = States.AT_MINI_INTAKE;
@@ -118,6 +144,10 @@ public class ArmFSM {
             }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
+        } else if (isTargetPosAtAutoSpecimenIntake()) {
+            if (pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
+                currentState = States.MOVED_TO_AUTO_SPEC_INTAKE;
+            }
         } else {
             if (isTargetPosAboveSafeHeight())
                 currentState = States.MOVING_ABOVE_SAFE_HEIGHT;
@@ -173,6 +203,10 @@ public class ArmFSM {
         return currentState == States.AT_CHAMBER_LOCK_HEIGHT;
     }
 
+    public boolean MOVED_TO_AUTO_SPEC_INTAKE() {
+        return currentState == States.MOVED_TO_AUTO_SPEC_INTAKE;
+    }
+
 
     public boolean AT_MINI_INTAKE() {
         return currentState == States.AT_MINI_INTAKE;
@@ -193,6 +227,14 @@ public class ArmFSM {
         }
 
 
+    }
+
+    public void setMaxPower(double maxPower) {
+        slidePowerCap = maxPower;
+    }
+
+    public boolean isTargetPosAtAutoSpecimenIntake() {
+        return targetPosition == AUTO_SPEC_INTAKE;
     }
 
     public boolean isTargetPosAboveSafeHeight() {
@@ -241,6 +283,9 @@ public class ArmFSM {
         targetPosition = SUBMERSIBLE_HIGH;
     }
 
+    public boolean checkSubHeight(){
+        return lockHeightChange;
+    }
 
     public void setIndexToBasketLowHeight() {
         basketIndex = 0;
@@ -252,15 +297,18 @@ public class ArmFSM {
 
 
     public void moveToChamberLockHeight() {
+        pidfController.setP(PChamberLock);
         targetPosition = chamberLockHeight;
     }
 
 
     public void goToBasketHeight() {
+        slidePowerCap = 1;
         targetPosition = basketHeights[basketIndex];
     }
 
     public void retract() {
+        slidePowerCap = 0.6;
         targetPosition = FULLY_RETRACTED;
     }
 
@@ -324,19 +372,21 @@ public class ArmFSM {
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("power cap", slidePowerCap, Logger.LogLevels.DEBUG);
         logger.log("Current power", armMotorsWrapper.get(), Logger.LogLevels.DEBUG);
+        logger.log("Should PID", shouldPID, Logger.LogLevels.DEBUG);
+
         logger.log("rightY", rightY, Logger.LogLevels.DEBUG);
 
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
-
+/*
     public void capSetPower() {
         double currentPos = armMotorsWrapper.getLastReadPositionInCM();
         if (Math.abs(currentPos - targetPosition) <= 20) {
             slidePowerCap = 0.02 * Math.abs(currentPos - targetPosition);
         } else
             slidePowerCap = 0.4;
-    }
+    }*/
 
     public void uncapSetPower() {
         slidePowerCap = 0.6;
@@ -348,6 +398,10 @@ public class ArmFSM {
 
     public void setShouldPID(boolean setShouldPID) {
         this.shouldPID = setShouldPID;
+    }
+
+    public void setAutoSpecIntakePos() {
+        targetPosition = AUTO_SPEC_INTAKE;
     }
 
     public double getCurrentFeedrate() {

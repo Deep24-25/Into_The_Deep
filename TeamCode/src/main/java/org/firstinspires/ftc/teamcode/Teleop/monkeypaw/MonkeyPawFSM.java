@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop.monkeypaw;
 
-import androidx.annotation.VisibleForTesting;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.util.Timing;
 
@@ -17,7 +15,7 @@ public class MonkeyPawFSM {
 
 
     public enum States {
-        START, READY_TO_START,
+        START, READY_TO_START, AUTO_START,
         // Intake states
         PREPARING_TO_INTAKE_SAMPLE, PREPARED_TO_INTAKE_SAMPLE, INTAKING_SAMPLE, RELAXING_WITH_SAMPLE, RELAXED_POS_WITH_SAMPLE, RETRACTING_INTAKE, RETRACTED_INTAKE, DEPOSITING_SAMPLE_TO_HP, DEPOSITED_SAMPLE_TO_HP,
 
@@ -68,6 +66,7 @@ public class MonkeyPawFSM {
         } else if (limbFSM.EXTENDED_TO_BASKET_HEIGHT() && !RELAXING_AFTER_DEPOSIT() && !RELAXED_AFTER_DEPOSIT()) {
             state = States.DEPOSITING_SAMPLE;
         } else if (limbFSM.PREPARING_TO_INTAKE_SPECIMEN() && !PREPARED_TO_INTAKE_SPECIMEN() && !INTAKED_SPECIMEN()) {
+            elbowFSM.resetCounter();
             state = States.PREPARING_TO_INTAKE_SPECIMEN;
         } else if (limbFSM.INTAKING_SPECIMEN() && (PREPARED_TO_INTAKE_SPECIMEN() || limbFSM.STARTED()) && !INTAKED_SPECIMEN()) {
             state = States.INTAKING_SPECIMEN;
@@ -86,12 +85,17 @@ public class MonkeyPawFSM {
 
     }
 
-    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed, boolean dpadUp, boolean dpadDown, boolean dpadRight, boolean dpadLeft, boolean dpadUp2, boolean dpadDown2) {
+    public void updateState(boolean rightTrigger, boolean leftTrigger, boolean yPressed, boolean xPressed, boolean dpadUp, boolean dpadDown, boolean dpadRight, boolean dpadLeft, boolean dpadUp2, boolean dpadDown2, boolean isAuto) {
         fingerFSM.updateState();
         wristFSM.updateState();
         deviatorFSM.updateState();
         elbowFSM.updateState();
-        findTargetState(xPressed);
+
+        elbowFSM.setIsAuto(isAuto);
+
+        if (!isAuto) {
+            findTargetState(xPressed);
+        }
         if (dpadRight) {
             wristFSM.increaseCompensation();
         }
@@ -114,7 +118,7 @@ public class MonkeyPawFSM {
                             if (fingerFSM.GRIPPED()) {
                                 state = States.READY_TO_START;
                             } else {
-                                fingerFSM.gripSample();
+                                fingerFSM.releaseSample();
                             }
                         } else {
                             deviatorFSM.relax();
@@ -125,6 +129,29 @@ public class MonkeyPawFSM {
                 } else {
                     elbowFSM.relax();
                 }
+                break;
+            case AUTO_START:
+                fingerFSM.gripSpecimen();
+                if (elbowFSM.RELAXED()) {
+                    if (wristFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT()) {
+                        if (deviatorFSM.VERTICALED()) {
+                            if (fingerFSM.GRIPPED()) {
+                                state = States.READY_TO_START;
+                            } else {
+                                fingerFSM.gripSpecimen();
+                            }
+                        } else {
+                            deviatorFSM.vertical();
+                        }
+                    } else {
+                        wristFSM.flexToSpecimenDepositReadyPos();
+                    }
+                } else {
+                    elbowFSM.relax();
+                }
+                break;
+            case READY_TO_START:
+                fingerFSM.gripSpecimen();
                 break;
             case PREPARING_TO_INTAKE_SAMPLE:
                 if (rightTrigger) {
@@ -239,6 +266,7 @@ public class MonkeyPawFSM {
                 }
                 break;
             case INTAKING_SPECIMEN:
+                elbowFSM.resetCounter();
                 fingerFSM.gripSpecimen();
                 if (fingerFSM.GRIPPED() && !grippedSpecimen) {
                     if (!specimenTimer.isTimerOn()) {
@@ -264,6 +292,9 @@ public class MonkeyPawFSM {
                 break;
             case DEPOSITING_SPECIMEN:
                 fingerFSM.releaseSpecimen();
+                if (isAuto && fingerFSM.RELEASED()) {
+                    state = States.DEPOSITED_SPECIMEN;
+                }
                 if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     state = States.DEPOSITED_SPECIMEN;
                 }
@@ -326,7 +357,6 @@ public class MonkeyPawFSM {
     }
 
 
-    @VisibleForTesting
     public void setState(States state) {
         this.state = state;
     }
@@ -347,4 +377,11 @@ public class MonkeyPawFSM {
         wristFSM.updatePID();
     }
 
+    public States getState() {
+        return state;
+    }
+
+    public boolean automatedSpecimenPickup() {
+        return elbowFSM.specimenPickup();
+    }
 }

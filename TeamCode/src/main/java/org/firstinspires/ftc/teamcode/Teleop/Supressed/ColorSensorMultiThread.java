@@ -38,7 +38,7 @@ public class ColorSensorMultiThread extends LinearOpMode {
     @Override
     public void runOpMode() {
         try {
-            hwMap = new HWMap(hardwareMap);
+            hwMap = new HWMap(hardwareMap, false);
             gamepadEx = new GamepadEx(gamepad1);
 //            csLeft = hwMap.getColorSensor1();
 //            csRight = hwMap.getColorSensor2();

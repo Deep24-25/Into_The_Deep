@@ -12,10 +12,11 @@ public class ShoulderWrapper {
     private final double SLIDES_CPR;
 
     //ratio 24:41
-    public ShoulderWrapper(HWMap hwMap) {
+    public ShoulderWrapper(HWMap hwMap, boolean reset) {
         shoulderMotor = hwMap.getPivotMotor();
-        shoulderMotor.resetEncoder();
         SLIDES_CPR = shoulderMotor.getCPR();
+        shoulderMotor.resetEncoder();
+
 
     }
 

@@ -25,7 +25,7 @@ public class ShoulderFSM {
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE = 100;
+    private static final double CHAMBER_ANGLE = 100; // 100
     private static final double BASKET_ANGLE = 100;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 0;
@@ -43,15 +43,21 @@ public class ShoulderFSM {
     private boolean shouldPID = true;
     private LimbFSM limbFSM;
 
-    public ShoulderFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM) {
+    private int counter = 0;
+    private double TOLERANCE = 7.5;
+    public static double STALL_LIMIT = 3.5;
+    public static double RETRACT_POWER = -0.7;
+
+    public ShoulderFSM(HWMap hwMap, Logger logger, LimbFSM limbFSM, boolean reset) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
-        shoulderWrapper = new ShoulderWrapper(hwMap);
+        shoulderWrapper = new ShoulderWrapper(hwMap, reset);
         this.logger = logger;
         this.limbFSM = limbFSM;
     }
-    public ShoulderFSM(HWMap hwMap, Logger logger) {
+
+    public ShoulderFSM(HWMap hwMap, Logger logger, boolean reset) {
         this.pidfController = new PIDFController(P_E, I_E, D_E, F_E);
-        shoulderWrapper = new ShoulderWrapper(hwMap);
+        shoulderWrapper = new ShoulderWrapper(hwMap, reset);
         this.logger = logger;
     }
 
@@ -61,17 +67,31 @@ public class ShoulderFSM {
         this.pidfController = pidfController;
     }
 
-    public void updateState() {
-        double TOLERANCE = 7.5;
+    public void updateState(boolean isAuto) {
         pidfController.setTolerance(TOLERANCE);
         updatePID();
+        if (isShoulderTargetPosDepositChamberAngle() && isAuto && limbFSM.SPECIMEN_MODE()) {
+            TOLERANCE = 4.5;
+        } else {
+            TOLERANCE = 4.5;
+        }
 
         if (pidfController.atSetPoint()) {
+            if (isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE() && isAuto) {
+                counter++;
+                if (counter == 50) {
+                    currentState = States.AT_DEPOSIT_CHAMBERS;
+                    counter = 0;
+                }
+            }
+            if (!(isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE() && isAuto)) {
+                counter = 0;
+            }
             if (isShoulderTargetPosDepositChamberAngle() && limbFSM.SPECIMEN_MODE()) {
                 currentState = States.AT_DEPOSIT_CHAMBERS;
             } else if (isShoulderTargetPosDepositBasketAngle() && limbFSM.SAMPLE_MODE()) {
                 currentState = States.AT_BASKET_DEPOSIT;
-            } else if (isShoulderTargetPosSpecimenIntakeAngle() && limbFSM.SPECIMEN_MODE()) {
+            } else if ((isShoulderTargetPosSpecimenIntakeAngle() && limbFSM.SPECIMEN_MODE() && shouldPID)) {
                 currentState = States.AT_SPECIMEN_INTAKE;
             } else if (isShoulderTargetPosSampleIntakeAngle() && limbFSM.SAMPLE_MODE()) {
                 currentState = States.AT_INTAKE;
@@ -100,6 +120,7 @@ public class ShoulderFSM {
     }
 
     public void setChamberTargetAngle() {
+        shouldPID = true;
         setExtendPIDF();
         targetAngle = CHAMBER_ANGLE;
     }
@@ -110,14 +131,23 @@ public class ShoulderFSM {
     }
 
     public void setBasketTargetAngle() {
+        shouldPID = true;
         setExtendPIDF();
         targetAngle = BASKET_ANGLE;
     }
-
     public void moveToIntakeAngle() {
         targetAngle = SAMPLE_INTAKE_ANGLE;
     }
+    /*public void moveToIntakeAngle() {
+        shouldPID = false;
+        shoulderWrapper.set(RETRACT_POWER);
+        targetAngle = SAMPLE_INTAKE_ANGLE;
+        if (shoulderWrapper.getCurrent() > STALL_LIMIT) {
+            shoulderWrapper.resetEncoder();
 
+        }
+    }
+*/
     public boolean isShoulderTargetPosSampleIntakeAngle() {
         return targetAngle == SAMPLE_INTAKE_ANGLE;
     }
@@ -218,6 +248,9 @@ public class ShoulderFSM {
         logger.log("Shoulder target Angle: ", targetAngle, Logger.LogLevels.PRODUCTION);
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("Shoulder power", shoulderWrapper.get(), Logger.LogLevels.DEBUG);
+        logger.log("Counter", counter, Logger.LogLevels.PRODUCTION);
+        logger.log("shoulder current", shoulderWrapper.getCurrent(), Logger.LogLevels.PRODUCTION);
+        logger.log("should PID", shouldPID, Logger.LogLevels.PRODUCTION);
         logger.log("---------------------SHOULDER LOG----------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
