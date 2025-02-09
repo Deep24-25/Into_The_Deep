@@ -32,8 +32,9 @@ public class MainAuto extends LinearOpMode {
     GamepadEx gamePad1;
     private LimbFSM limbFSM;
     private MonkeyPawFSM monkeyPawFSM;
-
     private Timer pathTimer, actionTimer, opModeTimer;
+
+    private Timer waitTime;
     private Follower follower;
     private int pathState;
     private int depositSpecState;
@@ -146,7 +147,7 @@ public class MainAuto extends LinearOpMode {
 
     public void updatePath() {
         monkeyPawFSM.updateState(false,false,false,false,false,false,false,false,false,false,true);
-        limbFSM.updateState(false,false,false,false,false,false,false,false,false,false,0,false,true);
+        limbFSM.updateState(false,false,false,false,false,false,false,false,false,false,0,false,true, false,false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -270,7 +271,7 @@ public class MainAuto extends LinearOpMode {
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             shoulderFSM.setLimbFSM(limbFSM);
             elbowFSM.setArmFSM(armFSM);
-
+            waitTime = new Timer();
             pathTimer = new Timer();
             actionTimer = new Timer();
             opModeTimer = new Timer();
@@ -335,7 +336,7 @@ public class MainAuto extends LinearOpMode {
 
     public void updatePath3Spec() {
         monkeyPawFSM.updateState(false,false,false,false,false,false,false,false,false,false,true);
-        limbFSM.updateState(false,false,false,false,false,false,false,false,false,false,0,false,true);
+        limbFSM.updateState(false,false,false,false,false,false,false,false,false,false,0,false,true, false, false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -442,7 +443,7 @@ public class MainAuto extends LinearOpMode {
 
     public void updatePathNewSlamming() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -576,4 +577,141 @@ public class MainAuto extends LinearOpMode {
                 break;
         }
     }
+    public void updatePathWaitTime() {
+        monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        monkeyPawFSM.updatePID();
+        limbFSM.updatePID(true);
+        limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
+        switch (pathState) {
+            case 0:
+                limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+                monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+                setPathState(1);
+                break;
+            case 1:
+                if (!follower.isBusy()) {
+                    if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+                        limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
+                        setPathState(2);
+                    }
+                }
+                break;
+
+            case 2:
+                if (monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN() && limbFSM.EXTENDED_SPECIMEN()) {
+                    follower.followPath(scorePreload, true);
+                    setPathState(3);
+                }
+                break;
+            case 3:
+                if (!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.DEPOSITING_SPECIMEN);
+                    setPathState(4);
+                }
+                break;
+            case 4:
+                if(limbFSM.DEPOSITED_SPECIMEN()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SPECIMEN);
+                    setPathState(5);
+                }
+                break;
+            case 5:
+                if (!follower.isBusy()) {
+                    if (monkeyPawFSM.DEPOSITED_SPECIMEN()) {
+                        if (monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) {
+                            limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            setPathState(6);
+                        }
+                    }
+                }
+                break;
+            case 6:
+                if (monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN() && limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                    follower.followPath(pushSamples, true);
+                    setPathState(7);
+                }
+                break;
+            case 7:
+                if (!follower.isBusy()) {
+                    limbFSM.setArmPowerCap(0.2);
+                    limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
+                    setPathState(8);
+                }
+                break;
+            case 8:
+                if (limbFSM.AUTO_SPEC_INTAKED()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+                    waitTime.resetTimer();
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                if (monkeyPawFSM.INTAKED_SPECIMEN() && waitTime.getElapsedTimeSeconds() >= 1) {
+                    limbFSM.setArmPowerCap(0.6);
+                    limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
+                    setPathState(10);
+                }
+                break;
+            case 10:
+                if (limbFSM.RETRACTED_FOR_AUTO()) {
+                    limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+                    setPathState(11);
+                }
+                break;
+            case 11:
+                if (!follower.isBusy()) {
+                    if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+                        limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
+                        setPathState(12);
+                    }
+                }
+                break;
+            case 12:
+                if (monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN() && limbFSM.EXTENDED_SPECIMEN()) {
+                    follower.followPath(scoreFirstSpec, true);
+                    setPathState(13);
+                }
+                break;
+            case 13:
+                if (!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.DEPOSITING_SPECIMEN);
+                    setPathState(14);
+                }
+                break;
+            case 14:
+                if(limbFSM.DEPOSITED_SPECIMEN()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SPECIMEN);
+                    setPathState(15);
+                }
+                break;
+            case 15:
+                if (!follower.isBusy()) {
+                    if (limbFSM.DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()) {
+                        if (monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) {
+                            limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            setPathState(16);
+                        }
+                    }
+                }
+                break;
+            case 16:
+                if (!follower.isBusy()) {
+                    follower.followPath(park, true);
+                    setPathState(17);
+                }
+                break;
+            case 17:
+                if (!follower.isBusy()) {
+                    setPathState(-1);
+                }
+                break;
+        }
+    }
+
 }

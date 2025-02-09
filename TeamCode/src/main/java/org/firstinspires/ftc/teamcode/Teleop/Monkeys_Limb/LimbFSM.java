@@ -83,7 +83,10 @@ public class LimbFSM {
             } else if (INTAKED_SPECIMEN()) {
                 states = States.EXTENDING_SPECIMEN;
             } else if (EXTENDED_SPECIMEN()) {
-                states = States.DEPOSITING_SPECIMEN;
+                if (armFSM.checkSubHeight())
+                    states = States.EXTENDING_SPECIMEN;
+                else
+                    states = States.DEPOSITING_SPECIMEN;
             }
         } else if (yPressed && SAMPLE_MODE()) {
             if ((!PREPARED_TO_DEPOSIT_SAMPLE() && !DEPOSITING_SAMPLE() && !EXTENDED_TO_BASKET_HEIGHT() && !EXTENDING_TO_BASKET_HEIGHT() && !MOVING_TO_INTAKE_POS()) || DEPOSITED_SAMPLE() || SPECIMEN_STATES()) {
@@ -130,8 +133,8 @@ public class LimbFSM {
         }
     }
 
-    public void updateState(boolean dPadRightIsDown, boolean dPadRightWasJustReleased, boolean dpadLeftIsDown, boolean dpadLeftWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test, boolean auto) {
-        updateLowLevelFSMStates(auto);
+    public void updateState(boolean dPadRightIsDown, boolean dPadRightWasJustReleased, boolean dpadLeftIsDown, boolean dpadLeftWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test, boolean auto, boolean dpadDown2, boolean dpadUp2) {
+        updateLowLevelFSMStates(auto, dpadDown2, dpadUp2);
         shoulderFSM.resetShoulder(dPadRightIsDown, dPadRightWasJustReleased);
         armFSM.resetArm(dpadLeftIsDown, dpadLeftWasJustReleased);
         this.rightY = rightY;
@@ -164,7 +167,7 @@ public class LimbFSM {
                         states = States.PREPARED_TO_INTAKE;
                     }
                 } else {
-                    armFSM.capSetPower();
+                  //  armFSM.capSetPower();
                     armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()) {
                         shoulderFSM.moveToIntakeAngle();
@@ -311,8 +314,8 @@ public class LimbFSM {
     }
 
 
-    public void updateLowLevelFSMStates(boolean isAuto) {
-        armFSM.updateState(rightY, isAuto);
+    public void updateLowLevelFSMStates(boolean isAuto, boolean dpadDown, boolean dpadUp) {
+        armFSM.updateState(rightY, isAuto, dpadDown, dpadUp);
         shoulderFSM.updateState(isAuto);
     }
 
