@@ -96,10 +96,9 @@ public class LimbFSM {
             } else if (EXTENDED_TO_BASKET_HEIGHT()) {
                 states = States.DEPOSITING_SAMPLE;
             }
+        } else if(DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()){
+            states = States.PREPARING_TO_INTAKE_SPECIMEN;
         }
-        /*else if (monkeyPawFSM.automatedSpecimenPickup() && SPECIMEN_MODE() && PREPARED_TO_INTAKE_SPECIMEN()) {
-            states = States.INTAKING_SPECIMEN;
-        }*/
         if (xPressed && SPECIMEN_MODE()) {
             if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()) {
                 states = States.PREPARING_TO_INTAKE_SPECIMEN;
@@ -167,7 +166,7 @@ public class LimbFSM {
                         states = States.PREPARED_TO_INTAKE;
                     }
                 } else {
-                  //  armFSM.capSetPower();
+                    //  armFSM.capSetPower();
                     armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()) {
                         shoulderFSM.moveToIntakeAngle();
@@ -223,13 +222,6 @@ public class LimbFSM {
                     }
                 }
                 break;
-            case EXTENDING_TO_INTAKE_SPECIMEN:
-                armFSM.setShouldPID(true);
-                armFSM.moveToExtendingToIntakeSpecimen();
-                if (armFSM.EXTENDED_TO_INTAKE_SPECiMEN()) {
-                    states = States.EXTENDED_TO_INTAKE_SPECIMEN;
-                }
-                break;
             case EXTENDING_SPECIMEN:
                 /*hwMap.brakingOff();*/
                 armFSM.setShouldPID(true);
@@ -246,7 +238,6 @@ public class LimbFSM {
                 /*hwMap.brakingOn();*/
                 if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     states = States.DEPOSITED_SPECIMEN;
-
                 }
                 break;
             //SAMPLE STATES
@@ -260,7 +251,6 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                /* hwMap.brakingOff();*/
                 shoulderFSM.setBasketTargetAngle();
                 armFSM.goToBasketHeight();
                 if (leftTriggerPressed) {
@@ -286,7 +276,7 @@ public class LimbFSM {
             case DEPOSITING_SAMPLE:
                 /* hwMap.brakingOn();*/
                 if (monkeyPawFSM.RELAXED_AFTER_DEPOSIT()) {
-                    states = States.DEPOSITED_SAMPLE;
+                    states = States.PREPARING_TO_INTAKE;
                 }
                 break;
             case AUTO_SPEC_INTAKING:

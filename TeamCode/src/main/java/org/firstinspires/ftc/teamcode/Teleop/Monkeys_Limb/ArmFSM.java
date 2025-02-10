@@ -25,7 +25,7 @@ public class ArmFSM {
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 68;
-    public static double SUBMERSIBLE_HIGH_TELE = 30; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_TELE = 32; // 34 in teleop
     public static double SUBMERSIBLE_HIGH_AUTO = 30; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
@@ -36,7 +36,7 @@ public class ArmFSM {
     private static final double SPECIMEN_PICKUP = 2;
     public static final double AUTO_SPEC_INTAKE = 21;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH - 18;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
@@ -105,7 +105,7 @@ public class ArmFSM {
             SUBMERSIBLE_HIGH_TELE += 0.5;
             lockHeightChange = true;
         }
-        chamberLockHeight = SUBMERSIBLE_HIGH + 14;
+        chamberLockHeight = SUBMERSIBLE_HIGH - 18;
 
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
@@ -280,6 +280,7 @@ public class ArmFSM {
 
 
     public void moveToSubmersibleHeight() {
+        slidePowerCap = 1;
         targetPosition = SUBMERSIBLE_HIGH;
     }
 
@@ -297,6 +298,7 @@ public class ArmFSM {
 
 
     public void moveToChamberLockHeight() {
+        slidePowerCap = 1;
         pidfController.setP(PChamberLock);
         targetPosition = chamberLockHeight;
     }
