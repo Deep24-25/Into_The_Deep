@@ -34,7 +34,7 @@ public class ArmFSM {
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 42;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
-    public static final double AUTO_SPEC_INTAKE = 21;
+    public static final double AUTO_SPEC_INTAKE = 42;
 
     public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -402,6 +402,12 @@ public class ArmFSM {
 
     public void setAutoSpecIntakePos() {
         targetPosition = AUTO_SPEC_INTAKE;
+       /* if(armMotorsWrapper.getLastReadPositionInCM() > (AUTO_SPEC_INTAKE/2.0) ) {*//*
+            slidePowerCap = 0.2;
+        *//*}*//*
+        else {
+            slidePowerCap = 0.6;
+        }*/
     }
 
     public double getCurrentFeedrate() {
