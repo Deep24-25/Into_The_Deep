@@ -43,7 +43,7 @@ public class ArmMotorsWrapper {
     public double readPositionInCM() {
         double currentPositionInTicks = armMoterOne.getCurrentPosition();
         double diameterOfSpool = 4.7; //1.85 inches
-        double ratio = (24.0 / 38.0) * (30.0 / 90.0);
+        double ratio = (28.0 / 38.0) * (30.0 / 90.0);
         lastReadPositionInCM = ((currentPositionInTicks * ratio) / (SLIDES_CPR)) * Math.PI * diameterOfSpool;
         return lastReadPositionInCM;
     }

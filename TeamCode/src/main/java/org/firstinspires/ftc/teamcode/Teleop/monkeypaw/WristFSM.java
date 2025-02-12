@@ -48,7 +48,7 @@ public class WristFSM {
     public static double SPECIMEN_INTAKE_POS = 90;
     public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 40.001;
 
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 30;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 10;
     //public static double LOW_CHAMBER_DEPOSIT_READY_FLEXED_POS = 90;
 
 

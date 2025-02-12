@@ -276,7 +276,7 @@ public class LimbFSM {
             case DEPOSITING_SAMPLE:
                 /* hwMap.brakingOn();*/
                 if (monkeyPawFSM.RELAXED_AFTER_DEPOSIT()) {
-                    states = States.PREPARING_TO_INTAKE;
+                    states = States.DEPOSITED_SAMPLE;
                 }
                 break;
             case AUTO_SPEC_INTAKING:

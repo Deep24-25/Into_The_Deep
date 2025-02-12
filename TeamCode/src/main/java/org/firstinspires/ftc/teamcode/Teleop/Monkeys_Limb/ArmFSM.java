@@ -36,16 +36,16 @@ public class ArmFSM {
     private static final double SPECIMEN_PICKUP = 2;
     public static final double AUTO_SPEC_INTAKE = 21;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH - 18;
+    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
     public static double MAX_FEEDRATE = 0.5; // cm/sec
 
-    public static double PHorizontal = 0.12, IHorizontal = 0.1, DHorizontal = 0.004, FHorizontal = 0;
-    public static double PVertical = 0.12, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
-    public static double P_E_Horizontal = 0.12, I_E_Horizontal = 0.1, D_E_Horizontal = 0.004, F_E_Horizontal = 0;
-    public static double PLinearizing = 0.12, ILinearizing = 0.1, DLinearizing = 0.004, FLinearizing = 0;
+    public static double PHorizontal = 0.06, IHorizontal = 0.1, DHorizontal = 0.009, FHorizontal = 0;
+    public static double PVertical = 0.06, IVertical = 0.1, DVertical = 0.009, FVertical = 0.003;
+    public static double P_E_Horizontal = 0.06, I_E_Horizontal = 0.1, D_E_Horizontal = 0.009, F_E_Horizontal = 0;
+    public static double PLinearizing = 0.06, ILinearizing = 0.1, DLinearizing = 0.009, FLinearizing = 0;
 
     public static double PChamberLock = 0.18;
 
@@ -98,14 +98,15 @@ public class ArmFSM {
         } else {
             SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_TELE;
         }
-        if(dpadDown){
+        if (dpadDown) {
             SUBMERSIBLE_HIGH_TELE -= 0.5;
+            chamberLockHeight = SUBMERSIBLE_HIGH + 10;
             lockHeightChange = true;
-        }else if(dpadUp){
+        } else if (dpadUp) {
             SUBMERSIBLE_HIGH_TELE += 0.5;
+            chamberLockHeight = SUBMERSIBLE_HIGH + 10;
             lockHeightChange = true;
         }
-        chamberLockHeight = SUBMERSIBLE_HIGH - 18;
 
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
@@ -121,14 +122,13 @@ public class ArmFSM {
             }
         }
 
-        if (pidfController.atSetPoint()  && !isTargetPosAtAutoSpecimenIntake()) {
+        if (pidfController.atSetPoint() && !isTargetPosAtAutoSpecimenIntake()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
             else if (isTargetPosAtBasketHeight()) {
                 pidfController.setP(PVertical);
                 currentState = States.AT_BASKET_HEIGHT;
-            }
-            else if (isTargetPosAtSubmersibleHeight())
+            } else if (isTargetPosAtSubmersibleHeight())
                 currentState = States.AT_SUBMERSIBLE_HEIGHT;
             else if (isTargetPosSpecimenPickUpHeight()) {
                 currentState = States.AT_SPECIMEN_PICKUP;
@@ -193,6 +193,7 @@ public class ArmFSM {
     public boolean AT_SPECIMEN_PICKUP_HEIGHT() {
         return currentState == States.AT_SPECIMEN_PICKUP;
     }
+
     public boolean EXTENDED_TO_INTAKE_SPECiMEN() {
         return currentState == States.EXTENDED_TO_INTAKE_SPECiMEN;
 
@@ -212,7 +213,7 @@ public class ArmFSM {
         return currentState == States.AT_MINI_INTAKE;
     }
 
-    public void moveToExtendingToIntakeSpecimen(){
+    public void moveToExtendingToIntakeSpecimen() {
         targetPosition = extendingToIntakeSpecimenHeight;
     }
 
@@ -280,11 +281,11 @@ public class ArmFSM {
 
 
     public void moveToSubmersibleHeight() {
-        slidePowerCap = 1;
+        slidePowerCap = 0.6;
         targetPosition = SUBMERSIBLE_HIGH;
     }
 
-    public boolean checkSubHeight(){
+    public boolean checkSubHeight() {
         return lockHeightChange;
     }
 
@@ -298,7 +299,7 @@ public class ArmFSM {
 
 
     public void moveToChamberLockHeight() {
-        slidePowerCap = 1;
+        slidePowerCap = 0.6;
         pidfController.setP(PChamberLock);
         targetPosition = chamberLockHeight;
     }
@@ -374,6 +375,9 @@ public class ArmFSM {
         logger.log("AtSetPoint(): ", pidfController.atSetPoint(), Logger.LogLevels.DEBUG);
         logger.log("power cap", slidePowerCap, Logger.LogLevels.DEBUG);
         logger.log("Current power", armMotorsWrapper.get(), Logger.LogLevels.DEBUG);
+        logger.log("Current AM1: ", armMotorsWrapper.getAM1Current(), Logger.LogLevels.DEBUG);
+        logger.log("Current AM2: ", armMotorsWrapper.getAM2Current(), Logger.LogLevels.DEBUG);
+        logger.log("Current AM3: ", armMotorsWrapper.getAM3Current(), Logger.LogLevels.DEBUG);
         logger.log("Should PID", shouldPID, Logger.LogLevels.DEBUG);
 
         logger.log("rightY", rightY, Logger.LogLevels.DEBUG);
