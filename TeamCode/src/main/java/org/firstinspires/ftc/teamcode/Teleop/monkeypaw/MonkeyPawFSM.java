@@ -287,16 +287,18 @@ public class MonkeyPawFSM {
             case GETTING_READY_TO_DEPOSIT_SPECIMEN:
                 elbowFSM.flexToHighChamberDepositFlexedPos();
                 wristFSM.flexToSpecimenDepositReadyPos();
+                //deviatorFSM.goToChamberDepositPos();
                 if (elbowFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT())
                     state = States.READY_TO_DEPOSIT_SPECIMEN;
                 break;
             case DEPOSITING_SPECIMEN:
                 fingerFSM.releaseSpecimen();
-                if (isAuto && fingerFSM.RELEASED()) {
-                    state = States.DEPOSITED_SPECIMEN;
-                }
-                if (fingerFSM.RELEASED() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
-                    state = States.DEPOSITED_SPECIMEN;
+                if (fingerFSM.RELEASED()) {
+                    if (isAuto) {
+                        state = States.DEPOSITED_SPECIMEN;
+                    } else {
+                        state = States.DEPOSITED_SPECIMEN;
+                    }
                 }
                 break;
         }

@@ -53,7 +53,7 @@ public class ElbowFSM {
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
-    public static double SPECIMEN_INTAKE_FLEXED_POS = 119;
+    public static double SPECIMEN_INTAKE_FLEXED_POS = 126;
     public static double SPECIMEN_INTAKE_RELAX_POS = 120;
     public static double BASKET_DEPOSIT_FLEXED_POS = 140;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 101;
