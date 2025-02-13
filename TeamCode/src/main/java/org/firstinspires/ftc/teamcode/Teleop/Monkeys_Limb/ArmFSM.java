@@ -26,11 +26,11 @@ public class ArmFSM {
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 68;
     public static double SUBMERSIBLE_HIGH_TELE = 32; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 30; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 32; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
-    private static final double FULLY_RETRACTED = 1;
+    private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 42;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
@@ -310,6 +310,9 @@ public class ArmFSM {
         slidePowerCap = 1;
         targetPosition = chamberLockHeight;
         specimenClipped = armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT;
+        if(specimenClipped){
+            targetPosition = armMotorsWrapper.getLastReadPositionInCM();
+        }
     }
 
     public boolean reachedMaxLockHeight() {
@@ -420,12 +423,7 @@ public class ArmFSM {
 
     public void setAutoSpecIntakePos() {
         targetPosition = AUTO_SPEC_INTAKE;
-        /* if(armMotorsWrapper.getLastReadPositionInCM() > (AUTO_SPEC_INTAKE/2.0) ) {*//*
-            slidePowerCap = 0.2;
-        *//*}*//*
-        else {
-            slidePowerCap = 0.6;
-        }*/
+
     }
 
     public double getCurrentFeedrate() {

@@ -41,7 +41,7 @@ public class MainAuto extends LinearOpMode {
     private int pathState;
     private int depositSpecState;
 
-    public static double PRELOAD_SCORE_X = 34.00;
+    public static double PRELOAD_SCORE_X = 35.50;
     public static double PRELOAD_SCORE_Y = 72.00;
 
     public static double SAMPLE_INTAKE_POS_X = 25;
@@ -723,16 +723,16 @@ public class MainAuto extends LinearOpMode {
             case 0:
                 follower.setMaxPower(0.7);
                 follower.followPath(scorePreload, true);
-                limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
-                monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+               // limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+               // monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
                 setPathState(1);
                 break;
             case 1:
-                if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+               // if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
                     limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
                     monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
                     setPathState(2);
-                }
+               // }
                 break;
             case 2:
                 if(!follower.isBusy()) {
