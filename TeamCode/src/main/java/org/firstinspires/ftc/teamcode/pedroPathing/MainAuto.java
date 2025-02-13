@@ -198,7 +198,7 @@ public class MainAuto extends LinearOpMode {
         while (opModeIsActive()) {
             try {
                 gamePad1.readButtons();
-                follower.setMaxPower(0.95);
+                follower.setMaxPower(1);
 
                 // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
                 follower.update();
@@ -721,7 +721,7 @@ public class MainAuto extends LinearOpMode {
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
         switch (pathState) {
             case 0:
-                follower.setMaxPower(0.7);
+                follower.setMaxPower(1);
                 follower.followPath(scorePreload, true);
                // limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
                // monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
@@ -760,7 +760,7 @@ public class MainAuto extends LinearOpMode {
                 }
                 break;
             case 5:
-                follower.setMaxPower(0.95);
+                follower.setMaxPower(1);
                 follower.followPath(pushSamples, true);
                 setPathState(6);
                 break;
@@ -783,24 +783,24 @@ public class MainAuto extends LinearOpMode {
             case 8:
                 if (monkeyPawFSM.INTAKED_SPECIMEN()) {
                     follower.followPath(scoreFirstSpec, true);
-                    limbFSM.setArmPowerCap(0.6);
-                    limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
+                  //  limbFSM.setArmPowerCap(0.6);
+                    //limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
                     setPathState(9);
                 }
                 break;
             case 9:
-                if (limbFSM.RETRACTED_FOR_AUTO()) {
-                    limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
-                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+                //if (limbFSM.RETRACTED_FOR_AUTO()) {
+                   // limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+                   // monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
                     setPathState(10);
-                }
+                //}
                 break;
             case 10:
-                if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+             //   if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
                     limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
                     monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
                     setPathState(11);
-                }
+           //     }
                 break;
             case 11:
                 if (monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN() && limbFSM.EXTENDED_SPECIMEN()) {
@@ -852,25 +852,25 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 18:
                 if (monkeyPawFSM.INTAKED_SPECIMEN()) {
-                    limbFSM.setArmPowerCap(0.6);
-                    limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
+                  //  limbFSM.setArmPowerCap(0.6);
+                   // limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
                     setPathState(19);
                 }
                 break;
             case 19:
-                if (limbFSM.RETRACTED_FOR_AUTO()) {
-                    limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
-                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+               // if (limbFSM.RETRACTED_FOR_AUTO()) {
+                   // limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+                  //  monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
                     setPathState(20);
-                }
+                //}
                 break;
             case 20:
                 if (!follower.isBusy()) {
-                    if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+                  //  if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
                         limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
                         monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
                         setPathState(21);
-                    }
+                    //}
                 }
                 break;
             case 21:
@@ -924,25 +924,25 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 28:
                 if (monkeyPawFSM.INTAKED_SPECIMEN()) {
-                    limbFSM.setArmPowerCap(0.6);
-                    limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
+                 //   limbFSM.setArmPowerCap(0.6);
+                   // limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
                     setPathState(29);
                 }
                 break;
             case 29:
-                if (limbFSM.RETRACTED_FOR_AUTO()) {
-                    limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
-                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+             //   if (limbFSM.RETRACTED_FOR_AUTO()) {
+               //     limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+                 //   monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
                     setPathState(30);
-                }
+               // }
                 break;
             case 30:
                 if (!follower.isBusy()) {
-                    if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+                  //  if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
                         limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
                         monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
                         setPathState(31);
-                    }
+                //    }
                 }
                 break;
             case 31:

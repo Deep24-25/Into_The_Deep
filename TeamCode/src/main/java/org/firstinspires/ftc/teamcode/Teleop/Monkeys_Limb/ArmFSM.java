@@ -36,7 +36,7 @@ public class ArmFSM {
     private static final double SPECIMEN_PICKUP = 2;
     public static final double AUTO_SPEC_INTAKE = 42;
 
-    public static double chamberLockHeight = 60;
+    public static double chamberLockHeight = 50;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
@@ -310,9 +310,10 @@ public class ArmFSM {
         slidePowerCap = 1;
         targetPosition = chamberLockHeight;
         specimenClipped = armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT;
-        if(specimenClipped){
+
+       /* if(specimenClipped){
             targetPosition = armMotorsWrapper.getLastReadPositionInCM();
-        }
+        }*/
     }
 
     public boolean reachedMaxLockHeight() {
