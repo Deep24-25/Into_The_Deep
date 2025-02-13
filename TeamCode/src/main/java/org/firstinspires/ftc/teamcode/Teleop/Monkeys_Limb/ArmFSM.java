@@ -30,11 +30,11 @@ public class ArmFSM {
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
-    private static final double FULLY_RETRACTED = 4;
+    private static final double FULLY_RETRACTED = 1;
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 42;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
-    public static final double AUTO_SPEC_INTAKE = 21;
+    public static final double AUTO_SPEC_INTAKE = 42;
 
     public static double chamberLockHeight = 60;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -55,7 +55,7 @@ public class ArmFSM {
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
-    public static double slidePowerCap = 0.8;
+    public static double slidePowerCap = 1;
     public static double extendingToIntakeSpecimenHeight = 14.5;
     public static double TOLERANCE = 6.0;
 
@@ -143,7 +143,7 @@ public class ArmFSM {
             }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
-        } else if (isTargetPosAtAutoSpecimenIntake()) {
+        } else if (isTargetPosAtAutoSpecimenIntake() && isAuto) {
             if (pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
                 currentState = States.MOVED_TO_AUTO_SPEC_INTAKE;
             }
@@ -407,7 +407,7 @@ public class ArmFSM {
     }*/
 
     public void uncapSetPower() {
-        slidePowerCap = 0.6;
+        slidePowerCap = 1;
     }
 
     public double getCurrentHeight() {
@@ -420,6 +420,12 @@ public class ArmFSM {
 
     public void setAutoSpecIntakePos() {
         targetPosition = AUTO_SPEC_INTAKE;
+        /* if(armMotorsWrapper.getLastReadPositionInCM() > (AUTO_SPEC_INTAKE/2.0) ) {*//*
+            slidePowerCap = 0.2;
+        *//*}*//*
+        else {
+            slidePowerCap = 0.6;
+        }*/
     }
 
     public double getCurrentFeedrate() {

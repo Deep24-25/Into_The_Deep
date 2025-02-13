@@ -96,7 +96,7 @@ public class LimbFSM {
             } else if (EXTENDED_TO_BASKET_HEIGHT()) {
                 states = States.DEPOSITING_SAMPLE;
             }
-        } else if(DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()){
+        } else if (DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()) {
             states = States.PREPARING_TO_INTAKE_SPECIMEN;
         }
         if (xPressed && SPECIMEN_MODE()) {
@@ -225,9 +225,14 @@ public class LimbFSM {
             case EXTENDING_SPECIMEN:
                 /*hwMap.brakingOff();*/
                 armFSM.setShouldPID(true);
-                shoulderFSM.setChamberTargetAngle();
-                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                if (auto) {
+                    shoulderFSM.setChamberTargetAngle();
                     armFSM.moveToSubmersibleHeight();
+                } else {
+                    shoulderFSM.setChamberTargetAngle();
+                    if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                        armFSM.moveToSubmersibleHeight();
+                    }
                 }
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
                     states = States.EXTENDED_SPECIMEN;
@@ -236,9 +241,9 @@ public class LimbFSM {
             case DEPOSITING_SPECIMEN:
                 armFSM.chamberLockHeightAlgorithm();
                 /*hwMap.brakingOn();*/
-                if(armFSM.reachedMaxLockHeight())
+                if (armFSM.reachedMaxLockHeight())
                     states = States.EXTENDING_SPECIMEN;
-                if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
+                else if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     states = States.DEPOSITED_SPECIMEN;
                 }
                 break;
@@ -282,6 +287,7 @@ public class LimbFSM {
                 }
                 break;
             case AUTO_SPEC_INTAKING:
+
                 armFSM.setAutoSpecIntakePos();
                 if (armFSM.MOVED_TO_AUTO_SPEC_INTAKE()) {
                     states = States.AUTO_SPEC_INTAKED;
