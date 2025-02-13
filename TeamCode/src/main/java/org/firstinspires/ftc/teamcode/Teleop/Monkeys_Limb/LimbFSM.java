@@ -234,8 +234,10 @@ public class LimbFSM {
                 }
                 break;
             case DEPOSITING_SPECIMEN:
-                armFSM.moveToChamberLockHeight();
+                armFSM.chamberLockHeightAlgorithm();
                 /*hwMap.brakingOn();*/
+                if(armFSM.reachedMaxLockHeight())
+                    states = States.EXTENDING_SPECIMEN;
                 if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     states = States.DEPOSITED_SPECIMEN;
                 }

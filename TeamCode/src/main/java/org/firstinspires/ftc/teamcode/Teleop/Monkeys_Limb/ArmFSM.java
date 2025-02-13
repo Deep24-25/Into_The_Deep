@@ -36,7 +36,7 @@ public class ArmFSM {
     private static final double SPECIMEN_PICKUP = 2;
     public static final double AUTO_SPEC_INTAKE = 21;
 
-    public static double chamberLockHeight = SUBMERSIBLE_HIGH + 18;
+    public static double chamberLockHeight = 60;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
@@ -67,6 +67,8 @@ public class ArmFSM {
     private boolean shouldPID = true;
 
     private boolean lockHeightChange = false;
+    private boolean specimenClipped = false;
+    public static double STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT = 4.2;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, boolean reset) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap, reset);
@@ -132,9 +134,6 @@ public class ArmFSM {
                 currentState = States.AT_SUBMERSIBLE_HEIGHT;
             else if (isTargetPosSpecimenPickUpHeight()) {
                 currentState = States.AT_SPECIMEN_PICKUP;
-            } else if (isTargetPosChamberLockHeight()) {
-                pidfController.setP(PVertical);
-                currentState = States.AT_CHAMBER_LOCK_HEIGHT;
             } else if (isTargetPosMiniIntakeHeight()) {
                 currentState = States.AT_MINI_INTAKE;
             } else if (isTargetPosAtExtendingToIntakeSpecimenHeight()) {
@@ -148,6 +147,9 @@ public class ArmFSM {
             if (pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
                 currentState = States.MOVED_TO_AUTO_SPEC_INTAKE;
             }
+        } else if (specimenClipped) {
+            pidfController.setP(PVertical);
+            currentState = States.AT_CHAMBER_LOCK_HEIGHT;
         } else {
             if (isTargetPosAboveSafeHeight())
                 currentState = States.MOVING_ABOVE_SAFE_HEIGHT;
@@ -281,7 +283,7 @@ public class ArmFSM {
 
 
     public void moveToSubmersibleHeight() {
-        slidePowerCap = 0.6;
+        slidePowerCap = 1;
         targetPosition = SUBMERSIBLE_HIGH;
     }
 
@@ -299,9 +301,19 @@ public class ArmFSM {
 
 
     public void moveToChamberLockHeight() {
-        slidePowerCap = 0.6;
+        slidePowerCap = 1;
         pidfController.setP(PChamberLock);
         targetPosition = chamberLockHeight;
+    }
+
+    public void chamberLockHeightAlgorithm() {
+        slidePowerCap = 1;
+        targetPosition = chamberLockHeight;
+        specimenClipped = armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT;
+    }
+
+    public boolean reachedMaxLockHeight() {
+        return armMotorsWrapper.getLastReadPositionInCM() > (chamberLockHeight - 2);
     }
 
 
