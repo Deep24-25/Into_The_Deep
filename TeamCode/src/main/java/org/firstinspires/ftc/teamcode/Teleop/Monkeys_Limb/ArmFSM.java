@@ -143,7 +143,7 @@ public class ArmFSM {
             }
         } else if (isFullyExtended()) {
             currentState = States.FULLY_EXTENDED;
-        } else if (isTargetPosAtAutoSpecimenIntake()) {
+        } else if (isTargetPosAtAutoSpecimenIntake() && isAuto) {
             if (pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
                 currentState = States.MOVED_TO_AUTO_SPEC_INTAKE;
             }
