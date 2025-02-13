@@ -47,7 +47,7 @@ public class ArmFSM {
     public static double P_E_Horizontal = 0.12, I_E_Horizontal = 0.1, D_E_Horizontal = 0.004, F_E_Horizontal = 0;
     public static double PLinearizing = 0.12, ILinearizing = 0.1, DLinearizing = 0.004, FLinearizing = 0;
 
-    public static double PChamberLock = 0.18;
+   // public static double PChamberLock = 0.18;
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
@@ -55,7 +55,7 @@ public class ArmFSM {
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
-    public static double slidePowerCap = 0.8;
+    public static double slidePowerCap = 1;
     public static double extendingToIntakeSpecimenHeight = 14.5;
     public static double TOLERANCE = 6.0;
 
@@ -280,6 +280,7 @@ public class ArmFSM {
 
 
     public void moveToSubmersibleHeight() {
+        slidePowerCap = 1;
         targetPosition = SUBMERSIBLE_HIGH;
     }
 
@@ -297,7 +298,8 @@ public class ArmFSM {
 
 
     public void moveToChamberLockHeight() {
-        pidfController.setP(PChamberLock);
+        slidePowerCap = 1;
+       // pidfController.setP(PChamberLock);
         targetPosition = chamberLockHeight;
     }
 
@@ -389,7 +391,7 @@ public class ArmFSM {
     }*/
 
     public void uncapSetPower() {
-        slidePowerCap = 0.6;
+        slidePowerCap = 1;
     }
 
     public double getCurrentHeight() {

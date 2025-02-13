@@ -234,9 +234,9 @@ public class LimbFSM {
                 /*hwMap.brakingOff();*/
                 armFSM.setShouldPID(true);
                 shoulderFSM.setChamberTargetAngle();
-                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                //if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     armFSM.moveToSubmersibleHeight();
-                }
+                //}
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
                     states = States.EXTENDED_SPECIMEN;
                 }
