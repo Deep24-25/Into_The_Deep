@@ -226,9 +226,9 @@ public class LimbFSM {
                 /*hwMap.brakingOff();*/
                 armFSM.setShouldPID(true);
                 shoulderFSM.setChamberTargetAngle();
-                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                //if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     armFSM.moveToSubmersibleHeight();
-                }
+                //}
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
                     states = States.EXTENDED_SPECIMEN;
                 }
@@ -282,6 +282,7 @@ public class LimbFSM {
                 }
                 break;
             case AUTO_SPEC_INTAKING:
+
                 armFSM.setAutoSpecIntakePos();
                 if (armFSM.MOVED_TO_AUTO_SPEC_INTAKE()) {
                     states = States.AUTO_SPEC_INTAKED;
@@ -428,7 +429,7 @@ public class LimbFSM {
     }
 
     public void updatePID(boolean isAuto) {
-        armFSM.updatePIDF();
+       // armFSM.updatePIDF();
         shoulderFSM.updatePID();
     }
 

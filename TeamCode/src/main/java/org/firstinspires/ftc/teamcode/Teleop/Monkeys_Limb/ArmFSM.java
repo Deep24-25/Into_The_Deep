@@ -34,7 +34,7 @@ public class ArmFSM {
     private static final double MINI_INTAKE = 7;
     private static final double MAX_HEIGHT = 42;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
-    public static final double AUTO_SPEC_INTAKE = 21;
+    public static final double AUTO_SPEC_INTAKE = 42;
 
     public static double chamberLockHeight = 60;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -47,7 +47,7 @@ public class ArmFSM {
     public static double P_E_Horizontal = 0.06, I_E_Horizontal = 0.1, D_E_Horizontal = 0.009, F_E_Horizontal = 0;
     public static double PLinearizing = 0.06, ILinearizing = 0.1, DLinearizing = 0.009, FLinearizing = 0;
 
-    public static double PChamberLock = 0.18;
+   // public static double PChamberLock = 0.18;
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;
@@ -55,7 +55,7 @@ public class ArmFSM {
     private double targetPosition;
     private double measuredPosition;
     private States currentState;
-    public static double slidePowerCap = 0.8;
+    public static double slidePowerCap = 1;
     public static double extendingToIntakeSpecimenHeight = 14.5;
     public static double TOLERANCE = 6.0;
 
@@ -407,7 +407,7 @@ public class ArmFSM {
     }*/
 
     public void uncapSetPower() {
-        slidePowerCap = 0.6;
+        slidePowerCap = 1;
     }
 
     public double getCurrentHeight() {
@@ -420,6 +420,12 @@ public class ArmFSM {
 
     public void setAutoSpecIntakePos() {
         targetPosition = AUTO_SPEC_INTAKE;
+       /* if(armMotorsWrapper.getLastReadPositionInCM() > (AUTO_SPEC_INTAKE/2.0) ) {*//*
+            slidePowerCap = 0.2;
+        *//*}*//*
+        else {
+            slidePowerCap = 0.6;
+        }*/
     }
 
     public double getCurrentFeedrate() {
