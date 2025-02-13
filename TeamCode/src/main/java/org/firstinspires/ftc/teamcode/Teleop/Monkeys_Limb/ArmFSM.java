@@ -47,7 +47,7 @@ public class ArmFSM {
     public static double P_E_Horizontal = 0.06, I_E_Horizontal = 0.1, D_E_Horizontal = 0.009, F_E_Horizontal = 0;
     public static double PLinearizing = 0.06, ILinearizing = 0.1, DLinearizing = 0.009, FLinearizing = 0;
 
-   // public static double PChamberLock = 0.18;
+    public static double PChamberLock = 0.18;
 
     private final ArmMotorsWrapper armMotorsWrapper;
     private final PIDFController pidfController;

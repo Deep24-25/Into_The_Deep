@@ -750,8 +750,8 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    if (monkeyPawFSM.DEPOSITED_SPECIMEN()) {
-                        if (monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) {
+                    if ((monkeyPawFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
                             limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             setPathState(5);
@@ -821,8 +821,8 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 14:
                 if (!follower.isBusy()) {
-                    if (limbFSM.DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()) {
-                        if (monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) {
+                    if ((monkeyPawFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
                             limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             setPathState(15);
@@ -893,10 +893,12 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 24:
                 if (!follower.isBusy()) {
-                    if (limbFSM.DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()) {
-                        limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
-                        monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
-                        setPathState(25);
+                    if ((monkeyPawFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                            limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            setPathState(25);
+                        }
                     }
                 }
                 break;
@@ -963,10 +965,12 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 34:
                 if (!follower.isBusy()) {
-                    if (limbFSM.DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()) {
-                        limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
-                        monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
-                        setPathState(35);
+                    if ((monkeyPawFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
+                            limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
+                            setPathState(35);
+                        }
                     }
                 }
                 break;
