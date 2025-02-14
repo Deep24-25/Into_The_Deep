@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
@@ -78,6 +76,10 @@ public class ArmMotorsWrapper {
 
     public double getAM2Current() {
         return armMoterTwo.motorEx.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getAM1Velocity() {
+        return armMoterOne.motorEx.getVelocity();
     }
 
     public double getAM3Current() {

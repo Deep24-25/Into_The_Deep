@@ -44,6 +44,24 @@ public class MainAuto extends LinearOpMode {
     public static double PRELOAD_SCORE_X = 35.50;
     public static double PRELOAD_SCORE_Y = 72.00;
 
+
+
+    // push sample variables
+    public static double BACK_UP_FROM_PRELOAD_SCORE_X = 24.00;
+    public static double BACK_UP_FROM_PRELOAD_SCORE_Y = 72.00;
+    public static double PUSH_SAMPLES_INTERMEDIATARY_1_X = 34.00;
+    public static double PUSH_SAMPLES_INTERMEDIATARY_1_Y = 40.00;
+
+    public static double PUSH_SAMPLES_INTERMEDIATARY_2_X = 60.00;
+    public static double PUSH_SAMPLES_INTERMEDIATARY_2_Y = 40.00;
+
+    public static double PUSH_SAMPLES_INTERMEDIATARY_3_X = 55.00;
+    public static double PUSH_SAMPLES_INTERMEDIATARY_3_Y = 30.00;
+
+    public static double PUSH_SECOND_SAMPLE_INTERMEDIATARY_X = 60.00;
+
+    public static double PUSH_SECOND_SAMPLE_INTERMEDIATARY_Y = 16.00;
+
     public static double SAMPLE_INTAKE_POS_X = 25;
     public static double SAMPLE_INTAKE_POS_Y = 31;
 
@@ -52,12 +70,15 @@ public class MainAuto extends LinearOpMode {
     public static double SECOND_SPEC_SCORE_X = 34.00;
 
 
+    public static double SLIDES_CAP_INTAKE = 0.35;
+
+
     private final Pose startPose = new Pose(7, 55, Math.toRadians(180));  // Starting position
     private final Pose preloadScorePose = new Pose(PRELOAD_SCORE_X, PRELOAD_SCORE_Y, Math.toRadians(180)); // Scoring position
 
-    private final Pose pushSampleIntermediatary = new Pose(34,36,Math.toRadians(180));
-    private final Pose pushSampleIntermediatary2 = new Pose(60,36,Math.toRadians(180));
-    private final Pose pushSampleIntermediatary3 = new Pose(55,30,Math.toRadians(180));
+    private final Pose pushSampleIntermediatary = new Pose(PUSH_SAMPLES_INTERMEDIATARY_1_X,PUSH_SAMPLES_INTERMEDIATARY_1_Y,Math.toRadians(180));
+    private final Pose pushSampleIntermediatary2 = new Pose(PUSH_SAMPLES_INTERMEDIATARY_2_X,PUSH_SAMPLES_INTERMEDIATARY_2_Y,Math.toRadians(180));
+    private final Pose pushSampleIntermediatary3 = new Pose(PUSH_SAMPLES_INTERMEDIATARY_3_X,PUSH_SAMPLES_INTERMEDIATARY_3_Y,Math.toRadians(180));
     private final Pose samplePushed = new Pose(30,24,Math.toRadians(180)); // x is 25 for 3 spec
     private final Pose sample2PushIntermediatary = new Pose(55,12,Math.toRadians(180));
     private final Pose sample2Pushed = new Pose(30,12,Math.toRadians(180)); // x is 25 for 3 spec
@@ -76,14 +97,14 @@ public class MainAuto extends LinearOpMode {
                 .build();
         pushSamples = follower.pathBuilder()
                 // .addPath(new BezierCurve(new Point(preloadScorePose), new Point(pushSampleIntermediatary)))
-                .addPath(new BezierCurve(new Point(42.00, 69.00, Point.CARTESIAN), new Point(24.00,72.00, Point.CARTESIAN), new Point(34.00, 40.00, Point.CARTESIAN)))
+                .addPath(new BezierCurve(new Point(PRELOAD_SCORE_X, PRELOAD_SCORE_Y, Point.CARTESIAN), new Point(BACK_UP_FROM_PRELOAD_SCORE_X,BACK_UP_FROM_PRELOAD_SCORE_Y, Point.CARTESIAN), new Point(PUSH_SAMPLES_INTERMEDIATARY_1_X, PUSH_SAMPLES_INTERMEDIATARY_1_Y, Point.CARTESIAN)))
                 .setConstantHeadingInterpolation(preloadScorePose.getHeading())
                 .addPath(
                         // Line 1
                         new BezierCurve(
-                                new Point(34.000, 40.000, Point.CARTESIAN),
-                                new Point(60.000, 40.000, Point.CARTESIAN),
-                                new Point(55.000, 30.000, Point.CARTESIAN) // changed
+                                new Point(PUSH_SAMPLES_INTERMEDIATARY_1_X, PUSH_SAMPLES_INTERMEDIATARY_1_Y, Point.CARTESIAN),
+                                new Point(PUSH_SAMPLES_INTERMEDIATARY_2_X, PUSH_SAMPLES_INTERMEDIATARY_2_Y, Point.CARTESIAN),
+                                new Point(PUSH_SAMPLES_INTERMEDIATARY_3_X, PUSH_SAMPLES_INTERMEDIATARY_3_Y, Point.CARTESIAN) // changed
                         )
                 )
                 .setConstantHeadingInterpolation(pushSampleIntermediatary.getHeading())
@@ -98,7 +119,7 @@ public class MainAuto extends LinearOpMode {
                         new BezierCurve(
                                 new Point(25.000, 24.000, Point.CARTESIAN),
                                 new Point(55.000, 24.000, Point.CARTESIAN),
-                                new Point(60.000, 16.000, Point.CARTESIAN)
+                                new Point(PUSH_SECOND_SAMPLE_INTERMEDIATARY_X, PUSH_SECOND_SAMPLE_INTERMEDIATARY_Y, Point.CARTESIAN)
                         )
                 )
                 .setConstantHeadingInterpolation(sample2Pushed.getHeading())
@@ -298,7 +319,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                    limbFSM.setArmPowerCap(0.2);
+                    limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                     limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
                     setPathState(8);
                 }
@@ -434,7 +455,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                    limbFSM.setArmPowerCap(0.2);
+                    limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                     limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
                     setPathState(8);
                 }
@@ -565,7 +586,7 @@ public class MainAuto extends LinearOpMode {
             case 6:
                 if (!follower.isBusy()) {
                     if (monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN() && limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
-                        limbFSM.setArmPowerCap(0.2);
+                        limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                         limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
                         setPathState(7);
                     }
@@ -636,7 +657,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 16:
                 if (!follower.isBusy()) {
-                    limbFSM.setArmPowerCap(0.2);
+                    limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                     limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
                     setPathState(17);
                 }
@@ -767,7 +788,7 @@ public class MainAuto extends LinearOpMode {
             case 6:
                 if (!follower.isBusy()) {
                     if (monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN() && limbFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
-                        limbFSM.setArmPowerCap(0.2);
+                        limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                         limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
                         setPathState(7);
                     }
@@ -838,7 +859,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 16:
                 if (!follower.isBusy()) {
-                    limbFSM.setArmPowerCap(0.2);
+                    limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                     limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
                     setPathState(17);
                 }
@@ -910,7 +931,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 26:
                 if (!follower.isBusy()) {
-                    limbFSM.setArmPowerCap(0.2);
+                    limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                     limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
                     setPathState(27);
                 }

@@ -24,9 +24,9 @@ public class ArmFSM {
 
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
-    public static double BASKET_HIGH = 68;
-    public static double SUBMERSIBLE_HIGH_TELE = 32; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 32; // 34 in teleop
+    public static double BASKET_HIGH = 76;
+    public static double SUBMERSIBLE_HIGH_TELE = 34; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 34; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
@@ -68,7 +68,9 @@ public class ArmFSM {
 
     private boolean lockHeightChange = false;
     private boolean specimenClipped = false;
-    public static double STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT = 4.2;
+    public static double STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT = 3.5;
+    public static double COUNTER_LIMIT = 2;
+    private double counter = 0;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, boolean reset) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap, reset);
@@ -123,8 +125,10 @@ public class ArmFSM {
 
             }
         }
-
-        if (pidfController.atSetPoint() && !isTargetPosAtAutoSpecimenIntake()) {
+        if (specimenClipped) {
+            pidfController.setP(PVertical);
+            currentState = States.AT_CHAMBER_LOCK_HEIGHT;
+        } else if (pidfController.atSetPoint() && !isTargetPosAtAutoSpecimenIntake()) {
             if (isTargetPosAtFullyRetractedHeight())
                 currentState = States.FULLY_RETRACTED;
             else if (isTargetPosAtBasketHeight()) {
@@ -147,9 +151,6 @@ public class ArmFSM {
             if (pidfController.atSetPoint() || armMotorsWrapper.getLastReadPositionInCM() >= AUTO_SPEC_INTAKE) {
                 currentState = States.MOVED_TO_AUTO_SPEC_INTAKE;
             }
-        } else if (specimenClipped) {
-            pidfController.setP(PVertical);
-            currentState = States.AT_CHAMBER_LOCK_HEIGHT;
         } else {
             if (isTargetPosAboveSafeHeight())
                 currentState = States.MOVING_ABOVE_SAFE_HEIGHT;
@@ -309,9 +310,14 @@ public class ArmFSM {
     public void chamberLockHeightAlgorithm() {
         slidePowerCap = 1;
         targetPosition = chamberLockHeight;
-        specimenClipped = armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT;
+        if ((armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT) && (armMotorsWrapper.getAM1Velocity() == 0)) {
+            counter++;
+        } else {
+            counter = 0;
+        }
+        specimenClipped = counter >= COUNTER_LIMIT;
 
-       /* if(specimenClipped){
+        /*if (specimenClipped) {
             targetPosition = armMotorsWrapper.getLastReadPositionInCM();
         }*/
     }
@@ -385,6 +391,7 @@ public class ArmFSM {
 
     public void log() {
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
+        logger.log("specimen clipped", specimenClipped, Logger.LogLevels.PRODUCTION);
         logger.log("Arm State: ", currentState, Logger.LogLevels.PRODUCTION);
         logger.log("Arm Current Height: ", armMotorsWrapper.getLastReadPositionInCM(), Logger.LogLevels.PRODUCTION);
         logger.log("Arm Target Height: ", targetPosition, Logger.LogLevels.PRODUCTION);
@@ -394,6 +401,7 @@ public class ArmFSM {
         logger.log("Current AM1: ", armMotorsWrapper.getAM1Current(), Logger.LogLevels.DEBUG);
         logger.log("Current AM2: ", armMotorsWrapper.getAM2Current(), Logger.LogLevels.DEBUG);
         logger.log("Current AM3: ", armMotorsWrapper.getAM3Current(), Logger.LogLevels.DEBUG);
+        logger.log("Velocity AM2: ", armMotorsWrapper.getAM1Velocity(), Logger.LogLevels.DEBUG);
         logger.log("Should PID", shouldPID, Logger.LogLevels.DEBUG);
 
         logger.log("rightY", rightY, Logger.LogLevels.DEBUG);
@@ -433,6 +441,10 @@ public class ArmFSM {
 
     public static double getMaxFeedrate() {
         return MAX_FEEDRATE;
+    }
+
+    public void setSpecimenClipped(boolean specimenClipped) {
+        this.specimenClipped = specimenClipped;
     }
 
     @VisibleForTesting

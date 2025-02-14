@@ -100,7 +100,7 @@ public class MainTeleop extends LinearOpMode {
 
             double rightX;
             if (limbFSM.MOVING_TO_INTAKE_POS()) {
-                if (-gamePad1.getRightY() > 0.05 || -gamePad1.getRightY() < -0.05) {
+                if (-gamePad1.getRightY() > 0.95 || -gamePad1.getRightY() < -0.95) {
                     rightX = 0;
                 } else {
                     rightX = gamePad1.getRightX();
