@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
+
 @Config
 public class LimbFSM {
     public enum States {
@@ -65,7 +66,7 @@ public class LimbFSM {
     private double rightY;
 
     private Timing.Timer autoTimer;
-    public static long TIMER_LENGTH = 2000;
+    public static long TIMER_LENGTH = 1500;
 
     boolean autoTimerDone = false;
 
@@ -237,35 +238,36 @@ public class LimbFSM {
             case EXTENDING_SPECIMEN:
                 /*hwMap.brakingOff();*/
                 armFSM.setShouldPID(true);
-                if (auto) {
+                /*if (auto) {
                     shoulderFSM.setChamberTargetAngle();
                     armFSM.moveToSubmersibleHeight();
                 } else {
-                    shoulderFSM.setChamberTargetAngle();
-                    if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
-                        armFSM.moveToSubmersibleHeight();
-                    }
+                */
+                shoulderFSM.setChamberTargetAngle();
+                if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
+                    armFSM.moveToSubmersibleHeight();
+
                 }
+
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
                     states = States.EXTENDED_SPECIMEN;
                 }
                 break;
             case DEPOSITING_SPECIMEN:
                 armFSM.chamberLockHeightAlgorithm();
-                if(auto) {
-                      if (!autoTimer.isTimerOn()) {
-                          autoTimer.start();
-                      }
-                      if (autoTimer.done()) {
-                          autoTimer.pause();
-                          states = States.DEPOSITED_SPECIMEN;
-                      }
-                  }
-                    if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
-                        armFSM.setSpecimenClipped(false);
+                /*if (auto) {
+                    if (!autoTimer.isTimerOn()) {
+                        autoTimer.start();
+                    }
+                    if (autoTimer.done()) {
+                        autoTimer.pause();
                         states = States.DEPOSITED_SPECIMEN;
                     }
-
+                }*/
+                if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
+                    armFSM.setSpecimenClipped(false);
+                    states = States.DEPOSITED_SPECIMEN;
+                }
                 break;
             //SAMPLE STATES
             case PREPARING_TO_DEPOSIT_SAMPLE:
@@ -326,6 +328,7 @@ public class LimbFSM {
         logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Limb State: ", states, Logger.LogLevels.PRODUCTION);
         logger.log("Robot Mode: ", mode, Logger.LogLevels.PRODUCTION);
+        logger.log("auto timer", autoTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         armFSM.log();
         shoulderFSM.log();

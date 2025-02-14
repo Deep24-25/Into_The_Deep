@@ -279,7 +279,10 @@ public class MonkeyPawFSM {
 
                     }
                 }
-                if (wristFSM.SPECIMEN_INTAKE_RETRACTED()) {
+                if(wristFSM.SPECIMEN_INTAKE_RETRACTED()) {
+                    elbowFSM.flexToSpecimenRetractIntake();
+                }
+                if (wristFSM.SPECIMEN_INTAKE_RETRACTED() && elbowFSM.SPECIMEN_INTAKE_RETRACTED()) {
                     grippedSpecimen = false;
                     state = States.INTAKED_SPECIMEN;
                 }

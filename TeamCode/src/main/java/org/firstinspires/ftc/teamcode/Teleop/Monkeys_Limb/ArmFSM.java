@@ -416,6 +416,8 @@ public class ArmFSM {
 
         logger.log("rightY", rightY, Logger.LogLevels.DEBUG);
 
+        logger.log("velocity counter", counter, Logger.LogLevels.PRODUCTION);
+
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }

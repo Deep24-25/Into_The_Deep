@@ -37,7 +37,9 @@ public class ElbowFSM {
         RELAXING_FROM_CHAMBER_DEPOSIT,
         RELAXED_FROM_CHAMBER_DEPOSIT,
         RELAXING_FROM_BASKET_DEPOSIT,
-        RELAXED_FROM_BASKET_DEPOSIT
+        RELAXED_FROM_BASKET_DEPOSIT,
+        SPEC_INTAKE_RETRACTED,
+        SPEC_INTAKE_RETRACTING
     }
 
     private double targetAngle;
@@ -93,6 +95,7 @@ public class ElbowFSM {
     public static double SAMPLE_INTAKE_CONTROL_POS_CURRENT_ANGLE = 130;
     public static final double INTAKE_RETRACTED_CURRENT_ANGLE = 80;
     public static final double BASKET_CURRENT_ANGLE = 110;
+    public static final double SPEC_INTAKE_RETRACT_ANGLE = 111;
     private static final double RATIO = 26.0 / 16;
     private boolean isAuto = false;
     private int counter = 0;
@@ -193,6 +196,13 @@ public class ElbowFSM {
                 state = ElbowStates.RELAXING_FROM_BASKET_DEPOSIT;
             }
         }
+        else if (isTargetAngleToSpecIntakeRetractPos()) {
+            if (atSetPoint()) {
+                state = ElbowStates.SPEC_INTAKE_RETRACTED;
+            } else {
+                state = ElbowStates.SPEC_INTAKE_RETRACTING;
+            }
+        }
 
     }
 
@@ -249,9 +259,17 @@ public class ElbowFSM {
         return targetAngle == CHAMBER_RELAX_POS;
     }
 
+    public boolean isTargetAngleToSpecIntakeRetractPos() {
+        return targetAngle == SPEC_INTAKE_RETRACT_ANGLE;
+    }
+
     public void updatePos() {
         elbowServoWrapper.readPos();
         elbowServoWrapper.set(targetAngle);
+    }
+
+    public void flexToSpecimenRetractIntake() {
+        targetAngle = SPEC_INTAKE_RETRACT_ANGLE;
     }
 
     public void flexToSampleHoveringPos() {
@@ -413,5 +431,9 @@ public class ElbowFSM {
     }
     public void resetCounter(){
         counter = 0;
+    }
+
+    public boolean SPECIMEN_INTAKE_RETRACTED() {
+        return state == ElbowStates.SPEC_INTAKE_RETRACTED;
     }
 }
