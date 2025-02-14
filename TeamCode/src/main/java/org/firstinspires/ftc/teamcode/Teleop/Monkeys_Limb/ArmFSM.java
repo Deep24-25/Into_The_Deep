@@ -26,7 +26,7 @@ public class ArmFSM {
     public static double BASKET_LOW = 40;
     public static double BASKET_HIGH = 76;
     public static double SUBMERSIBLE_HIGH_TELE = 34; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 34; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 35.5; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
@@ -71,6 +71,10 @@ public class ArmFSM {
     public static double STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT = 3.5;
     public static double COUNTER_LIMIT = 2;
     private double counter = 0;
+
+    boolean currentMet = false;
+
+    public static double VELOCITY_THRESOLD = 0.5;
 
     public ArmFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM, ElbowFSM elbowFSM, boolean reset) {
         this.armMotorsWrapper = new ArmMotorsWrapper(hwMap, reset);
@@ -310,12 +314,18 @@ public class ArmFSM {
     public void chamberLockHeightAlgorithm() {
         slidePowerCap = 1;
         targetPosition = chamberLockHeight;
-        if ((armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT) && (armMotorsWrapper.getAM1Velocity() == 0)) {
+        if(armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT) {
+            currentMet = true;
+        }
+        if ((armMotorsWrapper.getAM1Velocity() <= VELOCITY_THRESOLD && armMotorsWrapper.getAM1Velocity() > -3) && currentMet) {
             counter++;
         } else {
             counter = 0;
         }
         specimenClipped = counter >= COUNTER_LIMIT;
+        if(specimenClipped) {
+            currentMet = false;
+        }
 
         /*if (specimenClipped) {
             targetPosition = armMotorsWrapper.getLastReadPositionInCM();
@@ -399,9 +409,9 @@ public class ArmFSM {
         logger.log("power cap", slidePowerCap, Logger.LogLevels.DEBUG);
         logger.log("Current power", armMotorsWrapper.get(), Logger.LogLevels.DEBUG);
         logger.log("Current AM1: ", armMotorsWrapper.getAM1Current(), Logger.LogLevels.DEBUG);
-        logger.log("Current AM2: ", armMotorsWrapper.getAM2Current(), Logger.LogLevels.DEBUG);
+        logger.log("Current AM2: ", armMotorsWrapper.getAM2Current(), Logger.LogLevels.PRODUCTION);
         logger.log("Current AM3: ", armMotorsWrapper.getAM3Current(), Logger.LogLevels.DEBUG);
-        logger.log("Velocity AM2: ", armMotorsWrapper.getAM1Velocity(), Logger.LogLevels.DEBUG);
+        logger.log("Velocity AM2: ", armMotorsWrapper.getAM1Velocity(), Logger.LogLevels.PRODUCTION);
         logger.log("Should PID", shouldPID, Logger.LogLevels.DEBUG);
 
         logger.log("rightY", rightY, Logger.LogLevels.DEBUG);

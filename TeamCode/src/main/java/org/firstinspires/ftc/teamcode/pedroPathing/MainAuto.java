@@ -79,9 +79,9 @@ public class MainAuto extends LinearOpMode {
     private final Pose pushSampleIntermediatary = new Pose(PUSH_SAMPLES_INTERMEDIATARY_1_X,PUSH_SAMPLES_INTERMEDIATARY_1_Y,Math.toRadians(180));
     private final Pose pushSampleIntermediatary2 = new Pose(PUSH_SAMPLES_INTERMEDIATARY_2_X,PUSH_SAMPLES_INTERMEDIATARY_2_Y,Math.toRadians(180));
     private final Pose pushSampleIntermediatary3 = new Pose(PUSH_SAMPLES_INTERMEDIATARY_3_X,PUSH_SAMPLES_INTERMEDIATARY_3_Y,Math.toRadians(180));
-    private final Pose samplePushed = new Pose(30,24,Math.toRadians(180)); // x is 25 for 3 spec
+    private final Pose samplePushed = new Pose(25,24,Math.toRadians(180)); // x is 25 for 3 spec
     private final Pose sample2PushIntermediatary = new Pose(55,12,Math.toRadians(180));
-    private final Pose sample2Pushed = new Pose(30,12,Math.toRadians(180)); // x is 25 for 3 spec
+    private final Pose sample2Pushed = new Pose(25,12,Math.toRadians(180)); // x is 25 for 3 spec
 
     private final Pose sampleIntakePos = new Pose(SAMPLE_INTAKE_POS_X,SAMPLE_INTAKE_POS_Y,Math.toRadians(180));
     private final Pose parkPose = new Pose(8,15,  Math.toRadians(180));
@@ -219,7 +219,7 @@ public class MainAuto extends LinearOpMode {
         while (opModeIsActive()) {
             try {
                 gamePad1.readButtons();
-                follower.setMaxPower(1);
+                follower.setMaxPower(0.7);
 
                 // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
                 follower.update();
@@ -742,7 +742,7 @@ public class MainAuto extends LinearOpMode {
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
         switch (pathState) {
             case 0:
-                follower.setMaxPower(1);
+                follower.setMaxPower(0.7);
                 follower.followPath(scorePreload, true);
                // limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
                // monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
@@ -781,7 +781,7 @@ public class MainAuto extends LinearOpMode {
                 }
                 break;
             case 5:
-                follower.setMaxPower(1);
+                follower.setMaxPower(0.7);
                 follower.followPath(pushSamples, true);
                 setPathState(6);
                 break;
