@@ -22,10 +22,10 @@ public class FingerFSM {
     private double targetAngle;
 
 
-    public static double SAMPLE_GRIPPED_POS = 0.011;
-    public static double SPECIMEN_GRIPPED_POS = 0.01;
-    public static double SAMPLE_RELEASED_POS = 0.31;
-    public static double SPECIMEN_RELEASED_POS = 0.3;
+    public static double SAMPLE_GRIPPED_POS = 0.671;
+    public static double SPECIMEN_GRIPPED_POS = 0.67;
+    public static double SAMPLE_RELEASED_POS = 0.951;
+    public static double SPECIMEN_RELEASED_POS = 0.95;
 
     private final FingerServoWrapper fingerServoWrapper;
 

@@ -24,9 +24,9 @@ public class ArmFSM {
 
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
-    public static double BASKET_HIGH = 76;
-    public static double SUBMERSIBLE_HIGH_TELE = 34; // 34 in teleop
-    public static double SUBMERSIBLE_HIGH_AUTO = 35.5; // 34 in teleop
+    public static double BASKET_HIGH = 68;
+    public static double SUBMERSIBLE_HIGH_TELE = 27; // 34 in teleop
+    public static double SUBMERSIBLE_HIGH_AUTO = 31.5; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
@@ -106,15 +106,14 @@ public class ArmFSM {
         } else {
             SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_TELE;
         }
+        /*
         if (dpadDown) {
             SUBMERSIBLE_HIGH_TELE -= 0.5;
-            chamberLockHeight = SUBMERSIBLE_HIGH + 10;
             lockHeightChange = true;
         } else if (dpadUp) {
             SUBMERSIBLE_HIGH_TELE += 0.5;
-            chamberLockHeight = SUBMERSIBLE_HIGH + 10;
             lockHeightChange = true;
-        }
+        }*/
 
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
@@ -288,6 +287,7 @@ public class ArmFSM {
 
 
     public void moveToSubmersibleHeight() {
+        specimenClipped = false;
         slidePowerCap = 1;
         targetPosition = SUBMERSIBLE_HIGH;
     }
@@ -338,11 +338,13 @@ public class ArmFSM {
 
 
     public void goToBasketHeight() {
+        specimenClipped = false;
         slidePowerCap = 1;
         targetPosition = basketHeights[basketIndex];
     }
 
     public void retract() {
+        specimenClipped = false;
         slidePowerCap = 0.6;
         targetPosition = FULLY_RETRACTED;
     }

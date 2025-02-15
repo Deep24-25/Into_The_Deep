@@ -37,6 +37,8 @@ public class MainAuto extends LinearOpMode {
     private Timer pathTimer, actionTimer, opModeTimer;
 
     private Timer waitTime;
+
+    private Timer depositTimer;
     private Follower follower;
     private int pathState;
     private int depositSpecState;
@@ -56,7 +58,7 @@ public class MainAuto extends LinearOpMode {
     public static double PUSH_SAMPLES_INTERMEDIATARY_2_Y = 40.00;
 
     public static double PUSH_SAMPLES_INTERMEDIATARY_3_X = 55.00;
-    public static double PUSH_SAMPLES_INTERMEDIATARY_3_Y = 30.00;
+    public static double PUSH_SAMPLES_INTERMEDIATARY_3_Y = 26.00;
 
     public static double PUSH_SECOND_SAMPLE_INTERMEDIATARY_X = 60.00;
 
@@ -72,6 +74,8 @@ public class MainAuto extends LinearOpMode {
 
     public static double SLIDES_CAP_INTAKE = 0.2;
 
+    public static double DEPOSIT_TIME = 1;
+
 
     private final Pose startPose = new Pose(7, 55, Math.toRadians(180));  // Starting position
     private final Pose preloadScorePose = new Pose(PRELOAD_SCORE_X, PRELOAD_SCORE_Y, Math.toRadians(180)); // Scoring position
@@ -81,10 +85,10 @@ public class MainAuto extends LinearOpMode {
     private final Pose pushSampleIntermediatary3 = new Pose(PUSH_SAMPLES_INTERMEDIATARY_3_X,PUSH_SAMPLES_INTERMEDIATARY_3_Y,Math.toRadians(180));
     private final Pose samplePushed = new Pose(25,24,Math.toRadians(180)); // x is 25 for 3 spec
     private final Pose sample2PushIntermediatary = new Pose(55,12,Math.toRadians(180));
-    private final Pose sample2Pushed = new Pose(25,12,Math.toRadians(180)); // x is 25 for 3 spec
+    private final Pose sample2Pushed = new Pose(24,12,Math.toRadians(180)); // x is 25 for 3 spec
 
     private final Pose sampleIntakePos = new Pose(SAMPLE_INTAKE_POS_X,SAMPLE_INTAKE_POS_Y,Math.toRadians(180));
-    private final Pose parkPose = new Pose(8,15,  Math.toRadians(180));
+    private final Pose parkPose = new Pose(11,18,  Math.toRadians(180));
     private final Pose firstSpecScorePose = new Pose(FIRST_SPEC_SCORE_X, 70.5, Math.toRadians(180)); // Position not actually used
 
     private final Pose secondSpecScorePose = new Pose(SECOND_SPEC_SCORE_X, 69, Math.toRadians(180)); // Positiobn not actually used
@@ -194,6 +198,7 @@ public class MainAuto extends LinearOpMode {
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             shoulderFSM.setLimbFSM(limbFSM);
             elbowFSM.setArmFSM(armFSM);
+            depositTimer = new Timer();
             waitTime = new Timer();
             pathTimer = new Timer();
             actionTimer = new Timer();
@@ -219,7 +224,7 @@ public class MainAuto extends LinearOpMode {
         while (opModeIsActive()) {
             try {
                 gamePad1.readButtons();
-                follower.setMaxPower(0.7);
+                //follower.setMaxPower(0.7);
 
                 // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
                 follower.update();
@@ -236,6 +241,7 @@ public class MainAuto extends LinearOpMode {
                 logger.log("monkey paw state", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
                 logger.log("Deposit Specimen State", depositSpecState, Logger.LogLevels.PRODUCTION);
                 logger.log("Robot at pos", !follower.isBusy(), Logger.LogLevels.PRODUCTION);
+                logger.log("Deposit timer", depositTimer.getElapsedTimeSeconds(), Logger.LogLevels.PRODUCTION);
                 monkeyPawFSM.log();
                 limbFSM.log();
                 logger.print();
@@ -398,7 +404,7 @@ public class MainAuto extends LinearOpMode {
     }
     public void updatePathWaitTime() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false,false,false, false, false, false, false, false, false, false, 0, false, true, false, true);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -736,7 +742,7 @@ public class MainAuto extends LinearOpMode {
 
     public void fourSpec() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false,false,false, false, false, false, false, false, false, false, 0, false, true, false, true);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -758,13 +764,14 @@ public class MainAuto extends LinearOpMode {
             case 2:
                 if(!follower.isBusy()) {
                     if (monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN() && limbFSM.EXTENDED_SPECIMEN()) {
+                        depositTimer.resetTimer();
                         limbFSM.setStates(LimbFSM.States.DEPOSITING_SPECIMEN);
                         setPathState(3);
                     }
                 }
                 break;
             case 3:
-                if (limbFSM.DEPOSITED_SPECIMEN()) {
+                if (limbFSM.DEPOSITED_SPECIMEN() || (depositTimer.getElapsedTimeSeconds() >= DEPOSIT_TIME)) {
                     monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SPECIMEN);
                     setPathState(4);
                 }
@@ -772,7 +779,7 @@ public class MainAuto extends LinearOpMode {
             case 4:
                 if (!follower.isBusy()) {
                     if (monkeyPawFSM.DEPOSITED_SPECIMEN() || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
-                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
+                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && (limbFSM.DEPOSITED_SPECIMEN() || (depositTimer.getElapsedTimeSeconds() >= 0))) || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
                             limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             setPathState(5);
@@ -831,11 +838,12 @@ public class MainAuto extends LinearOpMode {
             case 12:
                 if (!follower.isBusy()) {
                     limbFSM.setStates(LimbFSM.States.DEPOSITING_SPECIMEN);
+                    depositTimer.resetTimer();
                     setPathState(13);
                 }
                 break;
             case 13:
-                if(limbFSM.DEPOSITED_SPECIMEN()) {
+                if (limbFSM.DEPOSITED_SPECIMEN() || (depositTimer.getElapsedTimeSeconds() >= DEPOSIT_TIME)) {
                     monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SPECIMEN);
                     setPathState(14);
                 }
@@ -843,7 +851,7 @@ public class MainAuto extends LinearOpMode {
             case 14:
                 if (!follower.isBusy()) {
                     if (monkeyPawFSM.DEPOSITED_SPECIMEN() || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
-                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
+                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && (limbFSM.DEPOSITED_SPECIMEN() || (depositTimer.getElapsedTimeSeconds() >= DEPOSIT_TIME))) || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
                             limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             setPathState(15);
@@ -902,12 +910,13 @@ public class MainAuto extends LinearOpMode {
                 if (!follower.isBusy()) {
                     if (monkeyPawFSM.READY_TO_DEPOSIT_SPECIMEN() && limbFSM.EXTENDED_SPECIMEN()) {
                         limbFSM.setStates(LimbFSM.States.DEPOSITING_SPECIMEN);
+                        depositTimer.resetTimer();
                         setPathState(23);
                     }
                 }
                 break;
             case 23:
-                if(limbFSM.DEPOSITED_SPECIMEN()) {
+                if(limbFSM.DEPOSITED_SPECIMEN() || (depositTimer.getElapsedTimeSeconds() >= DEPOSIT_TIME)) {
                     monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SPECIMEN);
                     setPathState(24);
                 }
@@ -915,7 +924,7 @@ public class MainAuto extends LinearOpMode {
             case 24:
                 if (!follower.isBusy()) {
                     if (monkeyPawFSM.DEPOSITED_SPECIMEN() || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
-                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && limbFSM.DEPOSITED_SPECIMEN()) || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
+                        if ((monkeyPawFSM.DEPOSITED_SPECIMEN() && (limbFSM.DEPOSITED_SPECIMEN() || (depositTimer.getElapsedTimeSeconds() >= DEPOSIT_TIME))) || limbFSM.PREPARING_TO_INTAKE_SPECIMEN()) {
                             limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SPECIMEN);
                             setPathState(35); // changed for park
@@ -998,6 +1007,7 @@ public class MainAuto extends LinearOpMode {
 
             case 35:
                 if (!follower.isBusy()) {
+                    follower.setMaxPower(1);
                     follower.followPath(park, true);
                     setPathState(36);
                 }
