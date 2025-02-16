@@ -24,7 +24,7 @@ public class ArmFSM {
 
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
-    public static double BASKET_HIGH = 68;
+    public static double BASKET_HIGH = 70;
     public static double SUBMERSIBLE_HIGH_TELE = 27; // 34 in teleop
     public static double SUBMERSIBLE_HIGH_AUTO = 31.5; // 34 in teleop
 
@@ -32,9 +32,9 @@ public class ArmFSM {
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    private static final double MAX_HEIGHT = 42;//102 cm is physical max
+    public static  double MAX_HEIGHT = 45;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
-    public static final double AUTO_SPEC_INTAKE = 42;
+    public static double AUTO_SPEC_INTAKE = 44;
 
     public static double chamberLockHeight = 50;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -106,14 +106,13 @@ public class ArmFSM {
         } else {
             SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_TELE;
         }
-        /*
         if (dpadDown) {
             SUBMERSIBLE_HIGH_TELE -= 0.5;
             lockHeightChange = true;
         } else if (dpadUp) {
             SUBMERSIBLE_HIGH_TELE += 0.5;
             lockHeightChange = true;
-        }*/
+        }
 
         if (shoulderFSM.AT_BASKET_DEPOSIT() || shoulderFSM.AT_DEPOSIT_CHAMBERS() || shoulderFSM.GOING_TO_BASKET() || shoulderFSM.GOING_TO_CHAMBER()) {
             setVerticalPID();
@@ -459,6 +458,15 @@ public class ArmFSM {
 
     public void setSpecimenClipped(boolean specimenClipped) {
         this.specimenClipped = specimenClipped;
+    }
+
+    public void setSubmersibleHighAuto(double height) {
+        SUBMERSIBLE_HIGH_AUTO = height;
+        SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO;
+    }
+
+    public void setAutoSpecIntake(double height) {
+        AUTO_SPEC_INTAKE = height;
     }
 
     @VisibleForTesting

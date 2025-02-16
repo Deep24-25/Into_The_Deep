@@ -481,5 +481,13 @@ public class LimbFSM {
         armFSM.setMaxPower(powerCap);
     }
 
+    public void setAutoSpecIntake(double height) {
+        armFSM.setAutoSpecIntake(height);
+    }
+
+    public void setSubDepositHeight(double height) {
+        armFSM.setSubmersibleHighAuto(height);
+    }
+
 
 }
