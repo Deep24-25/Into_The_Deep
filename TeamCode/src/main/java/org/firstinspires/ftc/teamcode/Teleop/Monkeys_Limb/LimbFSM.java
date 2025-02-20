@@ -2,10 +2,17 @@ package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.util.Timing;
+
 import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
+
+@Config
 public class LimbFSM {
     public enum States {
         START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE, AUTO_SPEC_INTAKING, AUTO_SPEC_INTAKED, RETRACTING_FOR_AUTO, RETRACTED_FOR_AUTO, EXTENDING_TO_INTAKE_SPECIMEN, EXTENDED_TO_INTAKE_SPECIMEN
@@ -58,12 +65,18 @@ public class LimbFSM {
     private HWMap hwMap;
     private double rightY;
 
+    private Timing.Timer autoTimer;
+    public static long TIMER_LENGTH = 1500;
+
+    boolean autoTimerDone = false;
+
     public LimbFSM(HWMap hwMap, ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
         this.hwMap = hwMap;
         this.armFSM = armFSM;
         this.shoulderFSM = shoulderFSM;
         this.monkeyPawFSM = monkeyPawFSM;
+        autoTimer = new Timing.Timer(TIMER_LENGTH, TimeUnit.MILLISECONDS);
 
     }
 
@@ -96,10 +109,9 @@ public class LimbFSM {
             } else if (EXTENDED_TO_BASKET_HEIGHT()) {
                 states = States.DEPOSITING_SAMPLE;
             }
+        } else if (DEPOSITED_SPECIMEN() && monkeyPawFSM.DEPOSITED_SPECIMEN()) {
+            states = States.PREPARING_TO_INTAKE_SPECIMEN;
         }
-        /*else if (monkeyPawFSM.automatedSpecimenPickup() && SPECIMEN_MODE() && PREPARED_TO_INTAKE_SPECIMEN()) {
-            states = States.INTAKING_SPECIMEN;
-        }*/
         if (xPressed && SPECIMEN_MODE()) {
             if (INTAKING_SPECIMEN() || INTAKED_SPECIMEN()) {
                 states = States.PREPARING_TO_INTAKE_SPECIMEN;
@@ -167,7 +179,7 @@ public class LimbFSM {
                         states = States.PREPARED_TO_INTAKE;
                     }
                 } else {
-                  //  armFSM.capSetPower();
+                    //  armFSM.capSetPower();
                     armFSM.retract();
                     if (armFSM.FULLY_RETRACTED()) {
                         shoulderFSM.moveToIntakeAngle();
@@ -223,30 +235,38 @@ public class LimbFSM {
                     }
                 }
                 break;
-            case EXTENDING_TO_INTAKE_SPECIMEN:
-                armFSM.setShouldPID(true);
-                armFSM.moveToExtendingToIntakeSpecimen();
-                if (armFSM.EXTENDED_TO_INTAKE_SPECiMEN()) {
-                    states = States.EXTENDED_TO_INTAKE_SPECIMEN;
-                }
-                break;
             case EXTENDING_SPECIMEN:
                 /*hwMap.brakingOff();*/
                 armFSM.setShouldPID(true);
+                /*if (auto) {
+                    shoulderFSM.setChamberTargetAngle();
+                    armFSM.moveToSubmersibleHeight();
+                } else {
+                */
                 shoulderFSM.setChamberTargetAngle();
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS()) {
                     armFSM.moveToSubmersibleHeight();
+
                 }
+
                 if (shoulderFSM.AT_DEPOSIT_CHAMBERS() && armFSM.AT_SUBMERSIBLE_HEIGHT()) {
                     states = States.EXTENDED_SPECIMEN;
                 }
                 break;
             case DEPOSITING_SPECIMEN:
-                armFSM.moveToChamberLockHeight();
-                /*hwMap.brakingOn();*/
+                armFSM.chamberLockHeightAlgorithm();
+                /*if (auto) {
+                    if (!autoTimer.isTimerOn()) {
+                        autoTimer.start();
+                    }
+                    if (autoTimer.done()) {
+                        autoTimer.pause();
+                        states = States.DEPOSITED_SPECIMEN;
+                    }
+                }*/
                 if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
+                    armFSM.setSpecimenClipped(false);
                     states = States.DEPOSITED_SPECIMEN;
-
                 }
                 break;
             //SAMPLE STATES
@@ -260,7 +280,6 @@ public class LimbFSM {
                 }
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
-                /* hwMap.brakingOff();*/
                 shoulderFSM.setBasketTargetAngle();
                 armFSM.goToBasketHeight();
                 if (leftTriggerPressed) {
@@ -290,6 +309,7 @@ public class LimbFSM {
                 }
                 break;
             case AUTO_SPEC_INTAKING:
+
                 armFSM.setAutoSpecIntakePos();
                 if (armFSM.MOVED_TO_AUTO_SPEC_INTAKE()) {
                     states = States.AUTO_SPEC_INTAKED;
@@ -308,6 +328,7 @@ public class LimbFSM {
         logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Limb State: ", states, Logger.LogLevels.PRODUCTION);
         logger.log("Robot Mode: ", mode, Logger.LogLevels.PRODUCTION);
+        logger.log("auto timer", autoTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         armFSM.log();
         shoulderFSM.log();
@@ -458,6 +479,14 @@ public class LimbFSM {
 
     public void setArmPowerCap(double powerCap) {
         armFSM.setMaxPower(powerCap);
+    }
+
+    public void setAutoSpecIntake(double height) {
+        armFSM.setAutoSpecIntake(height);
+    }
+
+    public void setSubDepositHeight(double height) {
+        armFSM.setSubmersibleHighAuto(height);
     }
 
 

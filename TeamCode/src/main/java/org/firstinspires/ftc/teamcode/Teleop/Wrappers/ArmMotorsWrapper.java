@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleop.Wrappers;
 
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Core.HWMap;
@@ -43,7 +41,7 @@ public class ArmMotorsWrapper {
     public double readPositionInCM() {
         double currentPositionInTicks = armMoterOne.getCurrentPosition();
         double diameterOfSpool = 4.7; //1.85 inches
-        double ratio = (24.0 / 38.0) * (30.0 / 90.0);
+        double ratio = (28.0 / 38.0) * (30.0 / 90.0);
         lastReadPositionInCM = ((currentPositionInTicks * ratio) / (SLIDES_CPR)) * Math.PI * diameterOfSpool;
         return lastReadPositionInCM;
     }
@@ -78,6 +76,10 @@ public class ArmMotorsWrapper {
 
     public double getAM2Current() {
         return armMoterTwo.motorEx.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getAM1Velocity() {
+        return armMoterOne.motorEx.getVelocity();
     }
 
     public double getAM3Current() {
