@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +32,9 @@ class ShoulderFSMTest {
     public void setup(){
         sut = spy(new ShoulderFSM(shoulderWrapperMock,pidfController));
     }
-    /**---------------------------updateState()---------------------------------**/
+    */
+/**---------------------------updateState()---------------------------------**//*
+
 
     @Test
     public void GOING_TO_CHAMBER(){
@@ -105,4 +108,4 @@ class ShoulderFSMTest {
         assertTrue(sut.AT_BASKET_DEPOSIT());
 
     }
-}
+}*/

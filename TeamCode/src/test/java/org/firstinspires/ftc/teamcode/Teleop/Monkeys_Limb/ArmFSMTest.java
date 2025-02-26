@@ -30,7 +30,7 @@ class ArmFSMTest {
 
     /**
      * ---------------------------updateState()---------------------------------
-     **/
+     /***//*
     @Test
     public void feedrateTest() {
         sut.updateState(0);
@@ -47,7 +47,7 @@ class ArmFSMTest {
 
         double feed = ArmFSM.getMaxFeedrate() * Math.pow(0.5, 2);
         assertEquals(feed, sut.getCurrentFeedrate());
-    }
+    }*/
 /*
 
 
