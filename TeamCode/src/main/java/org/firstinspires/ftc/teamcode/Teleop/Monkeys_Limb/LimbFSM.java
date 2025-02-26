@@ -281,13 +281,15 @@ public class LimbFSM {
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
                 shoulderFSM.setBasketTargetAngle();
-                armFSM.goToBasketHeight();
+                if(shoulderFSM.AT_BASKET_DEPOSIT()) {
+                    armFSM.goToBasketHeight();
+                }
                 if (leftTriggerPressed) {
                     armFSM.setIndexToBasketHighHeight();
                 } else if (rightTriggerPressed) {
                     armFSM.setIndexToBasketLowHeight();
                 }
-                if (armFSM.AT_BASKET_HEIGHT() || shoulderFSM.AT_BASKET_DEPOSIT()) {
+                if (armFSM.AT_BASKET_HEIGHT() && shoulderFSM.AT_BASKET_DEPOSIT()) {
                     states = States.EXTENDED_TO_BASKET_HEIGHT;
                 }
                 break;

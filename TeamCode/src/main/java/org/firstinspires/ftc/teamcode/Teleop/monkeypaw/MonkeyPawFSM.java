@@ -248,7 +248,7 @@ public class MonkeyPawFSM {
             case DEPOSITING_SAMPLE:
                 elbowFSM.flexToBasketDepositFlexedPos();
                 wristFSM.flexToHighBasketPos();
-                if (elbowFSM.FLEXED_TO_BASKET_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_BASKET_DEPOSIT() && yPressed) {
+                if (elbowFSM.FLEXED_TO_BASKET_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_BASKET_DEPOSIT() && (yPressed || (isAuto && limbFSM.DEPOSITING_SAMPLE()))) {
                     fingerFSM.releaseSample();
                     if (fingerFSM.RELEASED()) {
                         state = States.RELAXED_AFTER_DEPOSIT;
