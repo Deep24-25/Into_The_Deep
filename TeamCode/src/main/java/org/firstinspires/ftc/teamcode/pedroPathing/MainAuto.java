@@ -115,7 +115,7 @@ public class MainAuto extends LinearOpMode {
 
     private PathChain scorePreload,pushSamples, scoreFirstSpec, intakeSecondSpec,scoreSecondSpec, park;
 
-    private PathChain basketIntake, preloadBasketDeposit;
+    private PathChain basketIntake, preloadBasketDeposit, firstSampleDeposit;
 
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
@@ -213,6 +213,7 @@ public class MainAuto extends LinearOpMode {
                 .build();
 
 
+
     }
 
     @Override
@@ -269,7 +270,7 @@ public class MainAuto extends LinearOpMode {
                 logger.log("voltage", hardwareMap.voltageSensor.iterator().next().getVoltage(), Logger.LogLevels.PRODUCTION);
                 logger.log("x", follower.getPose().getX(), Logger.LogLevels.PRODUCTION);
                 logger.log("y", follower.getPose().getY(), Logger.LogLevels.PRODUCTION);
-                logger.log("heading", follower.getPose().getHeading(), Logger.LogLevels.PRODUCTION);
+                logger.log("heading", Math.toDegrees(follower.getPose().getHeading()), Logger.LogLevels.PRODUCTION);
                 logger.log("path state", pathState, Logger.LogLevels.PRODUCTION);
                 logger.log("limb state", limbFSM.getStates(), Logger.LogLevels.PRODUCTION);
                 logger.log("monkey paw state", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
@@ -1099,17 +1100,63 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 4:
                 if(monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() && limbFSM.PREPARED_TO_INTAKE()) {
-                    follower.followPath(basketIntake);
-                    setPathState(5);
+                    follower.turn(Math.toRadians(32.5), true);
+                    //follower.followPath(basketIntake);
+                    if(!follower.isBusy()) {
+                        setPathState(5);
+                    }
+
                 }
                 break;
             case 5:
                 if(!follower.isBusy()) {
+                    limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                     limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
-                    if(limbFSM.AUTO_SPEC_INTAKED()) {
+                    setPathState(-1);
+                }
+                break;
+            case 6:
+                if(limbFSM.AUTO_SPEC_INTAKED()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SAMPLE);
+                    setPathState(7);
+                }
+                break;
+            case 7:
+                if(monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
+                    limbFSM.setArmPowerCap(0.6);
+                    limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
+                    setPathState(8);
+                }
+                break;
+            case 8:
+                if(limbFSM.RETRACTED_FOR_AUTO()) {
+                    follower.turn(Math.toRadians(32.5), false);
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.EXTENDING_TO_BASKET_HEIGHT);
+                    setPathState(10);
+                }
+                break;
+            case 10:
+                if(limbFSM.EXTENDED_TO_BASKET_HEIGHT()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SAMPLE);
+                    limbFSM.setStates(LimbFSM.States.DEPOSITING_SAMPLE);
+                    setPathState(11);
+                }
+                break;
+            case 11:
+                if(!follower.isBusy()) {
+                    if(monkeyPawFSM.RELAXED_AFTER_DEPOSIT() && limbFSM.DEPOSITED_SAMPLE()) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SAMPLE);
+                        limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE);
                         setPathState(-1);
                     }
                 }
+                break;
+
 
         }
     }
