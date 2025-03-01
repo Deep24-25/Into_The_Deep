@@ -222,11 +222,18 @@ public class MainAuto extends LinearOpMode {
             telemetry.update();
         }
         while (opModeInInit()) {
-            monkeyPawFSM.setState(MonkeyPawFSM.States.AUTO_START);
-            monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false, true);
-            monkeyPawFSM.updatePID();
-            logger.log("Monkey Paw State", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
-            logger.print();
+            try {
+                monkeyPawFSM.setState(MonkeyPawFSM.States.AUTO_START);
+                monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false, true);
+                monkeyPawFSM.updatePID();
+                logger.log("Monkey Paw State", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
+                logger.print();
+            }catch (Exception e) {
+                telemetry.addData("-", e.getMessage());
+                telemetry.update();
+            }
+
+
         }
         waitForStart();
         while (opModeIsActive()) {
