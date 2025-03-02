@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Core;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -13,12 +14,11 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.List;
 
 public class HWMap {
-  //  private static PinpointPod pinpointIMU;
-  private static IMU imu;
     public static double imuAngle;
     private final MecanumDrive mecanumDrive;
     private final VoltageSensor voltageSensor;
@@ -47,8 +47,10 @@ public class HWMap {
     private final AnalogInput elbowEncoder;
     private final AnalogInput wristFlexEncoder;
     private final AnalogInput wristDeviEncoder;
+    private static GoBildaPinpointDriver pinpointIMU;
 
-    //private static Pose2D IMUpos;
+    private static Pose2D IMUpos;
+    private static IMU imu;
 
     public static boolean initialized = false;
     List<LynxModule> hubs;
@@ -56,12 +58,13 @@ public class HWMap {
     public HWMap(HardwareMap hardwareMap, boolean isAuto) {
         hubs = hardwareMap.getAll(LynxModule.class);
 
+
         frontRightMotor = new MotorEx(hardwareMap, "RF", Motor.GoBILDA.RPM_312);
         frontLeftMotor = new MotorEx(hardwareMap, "LF", Motor.GoBILDA.RPM_312);//CH Port 1. The right odo pod accesses this motor's encoder port
         backleftMotor = new MotorEx(hardwareMap, "LB", Motor.GoBILDA.RPM_312); //CH Port 2. The perpendicular odo pod accesses this motor's encoder port
         backRightMotor = new MotorEx(hardwareMap, "RB", Motor.GoBILDA.RPM_312);//CH Port 3. The left odo pod accesses this motor's encoder port.
         mecanumDrive = new MecanumDrive(frontLeftMotor, frontRightMotor, backleftMotor, backRightMotor);
-        //pinpointIMU = hardwareMap.get(PinpointPod.class, "PP"); //IMU Port 1
+        pinpointIMU = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint"); //IMU Port 1
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         mecanumDrive.setRightSideInverted(false);
@@ -93,12 +96,12 @@ public class HWMap {
         backleftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         brakingOff();
-        if(isAuto) {
+        if (isAuto) {
+            //pinpointIMU = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint"); //IMU Port 1
             imu = hardwareMap.get(IMU.class, "imu");
             initializeIMU();
             pivotMotor.resetEncoder();
-        }
-        else {
+        } else {
             for (LynxModule hub : hubs) {
                 hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
             }
@@ -138,20 +141,20 @@ public class HWMap {
         imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         initialized = true;
         return inverseIMU(imuAngle);
-        //pinpointIMU.update(PinpointPod.readData.ONLY_UPDATE_HEADING);
-        //IMUpos = pinpointIMU.getPosition();
-        //return IMUpos.getHeading(AngleUnit.DEGREES);
-
+      /*  pinpointIMU.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+        initialized = true;
+        IMUpos = pinpointIMU.getPosition();
+        return inverseIMU(IMUpos.getHeading(AngleUnit.DEGREES));
+*/
     }
+
     public static double inverseIMU(double imuAngle) {
         double sign = Math.signum(imuAngle);
-        if(sign < 0) {
+        if (sign < 0) {
             return (180 - Math.abs(imuAngle));
-        }
-        else if(sign > 0) {
+        } else if (sign > 0) {
             return -(180 - Math.abs(imuAngle));
-        }
-        else if(imuAngle == 0) {
+        } else if (imuAngle == 0) {
             return 180;
         }
         return 0;
@@ -201,6 +204,10 @@ public class HWMap {
         return voltageSensor;
     }
 
+    public MotorEx getFrontRightMotor() {
+        return frontRightMotor;
+    }
+
     public void brakingOn() {
 
         armMotorOne.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -219,7 +226,6 @@ public class HWMap {
             hub.clearBulkCache();
         }
     }
-
 
 
 }

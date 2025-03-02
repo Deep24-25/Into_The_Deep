@@ -64,7 +64,7 @@ public class TeleopWithoutDriving extends LinearOpMode {
             WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(hwMap, shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM, armFSM);
-            fieldCentricDrive = new FieldCentricDrive(hwMap);
+            fieldCentricDrive = new FieldCentricDrive(hwMap, logger);
 
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             shoulderFSM.setLimbFSM(limbFSM);

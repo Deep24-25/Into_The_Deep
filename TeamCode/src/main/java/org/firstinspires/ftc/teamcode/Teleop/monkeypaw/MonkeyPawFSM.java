@@ -57,7 +57,7 @@ public class MonkeyPawFSM {
 
     public void findTargetState(boolean xPressed) {
         if ((limbFSM.PREPARED_TO_INTAKE() || limbFSM.PREPARING_TO_INTAKE() || limbFSM.MOVING_TO_INTAKE_POS()) && (!PREPARED_TO_INTAKE_SAMPLE() && !RELAXING_WITH_SAMPLE() && !RELAXED_POS_WITH_SAMPLE() && !RETRACTING_INTAKE())) {
-            deviatorFSM.relax();
+            deviatorFSM.vertical();
             state = States.PREPARING_TO_INTAKE_SAMPLE;
         } else if (limbFSM.MOVED_TO_INTAKE_POS() && (PREPARED_TO_INTAKE_SAMPLE()) && !RELAXING_WITH_SAMPLE()) {
             state = States.INTAKING_SAMPLE;
@@ -114,14 +114,14 @@ public class MonkeyPawFSM {
             case START:
                 if (elbowFSM.RELAXED()) {
                     if (wristFSM.RELAXED()) {
-                        if (deviatorFSM.RELAXED()) {
+                        if (deviatorFSM.VERTICALED()) {
                             if (fingerFSM.GRIPPED()) {
                                 state = States.READY_TO_START;
                             } else {
                                 fingerFSM.releaseSample();
                             }
                         } else {
-                            deviatorFSM.relax();
+                            deviatorFSM.vertical();
                         }
                     } else {
                         wristFSM.relax();
@@ -250,9 +250,8 @@ public class MonkeyPawFSM {
                 wristFSM.flexToHighBasketPos();
                 if (elbowFSM.FLEXED_TO_BASKET_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_BASKET_DEPOSIT() && (yPressed || (isAuto && limbFSM.DEPOSITING_SAMPLE()))) {
                     fingerFSM.releaseSample();
-                    if (fingerFSM.RELEASED()) {
-                        state = States.RELAXED_AFTER_DEPOSIT;
-                    }
+                    state = States.RELAXED_AFTER_DEPOSIT;
+
                 }
                 break;
             //SPECIMEN DEPOSIT STATES
@@ -279,7 +278,7 @@ public class MonkeyPawFSM {
 
                     }
                 }
-                if(wristFSM.SPECIMEN_INTAKE_RETRACTED()) {
+                if (wristFSM.SPECIMEN_INTAKE_RETRACTED()) {
                     elbowFSM.flexToSpecimenRetractIntake();
                 }
                 if (wristFSM.SPECIMEN_INTAKE_RETRACTED() && elbowFSM.SPECIMEN_INTAKE_RETRACTED()) {

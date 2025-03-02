@@ -68,7 +68,7 @@ public class MainTeleop extends LinearOpMode {
             WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(hwMap, shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM, armFSM);
-            fieldCentricDrive = new FieldCentricDrive(hwMap);
+            fieldCentricDrive = new FieldCentricDrive(hwMap, logger);
 
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             shoulderFSM.setLimbFSM(limbFSM);
@@ -99,6 +99,7 @@ public class MainTeleop extends LinearOpMode {
             triggersWasJustPressed();
 
             double rightX;
+            fieldCentricDrive.setHeadingLock(limbFSM.isHeadingLock());
             if (limbFSM.MOVING_TO_INTAKE_POS()) {
                 if (-gamePad1.getRightY() > 0.95 || -gamePad1.getRightY() < -0.95) {
                     rightX = 0;

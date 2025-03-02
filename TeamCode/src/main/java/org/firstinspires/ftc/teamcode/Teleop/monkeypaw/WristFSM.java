@@ -39,13 +39,13 @@ public class WristFSM {
     private double globalTargetAngle;
     public static double PID_TOLERANCE = 10;
     private double wristCurrentAngle;
-    public static double RELAXED_POS = 130;
-    public static double SAMPLE_FLEXED_POS = 300;
+    public static double RELAXED_POS = 0;
+    public static double SAMPLE_FLEXED_POS = 360;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CAPTURE_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_CONTROL_POS = SAMPLE_FLEXED_POS;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
-    public static double SPECIMEN_INTAKE_POS = 120;
+    public static double SPECIMEN_INTAKE_POS = 80;
     public static double SPECIMEN_INTAKE_RETRACT_POS = SPECIMEN_INTAKE_POS - 40.001;
 
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = 0;
@@ -74,7 +74,7 @@ public class WristFSM {
     private final ElbowFSM elbowFSM;
 
     public static double compensation = 0;
-    public static double ENCODER_OFFSET = 100;
+    public static double ENCODER_OFFSET = 130;
     public static double TOLERANCE = 360;
 
 

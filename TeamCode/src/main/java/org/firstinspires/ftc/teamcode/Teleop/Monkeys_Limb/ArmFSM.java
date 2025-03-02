@@ -24,7 +24,7 @@ public class ArmFSM {
 
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 40;
-    public static double BASKET_HIGH = 70;
+    public static double BASKET_HIGH = 80;
     public static double SUBMERSIBLE_HIGH_TELE = 27; // 34 in teleop
     public static double SUBMERSIBLE_HIGH_AUTO = 31.5; // 34 in teleop
 
@@ -43,8 +43,8 @@ public class ArmFSM {
     public static double MAX_FEEDRATE = 0.5; // cm/sec
 
     public static double PHorizontal = 0.06, IHorizontal = 0.1, DHorizontal = 0.009, FHorizontal = 0;
-    public static double PVertical = 0.06, IVertical = 0.1, DVertical = 0.009, FVertical = 0.003;
-    public static double P_E_Horizontal = 0.06, I_E_Horizontal = 0.1, D_E_Horizontal = 0.009, F_E_Horizontal = 0;
+    public static double PVertical = 0.03, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
+    public static double P_E_Horizontal = 0.04, I_E_Horizontal = 0.1, D_E_Horizontal = 0.009, F_E_Horizontal = 0;
     public static double PLinearizing = 0.06, ILinearizing = 0.1, DLinearizing = 0.009, FLinearizing = 0;
 
     public static double PChamberLock = 0.18;
@@ -313,6 +313,7 @@ public class ArmFSM {
     public void chamberLockHeightAlgorithm() {
         slidePowerCap = 1;
         targetPosition = chamberLockHeight;
+        armMotorsWrapper.set(1);
         if(armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT) {
             currentMet = true;
         }
@@ -323,6 +324,7 @@ public class ArmFSM {
         }
         specimenClipped = counter >= COUNTER_LIMIT;
         if(specimenClipped) {
+            shouldPID = true;
             currentMet = false;
         }
 

@@ -68,8 +68,9 @@ public class LimbFSM {
     private Timing.Timer autoTimer;
     public static long TIMER_LENGTH = 1500;
 
-    boolean autoTimerDone = false;
+    private boolean autoTimerDone = false;
 
+    private boolean headingLock = false;
     public LimbFSM(HWMap hwMap, ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
         this.hwMap = hwMap;
@@ -167,6 +168,7 @@ public class LimbFSM {
                 break;
             //INTAKING STATES
             case PREPARING_TO_INTAKE:
+                headingLock = false;
                 if (shoulderFSM.AT_INTAKE()) {
                     if (!armFSM.FULLY_RETRACTED()) {
                         if (monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() || monkeyPawFSM.RETRACTED_INTAKE()) {
@@ -218,6 +220,7 @@ public class LimbFSM {
                 break;
             //SPECIMEN STATES
             case PREPARING_TO_INTAKE_SPECIMEN:
+                headingLock = true;
                 if (armFSM.FULLY_RETRACTED()) {
                     shoulderFSM.moveToIntakeAngle();
                     if ((shoulderFSM.AT_INTAKE() || shoulderFSM.AT_SPECIMEN_INTAKE()) && monkeyPawFSM.PREPARED_TO_INTAKE_SPECIMEN()) {
@@ -266,11 +269,13 @@ public class LimbFSM {
                 }*/
                 if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     armFSM.setSpecimenClipped(false);
+                    armFSM.setShouldPID(true);
                     states = States.DEPOSITED_SPECIMEN;
                 }
                 break;
             //SAMPLE STATES
             case PREPARING_TO_DEPOSIT_SAMPLE:
+                headingLock = false;
                 armFSM.retract();
                 if (armFSM.FULLY_RETRACTED()) {
                     shoulderFSM.setBasketTargetAngle();
@@ -329,6 +334,7 @@ public class LimbFSM {
     public void log() {
         logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
         logger.log("Limb State: ", states, Logger.LogLevels.PRODUCTION);
+        logger.log("Heading Lock: ", headingLock, Logger.LogLevels.PRODUCTION);
         logger.log("Robot Mode: ", mode, Logger.LogLevels.PRODUCTION);
         logger.log("auto timer", autoTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         logger.log("-------------------------LIMB LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
@@ -387,7 +393,6 @@ public class LimbFSM {
     public boolean EXTENDED_TO_BASKET_HEIGHT() {
         return states == States.EXTENDED_TO_BASKET_HEIGHT;
     }
-
     public boolean DEPOSITING_SAMPLE() {
         return states == States.DEPOSITING_SAMPLE;
     }
@@ -491,5 +496,7 @@ public class LimbFSM {
         armFSM.setSubmersibleHighAuto(height);
     }
 
-
+    public boolean isHeadingLock() {
+        return headingLock;
+    }
 }

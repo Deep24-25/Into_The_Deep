@@ -1100,7 +1100,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 4:
                 if(monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() && limbFSM.PREPARED_TO_INTAKE()) {
-                    follower.turn(Math.toRadians(32.5), true);
+                    //follower.turn(Math.toRadians(32.5), true);
                     //follower.followPath(basketIntake);
                     if(!follower.isBusy()) {
                         setPathState(5);
@@ -1130,7 +1130,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 8:
                 if(limbFSM.RETRACTED_FOR_AUTO()) {
-                    follower.turn(Math.toRadians(32.5), false);
+                    //follower.turn(Math.toRadians(32.5), false);
                     setPathState(9);
                 }
                 break;
