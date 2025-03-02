@@ -115,7 +115,7 @@ public class MainAuto extends LinearOpMode {
 
     private PathChain scorePreload,pushSamples, scoreFirstSpec, intakeSecondSpec,scoreSecondSpec, park;
 
-    private PathChain basketIntake, preloadBasketDeposit, firstSampleDeposit;
+    private PathChain basketIntake, preloadBasketDeposit, firstSampleDeposit, firstSampleIntake, secondSampleIntake;
 
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
@@ -211,6 +211,12 @@ public class MainAuto extends LinearOpMode {
                 .addPath(new BezierCurve(new Point(basketStartPos), new Point(basketDepositPos)))
                 .setLinearHeadingInterpolation(basketStartPos.getHeading(), basketDepositPos.getHeading())
                 .build();
+
+        firstSampleDeposit = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(16,52.5),new Point(33.5,52.5)))
+                .setLinearHeadingInterpolation(basketDepositPos.getHeading(), Math.toRadians(-9))
+                .build();
+
 
 
 
@@ -1100,7 +1106,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 4:
                 if(monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() && limbFSM.PREPARED_TO_INTAKE()) {
-                    //follower.turn(Math.toRadians(32.5), true);
+                    follower.turn(Math.toRadians(36.0), true);
                     //follower.followPath(basketIntake);
                     if(!follower.isBusy()) {
                         setPathState(5);
@@ -1112,13 +1118,16 @@ public class MainAuto extends LinearOpMode {
                 if(!follower.isBusy()) {
                     limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
                     limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
-                    setPathState(-1);
+                    depositTimer.resetTimer();
+                    setPathState(6);
                 }
                 break;
             case 6:
                 if(limbFSM.AUTO_SPEC_INTAKED()) {
-                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SAMPLE);
-                    setPathState(7);
+                    if((depositTimer.getElapsedTimeSeconds() >= DEPOSIT_TIME)) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SAMPLE);
+                        setPathState(7);
+                    }
                 }
                 break;
             case 7:
@@ -1130,7 +1139,7 @@ public class MainAuto extends LinearOpMode {
                 break;
             case 8:
                 if(limbFSM.RETRACTED_FOR_AUTO()) {
-                    //follower.turn(Math.toRadians(32.5), false);
+                    follower.turn(Math.toRadians(36.0), false);
                     setPathState(9);
                 }
                 break;
@@ -1152,12 +1161,207 @@ public class MainAuto extends LinearOpMode {
                     if(monkeyPawFSM.RELAXED_AFTER_DEPOSIT() && limbFSM.DEPOSITED_SAMPLE()) {
                         monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SAMPLE);
                         limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE);
+                        setPathState(12);
+                    }
+                }
+                break;
+            case 12:
+                if(monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() && limbFSM.PREPARED_TO_INTAKE()) {
+                    follower.turn(Math.toRadians(56.0), true);
+                    //follower.followPath(basketIntake);
+                    if(!follower.isBusy()) {
+                        setPathState(13);
+                    }
+
+                }
+                break;
+            case 13:
+                if(!follower.isBusy()) {
+                    limbFSM.setArmPowerCap(SLIDES_CAP_INTAKE);
+                    limbFSM.setStates(LimbFSM.States.AUTO_SPEC_INTAKING);
+                    monkeyPawFSM.deviateSecondAuto();
+                    depositTimer.resetTimer();
+                    setPathState(14);
+                }
+                break;
+            case 14:
+                if(limbFSM.AUTO_SPEC_INTAKED()) {
+                    if( (depositTimer.getElapsedTimeSeconds() >= DEPOSIT_TIME)) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SAMPLE);
+                        setPathState(15);
+                    }
+                }
+                break;
+            case 15:
+                if(monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
+                    limbFSM.setArmPowerCap(0.6);
+                    limbFSM.setStates(LimbFSM.States.RETRACTING_FOR_AUTO);
+                    setPathState(16);
+                }
+                break;
+            case 16:
+                if(limbFSM.RETRACTED_FOR_AUTO()) {
+                    follower.turn(Math.toRadians(56.0), false);
+                    setPathState(17);
+                }
+                break;
+            case 17:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.EXTENDING_TO_BASKET_HEIGHT);
+                    setPathState(18);
+                }
+                break;
+            case 18:
+                if(limbFSM.EXTENDED_TO_BASKET_HEIGHT()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SAMPLE);
+                    limbFSM.setStates(LimbFSM.States.DEPOSITING_SAMPLE);
+                    setPathState(19);
+                }
+                break;
+            case 19:
+                if(!follower.isBusy()) {
+                    if(monkeyPawFSM.RELAXED_AFTER_DEPOSIT() && limbFSM.DEPOSITED_SAMPLE()) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SAMPLE);
+                        limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE);
                         setPathState(-1);
                     }
                 }
                 break;
 
+            // second is 53
+        }
+    }
 
+    public void basketAutoGoUp() {
+        monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
+        limbFSM.updateState(false,false,false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        monkeyPawFSM.updatePID();
+        limbFSM.updatePID(true);
+        limbFSM.setMode(LimbFSM.Mode.SAMPLE_MODE);
+        switch (pathState) {
+            case 0:
+                follower.setMaxPower(0.7);
+                follower.followPath(preloadBasketDeposit, true);
+                monkeyPawFSM.setState(MonkeyPawFSM.States.RELAXING_WITH_SAMPLE);
+                limbFSM.setStates(LimbFSM.States.PREPARING_TO_DEPOSIT_SAMPLE);
+                setPathState(1);
+                break;
+            case 1:
+                if(!follower.isBusy() && limbFSM.PREPARED_TO_DEPOSIT_SAMPLE()) {
+                    limbFSM.setStates(LimbFSM.States.EXTENDING_TO_BASKET_HEIGHT);
+                    setPathState(2);
+                }
+                break;
+            case 2:
+                if(!follower.isBusy()) {
+                    if(limbFSM.EXTENDED_TO_BASKET_HEIGHT()) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SAMPLE);
+                        limbFSM.setStates(LimbFSM.States.DEPOSITING_SAMPLE);
+                        setPathState(3);
+                    }
+                    // follower.followPath(basketIntake, true);
+                }
+                break;
+            case 3:
+                if(!follower.isBusy()) {
+                    if(monkeyPawFSM.RELAXED_AFTER_DEPOSIT() && limbFSM.DEPOSITED_SAMPLE()) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SAMPLE);
+                        limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE);
+                        setPathState(4);
+                    }
+                }
+                break;
+            case 4:
+                if(monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() && limbFSM.PREPARED_TO_INTAKE()) {
+                    follower.turn(Math.toRadians(35.0), true);
+                    //follower.followPath(basketIntake);
+                    if(!follower.isBusy()) {
+                        follower.followPath(firstSampleDeposit, true);
+                        setPathState(5);
+                    }
+
+                }
+                break;
+            case 5:
+                if(!follower.isBusy()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SAMPLE);
+                    setPathState(6);
+                }
+                break;
+            case 6:
+                if(monkeyPawFSM.RELAXED_POS_WITH_SAMPLE()) {
+                    follower.followPath(preloadBasketDeposit, true);
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.EXTENDING_TO_BASKET_HEIGHT);
+                    setPathState(10);
+                }
+                break;
+            case 10:
+                if(limbFSM.EXTENDED_TO_BASKET_HEIGHT()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SAMPLE);
+                    limbFSM.setStates(LimbFSM.States.DEPOSITING_SAMPLE);
+                    setPathState(11);
+                }
+                break;
+            case 11:
+                if(!follower.isBusy()) {
+                    if(monkeyPawFSM.RELAXED_AFTER_DEPOSIT() && limbFSM.DEPOSITED_SAMPLE()) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SAMPLE);
+                        limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE);
+                        setPathState(12);
+                    }
+                }
+                break;
+            case 12:
+                if(monkeyPawFSM.PREPARED_TO_INTAKE_SAMPLE() && limbFSM.PREPARED_TO_INTAKE()) {
+                    follower.followPath(firstSampleIntake, true);
+                    //follower.followPath(basketIntake);
+                    if(!follower.isBusy()) {
+                        follower.turn(Math.toRadians(56.0), true);
+                        setPathState(13);
+                    }
+                }
+                break;
+            case 14:
+                if(!follower.isBusy()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SAMPLE);
+                }
+                    setPathState(15);
+                break;
+            case 16:
+                  //  follower.turn(Math.toRadians(56.0), false);
+                if(monkeyPawFSM.RELAXED_POS_WITH_SAMPLE())
+                    follower.followPath(preloadBasketDeposit,true);
+                    setPathState(17);
+                break;
+            case 17:
+                if(!follower.isBusy()) {
+                    limbFSM.setStates(LimbFSM.States.EXTENDING_TO_BASKET_HEIGHT);
+                    setPathState(18);
+                }
+                break;
+            case 18:
+                if(limbFSM.EXTENDED_TO_BASKET_HEIGHT()) {
+                    monkeyPawFSM.setState(MonkeyPawFSM.States.DEPOSITING_SAMPLE);
+                    limbFSM.setStates(LimbFSM.States.DEPOSITING_SAMPLE);
+                    setPathState(19);
+                }
+                break;
+            case 19:
+                if(!follower.isBusy()) {
+                    if(monkeyPawFSM.RELAXED_AFTER_DEPOSIT() && limbFSM.DEPOSITED_SAMPLE()) {
+                        monkeyPawFSM.setState(MonkeyPawFSM.States.PREPARING_TO_INTAKE_SAMPLE);
+                        limbFSM.setStates(LimbFSM.States.PREPARING_TO_INTAKE);
+                        setPathState(-1);
+                    }
+                }
+                break;
+
+            // second is 53
         }
     }
 

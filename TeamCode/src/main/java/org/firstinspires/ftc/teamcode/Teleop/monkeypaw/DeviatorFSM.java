@@ -164,6 +164,14 @@ public class DeviatorFSM {
         currentIndex = 4;
     }
 
+    public void autoFirstSampleDevi() {
+        targetAngle = VERTICAL_POS - 11;
+    }
+
+    public void autoSecondSampleDevi() {
+        targetAngle = VERTICAL_POS + 9;
+    }
+
     public boolean indexCloserToRelaxation() {
         double angle = deviatorServoWrapper.getLastReadPos();
         if (deviatorServoWrapper.getLastReadPos() < (VERTICAL_POS)) {

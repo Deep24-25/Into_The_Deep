@@ -57,7 +57,7 @@ public class ElbowFSM {
 
     public static double SPECIMEN_INTAKE_FLEXED_POS = 126;
     public static double SPECIMEN_INTAKE_RELAX_POS = 120;
-    public static double BASKET_DEPOSIT_FLEXED_POS = 60;
+    public static double BASKET_DEPOSIT_FLEXED_POS = 110;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 101;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO = 101; // 210
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
@@ -79,7 +79,7 @@ public class ElbowFSM {
 
     public static double ENCODER_OFFSET = 36;
 
-    public static double CAPTURE_OFFSET = 57;
+    public static double CAPTURE_OFFSET = 80;
 
     public static double HOVER_TUNER = 30;
 
