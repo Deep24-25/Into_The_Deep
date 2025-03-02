@@ -791,16 +791,16 @@ public class MainAuto extends LinearOpMode {
             case 0:
                 follower.setMaxPower(0.7);
                 follower.followPath(scorePreload, true);
-               // limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
-               // monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
+                // limbFSM.setStates(LimbFSM.States.INTAKING_SPECIMEN);
+                // monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SPECIMEN);
                 setPathState(1);
                 break;
             case 1:
-               // if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
-                    limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
-                    monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
-                    setPathState(2);
-               // }
+                // if (monkeyPawFSM.INTAKED_SPECIMEN() && limbFSM.INTAKED_SPECIMEN()) {
+                limbFSM.setStates(LimbFSM.States.EXTENDING_SPECIMEN);
+                monkeyPawFSM.setState(MonkeyPawFSM.States.GETTING_READY_TO_DEPOSIT_SPECIMEN);
+                setPathState(2);
+                // }
                 break;
             case 2:
                 if(!follower.isBusy()) {
@@ -1330,13 +1330,13 @@ public class MainAuto extends LinearOpMode {
                 if(!follower.isBusy()) {
                     monkeyPawFSM.setState(MonkeyPawFSM.States.INTAKING_SAMPLE);
                 }
-                    setPathState(15);
+                setPathState(15);
                 break;
             case 16:
-                  //  follower.turn(Math.toRadians(56.0), false);
+                //  follower.turn(Math.toRadians(56.0), false);
                 if(monkeyPawFSM.RELAXED_POS_WITH_SAMPLE())
                     follower.followPath(preloadBasketDeposit,true);
-                    setPathState(17);
+                setPathState(17);
                 break;
             case 17:
                 if(!follower.isBusy()) {
