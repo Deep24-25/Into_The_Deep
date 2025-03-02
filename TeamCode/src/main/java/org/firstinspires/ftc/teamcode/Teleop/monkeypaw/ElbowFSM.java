@@ -45,13 +45,13 @@ public class ElbowFSM {
     private double targetAngle;
     public static double TOLERANCE = 100;
 
-    public static double RELAXED_POS = 100;
-    public static double SAMPLE_INTAKE_READY_POS = 150; //140.47-118.736
-    public static double HOVERING_LOWER_LIMIT = 173;
-    public static double HOVERING_UPPER_LIMIT = 173;
+    public static double RELAXED_POS = 120;
+    public static double SAMPLE_INTAKE_READY_POS = 145; //140.47-118.736
+    public static double HOVERING_LOWER_LIMIT = 160;
+    public static double HOVERING_UPPER_LIMIT = 160;
     public static double HOVERING_ANGLE = HOVERING_LOWER_LIMIT;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 188;
-    public static double SAMPLE_INTAKE_CONTROL_POS = 160;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 175;
+    public static double SAMPLE_INTAKE_CONTROL_POS = 145;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
 
 
@@ -77,7 +77,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = -10;
+    public static double ENCODER_OFFSET = 20;
 
     public static double CAPTURE_OFFSET = 57;
 
@@ -102,7 +102,7 @@ public class ElbowFSM {
     public static int COUNTER_LIMIT = 3;
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, true, ENCODER_OFFSET, 1); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ENCODER_OFFSET, 1); // check if you need to reverse axons
         //     pidController = new PIDController(P, I, D);
         this.logger = logger;
         targetAngle = RELAXED_POS;

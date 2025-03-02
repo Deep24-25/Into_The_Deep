@@ -6,44 +6,25 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Core.HWMap;
+
 @TeleOp
 @Config
 public class ServoTest extends LinearOpMode {
-    private Servo wristFlexServo;
-    private Servo elbowServo;
 
-    private AnalogInput elbowEncoder;
-
-    private AnalogInput wristFlexEncoder;
-
-    public static double wristPOS = 1;
-
-    public static double elbowPOS = 1;
+    public static double fingerPos = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        elbowServo = hardwareMap.get(Servo.class, "ES");
-        wristFlexServo = hardwareMap.get(Servo.class, "WFS");
-        elbowEncoder = hardwareMap.get(AnalogInput.class, "EE");
-        wristFlexEncoder = hardwareMap.get(AnalogInput.class, "WFE");
-
-
-
+        HWMap hwMap = new HWMap(hardwareMap, false);
+        Servo fingerServo = hwMap.getFingerServo();
         waitForStart();
         while (opModeIsActive()) {
-                wristFlexServo.setPosition(wristPOS);
-                elbowServo.setPosition(elbowPOS);
-            telemetry.addData("Angle", getWristRawPos());
+            fingerServo.setPosition(fingerPos);
+            telemetry.addData("Position", fingerPos);
             telemetry.update();
         }
     }
 
-    public double getWristRawPos() {
-        return (wristFlexEncoder.getVoltage() / 3.3);
-    }
-
-    public double getElbowRawPos() {
-        return (elbowEncoder.getVoltage() / 3.3);
-    }
 
 }
