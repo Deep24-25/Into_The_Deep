@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.pedroPathing.MainAuto;
 
 import java.util.List;
 
@@ -140,7 +141,13 @@ public class HWMap {
     public static double readFromIMU() {
         imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         initialized = true;
-        return inverseIMU(imuAngle);
+        if(MainAuto.basketAuto) {
+            return imuAngle;
+        }
+        else {
+            return inverseIMU(imuAngle);
+        }
+
       /*  pinpointIMU.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
         initialized = true;
         IMUpos = pinpointIMU.getPosition();

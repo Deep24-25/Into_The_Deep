@@ -117,6 +117,9 @@ public class MainAuto extends LinearOpMode {
 
     private PathChain basketIntake, preloadBasketDeposit, firstSampleDeposit, firstSampleIntake, secondSampleIntake;
 
+
+    public static boolean basketAuto = false;
+
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(startPose), new Point(preloadScorePose)))
@@ -224,6 +227,7 @@ public class MainAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        while (opModeInInit()) {
         try{
             hwMap = new HWMap(hardwareMap, true);
             logger = new Logger(telemetry);
@@ -247,14 +251,22 @@ public class MainAuto extends LinearOpMode {
             opModeTimer.resetTimer();
             Constants.setConstants(FConstants.class, LConstants.class);
             follower = new Follower(hardwareMap);
-            follower.setStartingPose(basketStartPos);
+            gamePad1.readButtons();
+            if(gamePad1.wasJustPressed(GamepadKeys.Button.A)) {
+                basketAuto = !basketAuto;
+            }
+            if(basketAuto) {
+                follower.setStartingPose(basketStartPos);
+            }
+            else {
+                follower.setStartingPose(startPose);
+            }
             buildPaths();
             pathState = 0;
         } catch (Exception e) {
             telemetry.addData("-", e.getMessage());
             telemetry.update();
         }
-        while (opModeInInit()) {
             monkeyPawFSM.setState(MonkeyPawFSM.States.AUTO_START);
             monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false, true);
             monkeyPawFSM.updatePID();
@@ -269,7 +281,12 @@ public class MainAuto extends LinearOpMode {
 
                 // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
                 follower.update();
-                basketAuto();
+                if(basketAuto) {
+                    basketAuto();
+                }
+                else {
+                    fourSpec();
+                }
                 logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
 
 
