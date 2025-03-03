@@ -47,7 +47,6 @@ public class MainAuto extends LinearOpMode {
     public static double PRELOAD_SCORE_Y = 72.00;
 
 
-
     // push sample variables
     public static double BACK_UP_FROM_PRELOAD_SCORE_X = 24.00;
     public static double BACK_UP_FROM_PRELOAD_SCORE_Y = 72.00;
@@ -83,7 +82,7 @@ public class MainAuto extends LinearOpMode {
     public static double AUTO_SPEC_DEPOSIT_2nd = 31.5;
 
     public static double AUTO_SPEC_DEPOSIT_3rd = 31.5;
-
+    public static double SAMPLE_DEPOSIT_Y = 48.5;
 
     private final Pose startPose = new Pose(7, 55, Math.toRadians(180));  // Starting position
     private final Pose preloadScorePose = new Pose(PRELOAD_SCORE_X, PRELOAD_SCORE_Y, Math.toRadians(180)); // Scoring position
@@ -118,7 +117,7 @@ public class MainAuto extends LinearOpMode {
     private PathChain basketIntake, preloadBasketDeposit, firstSampleDeposit, firstSampleIntake, secondSampleIntake;
 
 
-    public static boolean basketAuto = false;
+    public static boolean basketAuto = true;
 
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
@@ -252,7 +251,7 @@ public class MainAuto extends LinearOpMode {
             Constants.setConstants(FConstants.class, LConstants.class);
             follower = new Follower(hardwareMap);
             gamePad1.readButtons();
-            if(gamePad1.wasJustPressed(GamepadKeys.Button.A)) {
+            if(gamePad1.wasJustReleased(GamepadKeys.Button.A)) {
                 basketAuto = !basketAuto;
             }
             if(basketAuto) {

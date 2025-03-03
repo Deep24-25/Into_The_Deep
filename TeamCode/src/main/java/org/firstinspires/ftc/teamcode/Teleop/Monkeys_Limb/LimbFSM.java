@@ -258,7 +258,7 @@ public class LimbFSM {
                 break;
             case DEPOSITING_SPECIMEN:
                 armFSM.chamberLockHeightAlgorithm();
-                /*if (auto) {
+                if (auto) {
                     if (!autoTimer.isTimerOn()) {
                         autoTimer.start();
                     }
@@ -266,8 +266,8 @@ public class LimbFSM {
                         autoTimer.pause();
                         states = States.DEPOSITED_SPECIMEN;
                     }
-                }*/
-                if (armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
+                }
+                if (monkeyPawFSM.DEPOSITED_SPECIMEN() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
                     armFSM.setSpecimenClipped(false);
                     armFSM.setShouldPID(true);
                     states = States.DEPOSITED_SPECIMEN;
