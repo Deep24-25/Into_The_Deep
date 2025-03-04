@@ -72,7 +72,7 @@ public class MonkeyPawFSM {
             state = States.INTAKING_SPECIMEN;
         } else if (limbFSM.EXTENDING_SPECIMEN() && INTAKED_SPECIMEN() && !READY_TO_DEPOSIT_SPECIMEN()) {
             state = States.GETTING_READY_TO_DEPOSIT_SPECIMEN;
-        } else if (limbFSM.DEPOSITED_SPECIMEN() && READY_TO_DEPOSIT_SPECIMEN() && !DEPOSITED_SPECIMEN()) {
+        } else if (limbFSM.DEPOSITING_SPECIMEN() && READY_TO_DEPOSIT_SPECIMEN() && !DEPOSITED_SPECIMEN()) {
             state = States.DEPOSITING_SPECIMEN;
         }
 
@@ -154,7 +154,7 @@ public class MonkeyPawFSM {
                 fingerFSM.gripSpecimen();
                 break;
             case PREPARING_TO_INTAKE_SAMPLE:
-                if(isAuto && !deviatorFSM.VERTICALED()) {
+                if (isAuto && !deviatorFSM.VERTICALED()) {
                     deviatorFSM.vertical();
                 }
                 if (rightTrigger) {
@@ -228,7 +228,7 @@ public class MonkeyPawFSM {
             case RELAXING_WITH_SAMPLE:
                 elbowFSM.flexToSampleIntakeControlPos();
                 wristFSM.flexToSampleIntakeControlPos();
-                if(isAuto) {
+                if (isAuto) {
                     deviatorFSM.relax();
                 }
                 if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_CONTROL_POS()) {
@@ -238,7 +238,7 @@ public class MonkeyPawFSM {
             case RETRACTING_INTAKE:
                 wristFSM.flexToSampleIntakeRetractPos();
                 elbowFSM.flexToSampleIntakeRetractPos();
-                if(!isAuto) {
+                if (!isAuto) {
                     deviatorFSM.relax();
                 }
                 if (elbowFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() && wristFSM.FLEXED_TO_SAMPLE_INTAKE_RETRACT_POS() && deviatorFSM.RELAXED()) {
@@ -259,11 +259,10 @@ public class MonkeyPawFSM {
                 deviatorFSM.relax();
                 if (elbowFSM.FLEXED_TO_BASKET_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_BASKET_DEPOSIT() && deviatorFSM.RELAXED() && (yPressed || (isAuto && limbFSM.DEPOSITING_SAMPLE()))) {
                     fingerFSM.releaseSample();
-                    if(!isAuto) {
+                    if (!isAuto) {
                         state = States.RELAXED_AFTER_DEPOSIT;
-                    }
-                    else {
-                        if(fingerFSM.RELEASED()) {
+                    } else {
+                        if (fingerFSM.RELEASED()) {
                             state = States.RELAXED_AFTER_DEPOSIT;
                         }
                     }
@@ -304,16 +303,15 @@ public class MonkeyPawFSM {
             case GETTING_READY_TO_DEPOSIT_SPECIMEN:
                 elbowFSM.flexToHighChamberDepositFlexedPos();
                 wristFSM.flexToSpecimenDepositReadyPos();
-                //deviatorFSM.goToChamberDepositPos();
+               // deviatorFSM.goToChamberDepositPos();
                 if (elbowFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT())
                     state = States.READY_TO_DEPOSIT_SPECIMEN;
                 break;
             case DEPOSITING_SPECIMEN:
-                fingerFSM.releaseSpecimen();
-                if (fingerFSM.RELEASED()) {
-                    if (isAuto) {
-                        state = States.DEPOSITED_SPECIMEN;
-                    } else {
+                elbowFSM.flexToSpecimenLockPosition();
+                if (elbowFSM.FLEXED_TO_CHAMBER_LOCK() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
+                    fingerFSM.releaseSpecimen();
+                    if (fingerFSM.RELEASED()) {
                         state = States.DEPOSITED_SPECIMEN;
                     }
                 }

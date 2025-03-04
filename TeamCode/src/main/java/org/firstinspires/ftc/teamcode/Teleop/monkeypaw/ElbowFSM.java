@@ -34,6 +34,8 @@ public class ElbowFSM {
         FLEXED_TO_HIGH_CHAMBER_DEPOSIT,
         FLEXING_TO_LOW_CHAMBER_DEPOSIT,
         FLEXED_TO_LOW_CHAMBER_DEPOSIT,
+        FLEXING_TO_CHAMBER_LOCK,
+        FLEXED_TO_CHAMBER_LOCK,
         RELAXING_FROM_CHAMBER_DEPOSIT,
         RELAXED_FROM_CHAMBER_DEPOSIT,
         RELAXING_FROM_BASKET_DEPOSIT,
@@ -43,7 +45,7 @@ public class ElbowFSM {
     }
 
     private double targetAngle;
-    public static double TOLERANCE = 100;
+    public static double TOLERANCE = 150;
 
     public static double RELAXED_POS = 80;
     public static double SAMPLE_INTAKE_READY_POS = 150; //140.47-118.736
@@ -58,7 +60,8 @@ public class ElbowFSM {
     public static double SPECIMEN_INTAKE_FLEXED_POS = 126;
     public static double SPECIMEN_INTAKE_RELAX_POS = 120;
     public static double BASKET_DEPOSIT_FLEXED_POS = 110;
-    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 101;
+    public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 100;
+    public static double HIGH_CHAMBER_DEPOSIT_LOCK_POS_TELE = 170;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO = 101; // 210
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS = HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO;
 
@@ -77,7 +80,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 36;
+    public static double ENCODER_OFFSET = 67;
 
     public static double CAPTURE_OFFSET = 80;
 
@@ -195,12 +198,17 @@ public class ElbowFSM {
             } else {
                 state = ElbowStates.RELAXING_FROM_BASKET_DEPOSIT;
             }
-        }
-        else if (isTargetAngleToSpecIntakeRetractPos()) {
+        } else if (isTargetAngleToSpecIntakeRetractPos()) {
             if (atSetPoint()) {
                 state = ElbowStates.SPEC_INTAKE_RETRACTED;
             } else {
                 state = ElbowStates.SPEC_INTAKE_RETRACTING;
+            }
+        }else if(isTargetAngleToHighChamberDepositLockPos()){
+            if(atSetPoint()){
+                state = ElbowStates.FLEXED_TO_CHAMBER_LOCK;
+            }else {
+                state = ElbowStates.FLEXING_TO_CHAMBER_LOCK;
             }
         }
 
@@ -247,6 +255,11 @@ public class ElbowFSM {
         return targetAngle == HIGH_CHAMBER_DEPOSIT_FLEXED_POS;
     }
 
+    public boolean isTargetAngleToHighChamberDepositLockPos() {
+        return targetAngle == HIGH_CHAMBER_DEPOSIT_LOCK_POS_TELE;
+    }
+
+
     public boolean isTargetAngleToLowChamberDepositFlexedPos() {
         return targetAngle == LOW_CHAMBER_DEPOSIT_FLEXED_POS;
     }
@@ -270,6 +283,10 @@ public class ElbowFSM {
 
     public void flexToSpecimenRetractIntake() {
         targetAngle = SPEC_INTAKE_RETRACT_ANGLE;
+    }
+
+    public void flexToSpecimenLockPosition() {
+        targetAngle = HIGH_CHAMBER_DEPOSIT_LOCK_POS_TELE;
     }
 
     public void flexToSampleHoveringPos() {
@@ -325,6 +342,13 @@ public class ElbowFSM {
 
     public boolean FLEXED_TO_SAMPLE_INTAKE_READY_POS() {
         return state == ElbowStates.FLEXED_TO_SAMPLE_INTAKE_READY_POS;
+    }
+    public boolean FLEXING_TO_CHAMBER_LOCK() {
+        return state == ElbowStates.FLEXING_TO_CHAMBER_LOCK;
+    }
+
+    public boolean FLEXED_TO_CHAMBER_LOCK() {
+        return state == ElbowStates.FLEXED_TO_CHAMBER_LOCK;
     }
 
 
@@ -426,10 +450,12 @@ public class ElbowFSM {
     public boolean elbowHovering() {
         return targetAngle == HOVERING_ANGLE + hoveringOffset;
     }
+
     public void setIsAuto(boolean isAuto) {
         this.isAuto = isAuto;
     }
-    public void resetCounter(){
+
+    public void resetCounter() {
         counter = 0;
     }
 
