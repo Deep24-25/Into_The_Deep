@@ -255,12 +255,12 @@ public class MainAuto extends LinearOpMode {
             if(gamePad1.wasJustPressed(GamepadKeys.Button.A)) {
                 basketAuto = !basketAuto;
             }
-            if(basketAuto) {
+         //   if(basketAuto) {
                 follower.setStartingPose(basketStartPos);
-            }
-            else {
-                follower.setStartingPose(startPose);
-            }
+           // }
+           // else {
+            //    follower.setStartingPose(startPose);
+           // }
             buildPaths();
             pathState = 0;
         } catch (Exception e) {
@@ -271,6 +271,12 @@ public class MainAuto extends LinearOpMode {
             monkeyPawFSM.updateState(false,false,false,false,false, false,false,false,false,false, true);
             monkeyPawFSM.updatePID();
             logger.log("Monkey Paw State", monkeyPawFSM.getState(), Logger.LogLevels.PRODUCTION);
+            if(basketAuto) {
+                logger.log("BASKET_AUTO", "", Logger.LogLevels.PRODUCTION);
+            }
+            else {
+                logger.log("SPEC_AUTO", "", Logger.LogLevels.PRODUCTION);
+            }
             logger.print();
         }
         waitForStart();
@@ -281,12 +287,12 @@ public class MainAuto extends LinearOpMode {
 
                 // follower.setMaxPower(0.7*(12.0/(hardwareMap.voltageSensor.iterator().next().getVoltage())));
                 follower.update();
-                if(basketAuto) {
+               // if(basketAuto) {
                     basketAuto();
-                }
-                else {
-                    fourSpec();
-                }
+               // }
+               // else {
+                 //   fourSpec();
+               // }
                 logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
 
 
