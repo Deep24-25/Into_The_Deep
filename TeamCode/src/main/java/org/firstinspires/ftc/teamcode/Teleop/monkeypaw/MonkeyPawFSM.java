@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.ArmFSM;
 import org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb.LimbFSM;
+import org.firstinspires.ftc.teamcode.pedroPathing.MainAuto;
 
 import java.util.concurrent.TimeUnit;
 
@@ -141,7 +142,12 @@ public class MonkeyPawFSM {
                                 fingerFSM.gripSpecimen();
                             }
                         } else {
-                            deviatorFSM.relax();
+                            if(MainAuto.basketAuto) {
+                                deviatorFSM.relax();
+                            }
+                            else {
+                                deviatorFSM.vertical();
+                            }
                         }
                     } else {
                         wristFSM.flexToSpecimenDepositReadyPos();

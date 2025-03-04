@@ -12,8 +12,6 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.MainAuto;
-
 
 @Config
 public class FieldCentricDrive {
@@ -23,14 +21,13 @@ public class FieldCentricDrive {
 
     public final double SPEC_HEADING = 0;
 
-    public static double P = 0.034, I = 0, D = 0, F = 1;
+    public static double P = 0.084, I = 0, D = 0, F = 1;
     private final PIDController pidController = new PIDController(P, I, D);
     private HWMap hwMap;
 
     private double turnSpeed = 0;
     private double feedforward = 0;
 
-    public static int TOTAL_HEADING = 180;
     public FieldCentricDrive(HWMap hwMap, Logger logger) {
         mecanumDrive = hwMap.getMecanumDrive();
         this.hwMap = hwMap;
@@ -41,14 +38,9 @@ public class FieldCentricDrive {
 
     public void drive(double strafe, double forward, double turn, double heading) {
         pidController.setPID(P, I, D);
-
         if (headingLock) {
-            if(MainAuto.basketAuto)
-                TOTAL_HEADING = 180;
-            else
-                TOTAL_HEADING = 360;
-            double normalizedTargetPos = SPEC_HEADING / TOTAL_HEADING;
-            double normalizedHeading = heading / TOTAL_HEADING;
+            double normalizedTargetPos = SPEC_HEADING / 360;
+            double normalizedHeading = heading / 360;
             turnSpeed = pidController.calculate(normalizedHeading, normalizedTargetPos) + feedforward;
             if (hwMap.getFrontRightMotor().getVelocity() < 0.05) {
                 turnSpeed = turnSpeed/F;
