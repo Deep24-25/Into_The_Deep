@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.util.Timing;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -64,7 +65,7 @@ public class TeleopWithoutDriving extends LinearOpMode {
             WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(hwMap, shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM, armFSM);
-            fieldCentricDrive = new FieldCentricDrive(hwMap, logger);
+            fieldCentricDrive = new FieldCentricDrive(hwMap, logger, new Follower(hardwareMap));
 
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             shoulderFSM.setLimbFSM(limbFSM);

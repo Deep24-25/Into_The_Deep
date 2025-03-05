@@ -32,7 +32,7 @@ public class ArmFSM {
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    public static  double MAX_HEIGHT = 45;//102 cm is physical max
+    public static double MAX_HEIGHT = 45;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
     public static double AUTO_SPEC_INTAKE = 44;
 
@@ -212,6 +212,9 @@ public class ArmFSM {
     public boolean MOVED_TO_AUTO_SPEC_INTAKE() {
         return currentState == States.MOVED_TO_AUTO_SPEC_INTAKE;
     }
+    public boolean FULLY_EXTENDED() {
+        return currentState == States.FULLY_EXTENDED;
+    }
 
 
     public boolean AT_MINI_INTAKE() {
@@ -241,6 +244,10 @@ public class ArmFSM {
 
     public boolean isTargetPosAtAutoSpecimenIntake() {
         return targetPosition == AUTO_SPEC_INTAKE;
+    }
+
+    public boolean isTargetPosAtMaxPos() {
+        return targetPosition == MAX_HEIGHT;
     }
 
     public boolean isTargetPosAboveSafeHeight() {
@@ -280,8 +287,8 @@ public class ArmFSM {
         return targetPosition == MINI_INTAKE;
     }
 
-    public void moveToMiniIntake() {
-        targetPosition = MINI_INTAKE;
+    public void moveToMaxHeight() {
+        targetPosition = MAX_HEIGHT;
     }
 
 
@@ -314,7 +321,7 @@ public class ArmFSM {
         slidePowerCap = 1;
         pidfController.setP(0.5);
         targetPosition = chamberLockHeight;
-        if(armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT) {
+        if (armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT) {
             currentMet = true;
         }
         if ((armMotorsWrapper.getAM1Velocity() <= VELOCITY_THRESOLD && armMotorsWrapper.getAM1Velocity() > -3) && currentMet) {
@@ -323,7 +330,7 @@ public class ArmFSM {
             counter = 0;
         }
         specimenClipped = counter >= COUNTER_LIMIT;
-        if(specimenClipped) {
+        if (specimenClipped) {
             currentMet = false;
         }
 

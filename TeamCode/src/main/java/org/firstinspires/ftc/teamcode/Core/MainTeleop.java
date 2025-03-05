@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.DeviatorFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
+import org.firstinspires.ftc.teamcode.pedroPathing.MainAuto;
 
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +69,7 @@ public class MainTeleop extends LinearOpMode {
             WristFSM wristFSM = new WristFSM(hwMap, logger, elbowFSM);
             limbFSM = new LimbFSM(hwMap, shoulderFSM, armFSM, monkeyPawFSM, logger);
             monkeyPawFSM = new MonkeyPawFSM(hwMap, logger, limbFSM, elbowFSM, deviatorFSM, wristFSM, armFSM);
-            fieldCentricDrive = new FieldCentricDrive(hwMap, logger);
+            fieldCentricDrive = new FieldCentricDrive(hwMap, logger, MainAuto.follower);
 
             limbFSM.setMonkeyPawFSM(monkeyPawFSM);
             shoulderFSM.setLimbFSM(limbFSM);
@@ -122,7 +123,7 @@ public class MainTeleop extends LinearOpMode {
             logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
             fieldCentricDrive.drive(gamePad1.getLeftX() * strafeMultiplierWhileMovingIntake, gamePad1.getLeftY() * forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER) * turningMultiplierWhileMovingIntake, HWMap.readFromIMU());
             monkeyPawFSM.updateState(rightTriggerWasJustPressed, leftTriggerWasJustPressed, gamePad1.wasJustPressed(GamepadKeys.Button.Y), gamePad1.wasJustPressed(GamepadKeys.Button.X), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), false,false, false, false, false);
-            limbFSM.updateState(gamePad2.isDown(GamepadKeys.Button.DPAD_RIGHT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT), gamePad2.isDown(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_LEFT), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false, false, gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP));
+            limbFSM.updateState(gamePad2.isDown(GamepadKeys.Button.DPAD_RIGHT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT), gamePad2.isDown(GamepadKeys.Button.DPAD_LEFT), gamePad2.wasJustReleased(GamepadKeys.Button.DPAD_LEFT), yWasJustPressed, aWasJustPressed, xWasJustPressed, rightTriggerWasJustPressed, leftBumperWasJustPressed, leftTriggerWasJustPressed, -gamePad1.getRightY(), false, false, gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN), gamePad2.wasJustPressed(GamepadKeys.Button.DPAD_UP), gamePad1.wasJustPressed(GamepadKeys.Button.B));
 
 
             updatePID();

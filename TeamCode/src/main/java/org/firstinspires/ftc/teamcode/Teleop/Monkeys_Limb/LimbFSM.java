@@ -9,13 +9,12 @@ import org.firstinspires.ftc.teamcode.Core.HWMap;
 import org.firstinspires.ftc.teamcode.Core.Logger;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 
-import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 @Config
 public class LimbFSM {
     public enum States {
-        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE, AUTO_SPEC_INTAKING, AUTO_SPEC_INTAKED, RETRACTING_FOR_AUTO, RETRACTED_FOR_AUTO, EXTENDING_TO_INTAKE_SPECIMEN, EXTENDED_TO_INTAKE_SPECIMEN
+        START, STARTED, PREPARING_TO_INTAKE_SPECIMEN, PREPARED_TO_INTAKE_SPECIMEN, INTAKING_SPECIMEN, INTAKED_SPECIMEN, EXTENDING_SPECIMEN, EXTENDED_SPECIMEN, DEPOSITING_SPECIMEN, DEPOSITED_SPECIMEN, PREPARING_TO_DEPOSIT_SAMPLE, PREPARED_TO_DEPOSIT_SAMPLE, EXTENDING_TO_BASKET_HEIGHT, EXTENDED_TO_BASKET_HEIGHT, DEPOSITING_SAMPLE, DEPOSITED_SAMPLE, PREPARING_TO_INTAKE, PREPARED_TO_INTAKE, MOVING_TO_INTAKE_POS, LINEARIZING_INTAKE, MOVED_TO_INTAKE_POS, RETRACTING_INTAKE, RETRACTED_INTAKE, AUTO_SPEC_INTAKING, AUTO_SPEC_INTAKED, RETRACTING_FOR_AUTO, RETRACTED_FOR_AUTO, EXTENDING_TO_INTAKE_SPECIMEN, EXTENDED_TO_INTAKE_SPECIMEN, EXTENDING_TO_DEPOSIT_SAMPLE, EXTENDED_TO_DEPOSIT_SAMPLE
     }
 
     public enum Mode {
@@ -71,6 +70,7 @@ public class LimbFSM {
     private boolean autoTimerDone = false;
 
     private boolean headingLock = false;
+
     public LimbFSM(HWMap hwMap, ShoulderFSM shoulderFSM, ArmFSM armFSM, MonkeyPawFSM monkeyPawFSM, Logger logger) {
         this.logger = logger;
         this.hwMap = hwMap;
@@ -88,7 +88,7 @@ public class LimbFSM {
         this.monkeyPawFSM = monkeyPawFSM;
     }
 
-    public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean leftBumperPressed) {
+    public void findTargetState(boolean yPressed, boolean aPressed, boolean xPressed, boolean bPressed, boolean leftBumperPressed) {
         if (yPressed && SPECIMEN_MODE()) {
             if ((DEPOSITED_SPECIMEN() || SAMPLE_STATES() || STARTED() || PREPARED_TO_INTAKE() || RETRACTED_INTAKE()) && !PREPARING_TO_INTAKE_SPECIMEN()) {
                 states = States.PREPARING_TO_INTAKE_SPECIMEN;
@@ -122,8 +122,19 @@ public class LimbFSM {
                 states = States.EXTENDING_SPECIMEN;
             }
         }
-        if (xPressed && (MOVED_TO_INTAKE_POS() || RETRACTED_INTAKE())) {
-            states = States.MOVING_TO_INTAKE_POS;
+        if (xPressed) {
+            if (MOVED_TO_INTAKE_POS() || RETRACTED_INTAKE()) {
+                states = States.MOVING_TO_INTAKE_POS;
+            } else if (MOVING_TO_INTAKE_POS()) {
+                states = States.PREPARING_TO_INTAKE;
+            }
+        }
+        if (bPressed) {
+            if (armFSM.isTargetPosAtMaxPos()) {
+                states = States.PREPARING_TO_INTAKE;
+            } else if (RETRACTED_INTAKE()) {
+                states = States.EXTENDING_TO_DEPOSIT_SAMPLE;
+            }
         }
 
         if (aPressed) {
@@ -146,13 +157,13 @@ public class LimbFSM {
         }
     }
 
-    public void updateState(boolean dPadRightIsDown, boolean dPadRightWasJustReleased, boolean dpadLeftIsDown, boolean dpadLeftWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test, boolean auto, boolean dpadDown2, boolean dpadUp2) {
+    public void updateState(boolean dPadRightIsDown, boolean dPadRightWasJustReleased, boolean dpadLeftIsDown, boolean dpadLeftWasJustReleased, boolean yPressed, boolean aPressed, boolean xPressed, boolean rightTriggerPressed, boolean leftBumperPressed, boolean leftTriggerPressed, double rightY, boolean test, boolean auto, boolean dpadDown2, boolean dpadUp2, boolean bPressed) {
         updateLowLevelFSMStates(auto, dpadDown2, dpadUp2);
         shoulderFSM.resetShoulder(dPadRightIsDown, dPadRightWasJustReleased);
         armFSM.resetArm(dpadLeftIsDown, dpadLeftWasJustReleased);
         this.rightY = rightY;
         if (!test || !auto) {
-            findTargetState(yPressed, aPressed, xPressed, leftBumperPressed);
+            findTargetState(yPressed, aPressed, xPressed, leftBumperPressed, bPressed);
         }
         switch (states) {
             case START:
@@ -286,7 +297,7 @@ public class LimbFSM {
                 break;
             case EXTENDING_TO_BASKET_HEIGHT:
                 shoulderFSM.setBasketTargetAngle();
-                if(shoulderFSM.AT_BASKET_DEPOSIT()) {
+                if (shoulderFSM.AT_BASKET_DEPOSIT()) {
                     armFSM.goToBasketHeight();
                 }
                 if (leftTriggerPressed) {
@@ -313,6 +324,12 @@ public class LimbFSM {
                 /* hwMap.brakingOn();*/
                 if (monkeyPawFSM.RELAXED_AFTER_DEPOSIT()) {
                     states = States.DEPOSITED_SAMPLE;
+                }
+                break;
+            case EXTENDING_TO_DEPOSIT_SAMPLE:
+                armFSM.moveToMaxHeight();
+                if(armFSM.FULLY_EXTENDED()){
+                    states = States.EXTENDED_TO_DEPOSIT_SAMPLE;
                 }
                 break;
             case AUTO_SPEC_INTAKING:
@@ -393,6 +410,7 @@ public class LimbFSM {
     public boolean EXTENDED_TO_BASKET_HEIGHT() {
         return states == States.EXTENDED_TO_BASKET_HEIGHT;
     }
+
     public boolean DEPOSITING_SAMPLE() {
         return states == States.DEPOSITING_SAMPLE;
     }
@@ -426,14 +444,10 @@ public class LimbFSM {
         return states == States.RETRACTING_INTAKE;
     }
 
-    public boolean EXTENDING_TO_INTAKE_SPECIMEN() {
-        return states == States.EXTENDING_TO_INTAKE_SPECIMEN;
+    public boolean EXTENDED_TO_DEPOSIT_SAMPLE() {
+        return states == States.EXTENDED_TO_DEPOSIT_SAMPLE;
     }
 
-
-    public boolean EXTENDED_TO_INTAKE_SPECIMEN() {
-        return states == States.EXTENDED_TO_INTAKE_SPECIMEN;
-    }
 
     public boolean STARTED() {
         return states == States.STARTED;

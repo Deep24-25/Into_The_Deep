@@ -39,7 +39,7 @@ public class MainAuto extends LinearOpMode {
     private Timer waitTime;
 
     private Timer depositTimer;
-    private Follower follower;
+    public static Follower follower;
     private int pathState;
     private int depositSpecState;
 
@@ -327,7 +327,7 @@ public class MainAuto extends LinearOpMode {
 
     public void updatePath() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false,false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -467,7 +467,7 @@ public class MainAuto extends LinearOpMode {
     }
     public void updatePathWaitTime() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false,false,false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false,false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -605,7 +605,7 @@ public class MainAuto extends LinearOpMode {
 
     public void threeSpec() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false,false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -805,7 +805,7 @@ public class MainAuto extends LinearOpMode {
 
     public void fourSpec() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false,false,false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false,false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SPECIMEN_MODE);
@@ -1089,7 +1089,7 @@ public class MainAuto extends LinearOpMode {
 
     public void basketAuto() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false,false,false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false,false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SAMPLE_MODE);
@@ -1256,7 +1256,7 @@ public class MainAuto extends LinearOpMode {
 
     public void basketAutoGoUp() {
         monkeyPawFSM.updateState(false, false, false, false, false, false, false, false, false, false, true);
-        limbFSM.updateState(false,false,false, false, false, false, false, false, false, false, 0, false, true, false, false);
+        limbFSM.updateState(false, false, false, false, false, false, false, false, false, false, 0, false, true, false, false,false);
         monkeyPawFSM.updatePID();
         limbFSM.updatePID(true);
         limbFSM.setMode(LimbFSM.Mode.SAMPLE_MODE);

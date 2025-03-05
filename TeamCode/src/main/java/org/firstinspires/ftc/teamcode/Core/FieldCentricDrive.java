@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -30,16 +31,18 @@ public class FieldCentricDrive {
     private double turnSpeed = 0;
     private double feedforward = 0;
 
-    public static int TOTAL_HEADING = 180;
-    public FieldCentricDrive(HWMap hwMap, Logger logger) {
+    public static double TOTAL_HEADING = 180;
+    private Follower follower;
+
+    public FieldCentricDrive(HWMap hwMap, Logger logger, Follower follower) {
         mecanumDrive = hwMap.getMecanumDrive();
         this.hwMap = hwMap;
         this.logger = logger;
-
+        this.follower = follower;
     }
 
 
-    public void drive(double strafe, double forward, double turn, double heading) {
+    /*public void drive(double strafe, double forward, double turn, double heading) {
         pidController.setPID(P, I, D);
 
         if (headingLock) {
@@ -57,6 +60,26 @@ public class FieldCentricDrive {
         } else
             this.mecanumDrive.driveFieldCentric(strafe, forward, turn, heading);
 
+    }*/
+
+    public void drive(double strafe, double forward, double turn, double heading) {
+        if (MainAuto.basketAuto)
+            TOTAL_HEADING = Math.toRadians(180);
+        else
+            TOTAL_HEADING = Math.toRadians(360);
+
+        if (headingLock) {
+            double headingError = TOTAL_HEADING - Math.toRadians(heading);
+            headingError = Math.IEEEremainder(headingError, 2 * Math.PI);
+            if (Math.abs(headingError) < Math.toRadians(2)) {
+                turnSpeed = 0;
+            } else {
+                turnSpeed = pidController.calculate(headingError);
+            }
+            follower.setTeleOpMovementVectors(-strafe, forward, turnSpeed);
+        } else {
+            follower.setTeleOpMovementVectors(-strafe, forward, turn);
+        }
     }
 
     public void setHeadingLock(boolean headingLock) {

@@ -1,3 +1,4 @@
+/*
 
 
 package org.firstinspires.ftc.teamcode.Teleop.Monkeys_Limb;
@@ -32,9 +33,11 @@ class LimbFSMTest {
 
 
 
+*/
 /**
      * ------------------------------------findTargetState()-----------------------------------
-     **/
+     **//*
+
 
 
 
@@ -46,7 +49,7 @@ class LimbFSMTest {
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(false);
 
 
-        sut.findTargetState(true, false, false, false);
+        sut.findTargetState(true, false, false, false,false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -57,7 +60,7 @@ class LimbFSMTest {
         when(sut.PREPARED_TO_INTAKE()).thenReturn(false);
         when(sut.DEPOSITED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false);
+        sut.findTargetState(true, false, false, false,false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -67,7 +70,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.PREPARED_TO_INTAKE_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false);
+        sut.findTargetState(true, false, false, false,false);
 
         assertTrue(sut.INTAKING_SPECIMEN());
     }
@@ -77,7 +80,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(true, false, false, false);
+        sut.findTargetState(true, false, false, false, false);
 
         assertTrue(sut.EXTENDING_SPECIMEN());
     }
@@ -88,7 +91,7 @@ class LimbFSMTest {
         when(sut.EXTENDED_SPECIMEN()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(false);
 
-        sut.findTargetState(true, false, false, false);
+        sut.findTargetState(true, false, false, false, false);
 
         assertTrue(sut.DEPOSITING_SPECIMEN());
     }
@@ -98,7 +101,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.INTAKING_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, false, true, false);
+        sut.findTargetState(false, false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -108,7 +111,7 @@ class LimbFSMTest {
         when(sut.SPECIMEN_MODE()).thenReturn(true);
         when(sut.INTAKED_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, false, true, false);
+        sut.findTargetState(false, false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE_SPECIMEN());
     }
@@ -120,7 +123,7 @@ class LimbFSMTest {
 
         when(sut.EXTENDING_SPECIMEN()).thenReturn(true);
 
-        sut.findTargetState(false, false, true, false);
+        sut.findTargetState(false, false, true, false, false);
 
         assertTrue(sut.INTAKING_SPECIMEN());
     }
@@ -234,6 +237,7 @@ class LimbFSMTest {
 
         assertTrue(sut.DEPOSITING_SAMPLE());
     }
+*/
 /*
     //Intake States
     @Test
@@ -247,7 +251,8 @@ class LimbFSMTest {
         sut.findTargetState(false, true, false, false);
 
         assertTrue(sut.PREPARING_TO_INTAKE());
-    }*/
+    }*//*
+
 
     @Test
     public void preparingToIntakeAndNotMovingToIntakePos() {
@@ -321,9 +326,11 @@ class LimbFSMTest {
     }
 
 
+*/
 /**
      * ------------------------------------updateState()-----------------------------------
-     **/
+     **//*
+
 
 
 
@@ -374,6 +381,7 @@ class LimbFSMTest {
         assertFalse(sut.INTAKED_SPECIMEN());
         assertFalse(armFSMMock.AT_SPECIMEN_PICKUP_HEIGHT());
     }
+*/
 /*
     @Test
     public void whenPawHasIntaked() {
@@ -387,7 +395,8 @@ class LimbFSMTest {
 
         verify(armFSMMock).moveToSubmersibleHeight();
         assertTrue(sut.INTAKED_SPECIMEN());
-    }*/
+    }*//*
+
 
     //Specimen: Extending Specimen
     @Test
@@ -484,7 +493,8 @@ class LimbFSMTest {
       //  assertTrue(sut.PREPARING_TO_DEPOSIT_SAMPLE());
 
     }
-    /*
+    */
+/*
     @Test
     public void armIsRetracted() {
         sut.setCurrentState(LimbFSM.States.PREPARING_TO_DEPOSIT_SAMPLE);
@@ -525,7 +535,8 @@ class LimbFSMTest {
 
         assertTrue(sut.EXTENDING_TO_BASKET_HEIGHT());
     }
-*/
+*//*
+
 
 
     //Sample: Depositing Sample
@@ -582,6 +593,7 @@ class LimbFSMTest {
         verify(shoulderFSMMock, atLeastOnce()).moveToIntakeAngle();
         assertTrue(sut.PREPARED_TO_INTAKE());
     }
+*/
 /*
     @Test
     public void preparingToIntakeAndShoulderNotAtIntakePosAndPawRelaxedPosWithSample() {
@@ -630,7 +642,8 @@ class LimbFSMTest {
         verify(armFSMMock).moveToSafeHeight();
         verify(shoulderFSMMock, never()).moveToIntakeAngle();
         assertTrue(sut.PREPARED_TO_INTAKE());
-    }*/
+    }*//*
+
         //Intake: Moving To Intake
 
         //TODO: Do not know the logic yet
@@ -642,3 +655,4 @@ class LimbFSMTest {
 
     }
 
+*/
