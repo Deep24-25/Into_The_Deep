@@ -98,8 +98,8 @@ public class HWMap {
         backRightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         brakingOff();
         if (isAuto) {
-            pinpointIMU = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint"); //IMU Port 1
-           // imu = hardwareMap.get(IMU.class, "imu");
+            //pinpointIMU = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint"); //IMU Port 1
+            imu = hardwareMap.get(IMU.class, "imu");
             initializeIMU();
             pivotMotor.resetEncoder();
         } else {
@@ -139,23 +139,20 @@ public class HWMap {
 
 
     public static double readFromIMU() {
-        /*imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         initialized = true;
-        if (MainAuto.basketAuto) {
+        if(MainAuto.basketAuto) {
             return imuAngle;
-        } else {
+        }
+        else {
             return inverseIMU(imuAngle);
-        }*/
-
-        pinpointIMU.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
-        initialized = true;
-        IMUpos = pinpointIMU.getPosition();
-        if (MainAuto.basketAuto) {
-            return IMUpos.getHeading(AngleUnit.DEGREES);
-        } else {
-            return inverseIMU(IMUpos.getHeading(AngleUnit.DEGREES));
         }
 
+      /*  pinpointIMU.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+        initialized = true;
+        IMUpos = pinpointIMU.getPosition();
+        return inverseIMU(IMUpos.getHeading(AngleUnit.DEGREES));
+*/
     }
 
     public static double inverseIMU(double imuAngle) {
@@ -171,17 +168,17 @@ public class HWMap {
     }
 
     public static double getIMUangle() {
-        //return imuAngle;
-        return IMUpos.getHeading(AngleUnit.DEGREES);
+        return imuAngle;
+        //return IMUpos.getHeading(AngleUnit.DEGREES);
     }
 
     public static void initializeIMU() {
-        /*RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        RevHubOrientationOnRobot revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
         IMU.Parameters revParameters = new IMU.Parameters(revHubOrientation);
         imu.initialize(revParameters);
         imu.resetYaw();
-        initialized = true;*/
-        pinpointIMU.resetPosAndIMU();
+        initialized = true;
+       // pinpointIMU.resetPosAndIMU();
     }
 
     public Servo getWristDeviServo() {
