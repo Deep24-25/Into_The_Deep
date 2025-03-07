@@ -323,6 +323,7 @@ public class LimbFSM {
                 }
                 break;
             case RETRACTING_FOR_AUTO:
+                armFSM.getPidfController().setD(0);
                 armFSM.retract();
                 if (armFSM.FULLY_RETRACTED()) {
                     states = States.RETRACTED_FOR_AUTO;
@@ -393,6 +394,11 @@ public class LimbFSM {
     public boolean EXTENDED_TO_BASKET_HEIGHT() {
         return states == States.EXTENDED_TO_BASKET_HEIGHT;
     }
+
+    public ArmFSM getArmFSM() {
+        return armFSM;
+    }
+
     public boolean DEPOSITING_SAMPLE() {
         return states == States.DEPOSITING_SAMPLE;
     }

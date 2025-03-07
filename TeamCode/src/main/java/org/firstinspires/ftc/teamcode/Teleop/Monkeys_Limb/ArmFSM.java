@@ -40,10 +40,11 @@ public class ArmFSM {
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
     private int basketIndex = 1;
 
-    public static double MAX_FEEDRATE = 0.5; // cm/sec
+    public static double MAX_FEEDRATE = 0.7; // cm/sec
 
-    public static double PHorizontal = 0.06, IHorizontal = 0.1, DHorizontal = 0.009, FHorizontal = 0;
-    public static double PVertical = 0.03, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
+
+    public static double PHorizontal = 0.02, IHorizontal = 0.1, DHorizontal = 0.024, FHorizontal = 0;
+    public static double PVertical = 0.15, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
     public static double P_E_Horizontal = 0.04, I_E_Horizontal = 0.1, D_E_Horizontal = 0.009, F_E_Horizontal = 0;
     public static double PLinearizing = 0.06, ILinearizing = 0.1, DLinearizing = 0.009, FLinearizing = 0;
 
@@ -170,6 +171,11 @@ public class ArmFSM {
 
     }
 
+    public void setHorizontalAutoPID() {
+        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
+
+    }
+
     public void setVerticalPID() {
         pidfController.setPIDF(PVertical, IVertical, DVertical, FVertical);
     }
@@ -202,6 +208,10 @@ public class ArmFSM {
     public boolean EXTENDED_TO_INTAKE_SPECiMEN() {
         return currentState == States.EXTENDED_TO_INTAKE_SPECiMEN;
 
+    }
+
+    public PIDFController getPidfController() {
+        return pidfController;
     }
 
     public boolean AT_CHAMBER_LOCK_HEIGHT() {
@@ -420,6 +430,16 @@ public class ArmFSM {
 
         logger.log("velocity counter", counter, Logger.LogLevels.PRODUCTION);
 
+        logger.log("current P", pidfController.getP(), Logger.LogLevels.PRODUCTION);
+
+        logger.log("current I", pidfController.getI(), Logger.LogLevels.PRODUCTION);
+
+        logger.log("current D", pidfController.getD(), Logger.LogLevels.PRODUCTION);
+
+        logger.log("current F", pidfController.getF(), Logger.LogLevels.PRODUCTION);
+
+
+
         logger.log("-------------------------ARM LOG---------------------------", "-", Logger.LogLevels.PRODUCTION);
 
     }
@@ -445,6 +465,8 @@ public class ArmFSM {
     }
 
     public void setAutoSpecIntakePos() {
+        setHorizontalPID();
+        pidfController.setD(0);
         targetPosition = AUTO_SPEC_INTAKE;
 
     }

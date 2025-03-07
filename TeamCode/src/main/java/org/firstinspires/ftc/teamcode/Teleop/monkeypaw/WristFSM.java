@@ -42,7 +42,7 @@ public class WristFSM {
     public static double RELAXED_POS = 100;
     public static double SAMPLE_FLEXED_POS = 260;
     public static double SAMPLE_INTAKE_READY_POS = SAMPLE_FLEXED_POS;
-    public static double SAMPLE_INTAKE_CAPTURE_POS = 240;
+    public static double SAMPLE_INTAKE_CAPTURE_POS = 210;
     public static double SAMPLE_INTAKE_CONTROL_POS = 230;
     public static double SAMPLE_INTAKE_RETRACT_POS = RELAXED_POS;
     public static double SPECIMEN_INTAKE_POS = 120;
