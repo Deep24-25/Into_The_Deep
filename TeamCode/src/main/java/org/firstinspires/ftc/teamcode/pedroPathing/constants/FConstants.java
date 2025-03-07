@@ -24,28 +24,28 @@ public class FConstants {
 
         FollowerConstants.mass = 11.79;
 
-        FollowerConstants.xMovement = 71.23071075842404; // default is 57.8741
+        FollowerConstants.xMovement = 74.23071075842404; // default is 57.8741
         FollowerConstants.yMovement = 55.42764838008378; // default is 52.295
 
-        FollowerConstants.forwardZeroPowerAcceleration = -30.257434858099217; // default -41.278
+        FollowerConstants.forwardZeroPowerAcceleration = -32.257434858099217; // default -41.278
         FollowerConstants.lateralZeroPowerAcceleration = -66.02471768747907;  // default -59.7819
 
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0);
-        FollowerConstants.useSecondaryTranslationalPID = true;
+        FollowerConstants.useSecondaryTranslationalPID = false;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // Not being used, @see useSecondaryTranslationalPID
         if(MainAuto.basketAuto) {
-            FollowerConstants.headingPIDFCoefficients.setCoefficients(3.0, 0, 0.15, 0);
+            FollowerConstants.headingPIDFCoefficients.setCoefficients(2.5, 0, 0.12, 0);
         } else {
-            FollowerConstants.headingPIDFCoefficients.setCoefficients(7.0, 0, 0.15, 0);
+          //  FollowerConstants.headingPIDFCoefficients.setCoefficients(7.0, 0, 0.15, 0);
         }
-        FollowerConstants.useSecondaryHeadingPID = true;
+        FollowerConstants.useSecondaryHeadingPID = false;
         FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // Not being used, @see useSecondaryHeadingPID
 
         FollowerConstants.drivePIDFCoefficients.setCoefficients(0.004,0,0.000005,0.6,0);
-        FollowerConstants.useSecondaryDrivePID = true;
-        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0,0.6,0); // Not being used, @see useSecondaryDrivePID
+        FollowerConstants.useSecondaryDrivePID = false;
+        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.005,0,0,0.6,0); // Not being used, @see useSecondaryDrivePID
 
-        FollowerConstants.zeroPowerAccelerationMultiplier = 2;
+        FollowerConstants.zeroPowerAccelerationMultiplier = 6;
         FollowerConstants.centripetalScaling = 0.0004;
 
         FollowerConstants.pathEndTimeoutConstraint = 500;

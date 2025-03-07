@@ -47,10 +47,10 @@ public class ElbowFSM {
     private double targetAngle;
     public static double TOLERANCE = 150;
 
-    public static double RELAXED_POS = 80;
-    public static double SAMPLE_INTAKE_READY_POS = 150; //140.47-118.736
-    public static double HOVERING_LOWER_LIMIT = 175;
-    public static double HOVERING_UPPER_LIMIT = 175;
+    public static double RELAXED_POS = 100;
+    public static double SAMPLE_INTAKE_READY_POS = 160; //140.47-118.736
+    public static double HOVERING_LOWER_LIMIT = 165;
+    public static double HOVERING_UPPER_LIMIT = 165;
     public static double HOVERING_ANGLE = HOVERING_LOWER_LIMIT;
     public static double SAMPLE_INTAKE_CAPTURE_POS = 188;
     public static double SAMPLE_INTAKE_CONTROL_POS = 160;
@@ -59,7 +59,7 @@ public class ElbowFSM {
 
     public static double SPECIMEN_INTAKE_FLEXED_POS = 126;
     public static double SPECIMEN_INTAKE_RELAX_POS = 120;
-    public static double BASKET_DEPOSIT_FLEXED_POS = 110;
+    public static double BASKET_DEPOSIT_FLEXED_POS = 200;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_TELE = 100;
     public static double HIGH_CHAMBER_DEPOSIT_LOCK_POS_TELE = 170;
     public static double HIGH_CHAMBER_DEPOSIT_FLEXED_POS_AUTO = 101; // 210
@@ -80,7 +80,7 @@ public class ElbowFSM {
     private boolean relaxCalled = false;
     private boolean sampleControl = false;
 
-    public static double ENCODER_OFFSET = 67;
+    public static double ENCODER_OFFSET = 15;
 
     public static double CAPTURE_OFFSET = 80;
 
@@ -105,7 +105,7 @@ public class ElbowFSM {
     public static int COUNTER_LIMIT = 3;
 
     public ElbowFSM(HWMap hwMap, Logger logger, ShoulderFSM shoulderFSM) {
-        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, true, ENCODER_OFFSET, 1); // check if you need to reverse axons
+        elbowServoWrapper = new AxonServoWrapper(hwMap.getElbowServo(), hwMap.getElbowEncoder(), false, false, ENCODER_OFFSET, 1); // check if you need to reverse axons
         //     pidController = new PIDController(P, I, D);
         this.logger = logger;
         targetAngle = RELAXED_POS;
