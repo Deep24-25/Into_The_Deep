@@ -142,10 +142,9 @@ public class MonkeyPawFSM {
                                 fingerFSM.gripSpecimen();
                             }
                         } else {
-                            if(MainAuto.basketAuto) {
+                            if (MainAuto.basketAuto) {
                                 deviatorFSM.relax();
-                            }
-                            else {
+                            } else {
                                 deviatorFSM.vertical();
                             }
                         }
@@ -203,6 +202,13 @@ public class MonkeyPawFSM {
                 break;
             case INTAKING_SAMPLE:
                 if (fingerFSM.RELEASED()) {
+                    /*if (isAuto) {
+                        if (MainAuto.thirdSpecDevi) {
+                            deviatorFSM.autoFirstSampleDevi();
+                        } else {
+                            deviatorFSM.vertical();
+                        }
+                    }*/
                     if (rightTrigger) {
                         if (deviatorFSM.indexCloserToRelaxation()) {
                             deviatorFSM.relax();
@@ -309,7 +315,7 @@ public class MonkeyPawFSM {
             case GETTING_READY_TO_DEPOSIT_SPECIMEN:
                 elbowFSM.flexToHighChamberDepositFlexedPos();
                 wristFSM.flexToSpecimenDepositReadyPos();
-               // deviatorFSM.goToChamberDepositPos();
+                // deviatorFSM.goToChamberDepositPos();
                 if (elbowFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_CHAMBER_DEPOSIT())
                     state = States.READY_TO_DEPOSIT_SPECIMEN;
                 break;
@@ -408,7 +414,11 @@ public class MonkeyPawFSM {
         return elbowFSM.specimenPickup();
     }
 
-    public void deviateSecondAuto() {
-        deviatorFSM.autoSecondSampleDevi();
+    public static void setElbowTolerance(double tolerance) {
+        ElbowFSM.setTOLERANCE(tolerance);
+    }
+
+    public void deviateFirstAuto() {
+        deviatorFSM.autoFirstSampleDevi();
     }
 }

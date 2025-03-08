@@ -267,7 +267,7 @@ public class LimbFSM {
                         states = States.DEPOSITED_SPECIMEN;
                     }
                 }*/
-                if (monkeyPawFSM.DEPOSITED_SPECIMEN() && armFSM.AT_CHAMBER_LOCK_HEIGHT()) {
+                if (monkeyPawFSM.DEPOSITED_SPECIMEN()) {
                     armFSM.setSpecimenClipped(false);
                     armFSM.setShouldPID(true);
                     states = States.DEPOSITED_SPECIMEN;

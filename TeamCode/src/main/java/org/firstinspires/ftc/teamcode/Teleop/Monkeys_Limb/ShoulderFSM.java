@@ -18,15 +18,15 @@ public class ShoulderFSM {
     }
 
 
-    public static double P_E = -0.07;
+    public static double P_E = -0.02;
     public static double I_E = -0.04;
     public static double D_E = -0.07;
     public static double F_E = -0.02;
 
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
-    private static final double CHAMBER_ANGLE = 100; // 100
-    private static final double BASKET_ANGLE = 100;
+    public static double CHAMBER_ANGLE = 97; // 100
+    public static double BASKET_ANGLE = 97;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 0;
 
@@ -44,7 +44,7 @@ public class ShoulderFSM {
     private LimbFSM limbFSM;
 
     private int counter = 0;
-    private double TOLERANCE = 7.5;
+    public static double TOLERANCE = 15;
     public static double STALL_LIMIT = 3.5;
     public static double RETRACT_POWER = -0.7;
 
@@ -71,9 +71,9 @@ public class ShoulderFSM {
         pidfController.setTolerance(TOLERANCE);
         updatePID();
         if (isShoulderTargetPosDepositChamberAngle() && isAuto && limbFSM.SPECIMEN_MODE()) {
-            TOLERANCE = 4.5;
+            TOLERANCE = 15;
         } else {
-            TOLERANCE = 4.5;
+            TOLERANCE = 15;
         }
 
         if (pidfController.atSetPoint()) {

@@ -17,7 +17,7 @@ public class WristServoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         hwMap = new HWMap(hardwareMap, false);
-        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false,false, 0, RATIO);
+        wristServoWrapper = new AxonServoWrapper(hwMap.getWristFlexServo(), hwMap.getWristFlexEncoder(), false,true, 0, RATIO);
         waitForStart();
         while (opModeIsActive()) {
             hwMap.clearCache();

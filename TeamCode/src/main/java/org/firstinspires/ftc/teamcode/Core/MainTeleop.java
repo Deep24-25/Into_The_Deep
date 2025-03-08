@@ -118,6 +118,9 @@ public class MainTeleop extends LinearOpMode {
             if (gamePad2.wasJustPressed(GamepadKeys.Button.Y)) {
                 HWMap.initializeIMU();
             }
+            if(gamePad1.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
+                fieldCentricDrive.setCanHeadingLock(!fieldCentricDrive.isCanHeadingLock());
+            }
 
             logger.updateLoggingLevel(gamePad1.wasJustPressed(GamepadKeys.Button.BACK));
             fieldCentricDrive.drive(gamePad1.getLeftX() * strafeMultiplierWhileMovingIntake, gamePad1.getLeftY() * forwardMultiplierWhileMovingIntake, (rightX * MULTIPLIER) * turningMultiplierWhileMovingIntake, HWMap.readFromIMU());
@@ -137,6 +140,7 @@ public class MainTeleop extends LinearOpMode {
         logger.log("Loop time: ", loopTimer.elapsedTime(), Logger.LogLevels.PRODUCTION);
         logger.log("Voltage: ", hwMap.getVoltageSensor().getVoltage(), Logger.LogLevels.PRODUCTION);
         logger.log("IMU angle", HWMap.getIMUangle(), Logger.LogLevels.DEBUG);
+        logger.log("Can Heading Lock", fieldCentricDrive.isCanHeadingLock(), Logger.LogLevels.DEBUG);
         monkeyPawFSM.log();
         limbFSM.log();
     }

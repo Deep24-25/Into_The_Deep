@@ -32,8 +32,8 @@ public class DeviatorFSM {
 
     public static double RIGHT_DEVIATED_POS = 20.5;
     public static double LEFT_DEVIATED_POS = 123;
-    public static double RELAXED_POS = 203;
-    public static double VERTICAL_POS = 20;
+    public static double RELAXED_POS = 70;
+    public static double VERTICAL_POS = 260;
     public static double CHAMBER_DEPOSIT_POS = 273;
 
 
@@ -44,7 +44,7 @@ public class DeviatorFSM {
 
     private int currentIndex = 0;
 
-    private final double[] deviations = {RELAXED_POS, 145.5, LEFT_DEVIATED_POS, 100.5, VERTICAL_POS, 43, RIGHT_DEVIATED_POS, 20, 0};
+    private final double[] deviations = {RELAXED_POS, 145.5, LEFT_DEVIATED_POS, 100.5, VERTICAL_POS, 43, RIGHT_DEVIATED_POS, 20, 0, 345};
 
     private static final double RATIO = 1.0;
     public DeviatorFSM(HWMap hwMap, Logger logger) {
@@ -165,7 +165,8 @@ public class DeviatorFSM {
     }
 
     public void autoFirstSampleDevi() {
-        targetAngle = VERTICAL_POS - 11;
+        targetAngle = 345;
+        currentIndex = 9;
     }
 
     public void autoSecondSampleDevi() {

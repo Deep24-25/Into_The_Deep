@@ -18,6 +18,7 @@ public class FieldCentricDrive {
     private final MecanumDrive mecanumDrive;
     private final Logger logger;
     private boolean headingLock = false;
+    private boolean canHeadingLock = true;
 
     public final double SPEC_HEADING = 0;
 
@@ -38,7 +39,7 @@ public class FieldCentricDrive {
 
     public void drive(double strafe, double forward, double turn, double heading) {
         pidController.setPID(P, I, D);
-        if (headingLock) {
+        if (headingLock && canHeadingLock) {
             double normalizedTargetPos = SPEC_HEADING / 360;
             double normalizedHeading = heading / 360;
             turnSpeed = pidController.calculate(normalizedHeading, normalizedTargetPos) + feedforward;
@@ -53,6 +54,14 @@ public class FieldCentricDrive {
 
     public void setHeadingLock(boolean headingLock) {
         this.headingLock = headingLock;
+    }
+
+    public void setCanHeadingLock(boolean canHeadingLock) {
+        this.canHeadingLock = canHeadingLock;
+    }
+
+    public boolean isCanHeadingLock() {
+        return canHeadingLock;
     }
 
     public void log() {

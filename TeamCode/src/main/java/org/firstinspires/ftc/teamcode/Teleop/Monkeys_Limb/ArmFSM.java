@@ -24,17 +24,17 @@ public class ArmFSM {
 
     private static final double SAFE_HEIGHT = 1;
     public static double BASKET_LOW = 30;
-    public static double BASKET_HIGH = 63;
-    public static double SUBMERSIBLE_HIGH_TELE = 26; // 34 in teleop
+    public static double BASKET_HIGH = 73;
+    public static double SUBMERSIBLE_HIGH_TELE = 27; // 34 in teleop
     public static double SUBMERSIBLE_HIGH_AUTO = 33.5; // 34 in teleop
 
     public static double SUBMERSIBLE_HIGH = SUBMERSIBLE_HIGH_AUTO; // 34 in teleop
 
     private static final double FULLY_RETRACTED = 4;
     private static final double MINI_INTAKE = 7;
-    public static  double MAX_HEIGHT = 45;//102 cm is physical max
+    public static  double MAX_HEIGHT = 35;//102 cm is physical max
     private static final double SPECIMEN_PICKUP = 2;
-    public static double AUTO_SPEC_INTAKE = 44;
+    public static double AUTO_SPEC_INTAKE = 33;
 
     public static double chamberLockHeight = 60;
     private final double[] basketHeights = {BASKET_LOW, BASKET_HIGH};
@@ -43,9 +43,9 @@ public class ArmFSM {
     public static double MAX_FEEDRATE = 0.7; // cm/sec
 
 
-    public static double PHorizontal = 0.02, IHorizontal = 0.1, DHorizontal = 0.024, FHorizontal = 0;
+    public static double PHorizontal = 0.02, IHorizontal = 0.1, DHorizontal = 0., FHorizontal = 0;
     public static double PVertical = 0.15, IVertical = 0.1, DVertical = 0.004, FVertical = 0.003;
-    public static double P_E_Horizontal = 0.04, I_E_Horizontal = 0.1, D_E_Horizontal = 0.009, F_E_Horizontal = 0;
+    public static double P_Chamber = 0.06, I_Chamber = 0.1, D_Chamber = 0.009, F_Chamber = 0;
     public static double PLinearizing = 0.06, ILinearizing = 0.1, DLinearizing = 0.009, FLinearizing = 0;
 
     public static double PChamberLock = 0.18;
@@ -123,7 +123,7 @@ public class ArmFSM {
                 setHorizontalPID();
                 setTolerance(TOLERANCE);
             } else {
-                setFeedPID();
+                setHorizontalPID();
                 setTolerance(TOLERANCE);
 
             }
@@ -171,8 +171,8 @@ public class ArmFSM {
 
     }
 
-    public void setHorizontalAutoPID() {
-        pidfController.setPIDF(PHorizontal, IHorizontal, DHorizontal, FHorizontal);
+    public void setChamberPID() {
+        pidfController.setPIDF(P_Chamber, I_Chamber, D_Chamber, F_Chamber);
 
     }
 
@@ -181,7 +181,7 @@ public class ArmFSM {
     }
 
     public void setFeedPID() {
-        pidfController.setPIDF(P_E_Horizontal, I_E_Horizontal, D_E_Horizontal, F_E_Horizontal);
+        pidfController.setPIDF(P_Chamber, I_Chamber, D_Chamber, F_Chamber);
     }
 
     public void setLinearizingPID() {
@@ -299,6 +299,7 @@ public class ArmFSM {
         specimenClipped = false;
         slidePowerCap = 1;
         targetPosition = SUBMERSIBLE_HIGH;
+        setChamberPID();
     }
 
     public boolean checkSubHeight() {
@@ -325,17 +326,17 @@ public class ArmFSM {
        // pidfController.setP(0.5);
         targetPosition = chamberLockHeight;
         if(armMotorsWrapper.getAM2Current() > STALL_CURRENT_FOR_CHAMBER_LOCK_HEIGHT) {
-            currentMet = true;
-        }
+            specimenClipped = true;
+        }/*
         if ((armMotorsWrapper.getAM1Velocity() <= VELOCITY_THRESOLD && armMotorsWrapper.getAM1Velocity() > -3) && currentMet) {
             counter++;
         } else {
             counter = 0;
         }
         specimenClipped = counter >= COUNTER_LIMIT;
-        if(specimenClipped) {
+        if (specimenClipped) {
             currentMet = false;
-        }
+        }*/
 
         /*if (specimenClipped) {
             targetPosition = armMotorsWrapper.getLastReadPositionInCM();
