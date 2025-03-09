@@ -18,7 +18,7 @@ public class FieldCentricDrive {
     private final MecanumDrive mecanumDrive;
     private final Logger logger;
     private boolean headingLock = false;
-    private boolean canHeadingLock = true;
+    private boolean canHeadingLock = false;
 
     public final double SPEC_HEADING = 0;
 

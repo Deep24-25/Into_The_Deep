@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.DeviatorFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.ElbowFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.MonkeyPawFSM;
 import org.firstinspires.ftc.teamcode.Teleop.monkeypaw.WristFSM;
+import org.firstinspires.ftc.teamcode.pedroPathing.MainAuto;
 
 import java.util.concurrent.TimeUnit;
 
@@ -97,6 +98,7 @@ public class MainTeleop extends LinearOpMode {
             gamePad1.readButtons();
             gamePad2.readButtons();
             triggersWasJustPressed();
+            MainAuto.timerDone = true;
 
             double rightX;
             fieldCentricDrive.setHeadingLock(limbFSM.isHeadingLock());

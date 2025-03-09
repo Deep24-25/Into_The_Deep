@@ -270,13 +270,13 @@ public class MonkeyPawFSM {
                 wristFSM.flexToHighBasketPos();
                 deviatorFSM.relax();
                 if (elbowFSM.FLEXED_TO_BASKET_DEPOSIT() && wristFSM.FLEXED_TO_HIGH_BASKET_DEPOSIT() && deviatorFSM.RELAXED() && (yPressed || (isAuto && limbFSM.DEPOSITING_SAMPLE()))) {
-                    fingerFSM.releaseSample();
-                    if (!isAuto) {
+                    if (MainAuto.timerDone) {
+                        fingerFSM.releaseSample();
                         state = States.RELAXED_AFTER_DEPOSIT;
-                    } else {
-                        if (fingerFSM.RELEASED()) {
-                            state = States.RELAXED_AFTER_DEPOSIT;
-                        }
+                    }
+                } else {
+                    if (fingerFSM.RELEASED()) {
+                        state = States.RELAXED_AFTER_DEPOSIT;
                     }
                 }
                 break;

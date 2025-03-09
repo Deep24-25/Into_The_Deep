@@ -26,7 +26,7 @@ public class ShoulderFSM {
     private static final double SAMPLE_INTAKE_ANGLE = 0;
 
     public static double CHAMBER_ANGLE = 97; // 100
-    public static double BASKET_ANGLE = 97;
+    public static double BASKET_ANGLE = 100;
 
     private static final double SPECIMEN_INTAKE_ANGLE = 0;
 
